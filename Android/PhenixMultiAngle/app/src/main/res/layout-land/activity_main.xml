@@ -21,8 +21,8 @@
         tools:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/main_stream_list">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/main_stream_list">
 
         <ProgressBar
             android:layout_width="wrap_content"
@@ -49,14 +49,14 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/main_stream_list"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_width="150dp"
+        android:layout_height="match_parent"
         android:background="@color/primaryDarkColor"
         android:visibility="invisible"
         tools:itemCount="4"
         tools:listitem="@layout/row_member_item"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/main_stream_holder"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/main_stream_holder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 

@@ -49,24 +49,28 @@ class JoinedRoomRepository(
     }
 
     private fun subscribeMembers(memberList: List<RoomMember>) {
-        val subscribedMembers = memberList.filter { it.subscriber != null }.toMutableList()
+        val subscribedMembers = memberList.filter { it.isSubscribed() }.toMutableList()
         memberList.forEach { roomMember ->
-            if (roomMember.subscriber == null) {
-                Timber.d("Subscribing to member media: $roomMember")
-                roomMember.member.observableStreams.value.getOrNull(0)?.let { stream ->
-                    roomExpress.subscribeToMemberStream(stream, getMemberOptions()) { status, subscriber, _ ->
-                        launch {
-                            launch(Dispatchers.Main) {
-                                Timber.d("Subscribed to member media: $status $roomMember")
-                                if (status == RequestStatus.OK) {
-                                    roomMember.subscriber = subscriber
-                                    subscribedMembers.add(roomMember)
-                                    updateRoomMembers(subscribedMembers)
+            if (!roomMember.isSubscribed()) {
+                roomMember.member.observableStreams.subscribe { streams ->
+                    if (!roomMember.isSubscribed()) {
+                        Timber.d("Subscribing to member media: $roomMember")
+                        streams.getOrNull(0)?.let { stream ->
+                            roomExpress.subscribeToMemberStream(stream, getMemberOptions()) { status, subscriber, _ ->
+                                launch {
+                                    launch(Dispatchers.Main) {
+                                        Timber.d("Subscribed to member media: $status $roomMember")
+                                        if (status == RequestStatus.OK) {
+                                            roomMember.setSubscriber(subscriber)
+                                            subscribedMembers.add(roomMember)
+                                            updateRoomMembers(subscribedMembers)
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
+                }.run { disposables.add(this) }
             }
         }
         updateRoomMembers(subscribedMembers)
@@ -75,5 +79,10 @@ class JoinedRoomRepository(
     private fun updateRoomMembers(members: List<RoomMember>) {
         roomMembers.value = members
         Timber.d("Room member list updated: $members")
+    }
+
+    fun dispose () {
+        disposables.forEach { it?.dispose() }
+        disposables.clear()
     }
 }

@@ -4,6 +4,7 @@
 
 package com.phenixrts.suite.phenixmultiangle.ui
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -25,6 +26,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
+
+const val SPAN_COUNT_PORTRAIT = 2
+const val SPAN_COUNT_LANDSCAPE = 1
 
 class MainActivity : FragmentActivity(), RoomMemberAdapter.OnMemberSelected {
 
@@ -54,33 +58,40 @@ class MainActivity : FragmentActivity(), RoomMemberAdapter.OnMemberSelected {
         }
     }
 
+    override fun onDestroy() {
+        viewModel.releaseObservers()
+        super.onDestroy()
+    }
+
     private fun initViews() {
+        val rotation = resources.configuration.orientation
+        val spanCount = if (rotation == Configuration.ORIENTATION_PORTRAIT) SPAN_COUNT_PORTRAIT else SPAN_COUNT_LANDSCAPE
         main_stream_holder.visibility = View.VISIBLE
         main_stream_list.visibility = View.VISIBLE
-        main_stream_list.layoutManager = GridLayoutManager(this, 2)
+        main_stream_list.layoutManager = GridLayoutManager(this, spanCount)
         main_stream_list.setHasFixedSize(true)
         main_stream_list.adapter = adapter
 
-        main_stream_list.post {
-            viewModel.roomMembers.observe(this, Observer { members ->
-                Timber.d("Received members: $members")
-                members.firstOrNull { it.isMainRendered }?.let { member ->
-                    renderActiveMember(member)
-                }
-                val listMembers = members.filter { !it.isMainRendered }
-                adapter.data = listMembers
-            })
-        }
+        viewModel.roomMembers.observe(this, Observer { members ->
+            Timber.d("Member list updated: $members")
+            members.firstOrNull { it.isMainRendered }?.let { member ->
+                renderActiveMember(member)
+            }
+            val listMembers = members.filter { !it.isMainRendered }
+            adapter.data = listMembers.toMutableList()
+        })
+        Timber.d("Initializing Main Activity: $rotation")
     }
 
     private fun renderActiveMember(roomMember: RoomMember) = viewModel.viewModelScope.launch {
         Timber.d("Active room member changed: $roomMember")
-        roomMember.surface = main_stream_surface
+        roomMember.setSurface(main_stream_surface, main_surface_mask)
         val status = viewModel.startMemberMedia(roomMember)
         if (status != RendererStartStatus.OK) {
+            Timber.d("Failed to start main renderer: $status")
             showToast("Failed to render stream on main surface")
         } else {
-            roomMember.renderer?.unmuteAudio()
+            roomMember.unmuteAudio()
         }
     }
 

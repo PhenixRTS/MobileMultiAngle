@@ -8,7 +8,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:clipChildren="true">
 
         <FrameLayout
             android:id="@+id/item_surface_holder"
@@ -17,6 +18,7 @@
             android:background="@color/primaryDarkColor"
             android:foreground="@drawable/bg_surface"
             android:padding="2dp"
+            android:clipChildren="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -29,6 +31,13 @@
 
             <SurfaceView
                 android:id="@+id/item_stream_surface"
+                android:layout_width="match_parent"
+                android:layout_height="150dp" />
+
+            <View
+                android:id="@+id/item_surface_mask"
+                android:alpha="0"
+                android:background="@color/primaryDarkColor"
                 android:layout_width="match_parent"
                 android:layout_height="150dp" />
         </FrameLayout>

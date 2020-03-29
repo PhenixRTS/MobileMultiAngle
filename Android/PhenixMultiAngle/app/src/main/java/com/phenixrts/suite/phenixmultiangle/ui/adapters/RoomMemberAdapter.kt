@@ -14,7 +14,6 @@ import com.phenixrts.suite.phenixmultiangle.databinding.RowMemberItemBinding
 import com.phenixrts.suite.phenixmultiangle.models.RoomMember
 import com.phenixrts.suite.phenixmultiangle.ui.viewmodels.RoomViewModel
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import kotlin.properties.Delegates
 
 class RoomMemberAdapter(
@@ -22,7 +21,7 @@ class RoomMemberAdapter(
     private val callback: OnMemberSelected
 ) : RecyclerView.Adapter<RoomMemberAdapter.ViewHolder>() {
 
-    var data: List<RoomMember> by Delegates.observable(emptyList()) { _, old, new ->
+    var data: MutableList<RoomMember> by Delegates.observable(mutableListOf()) { _, old, new ->
         DiffUtil.calculateDiff(RoomMemberDiff(old, new)).dispatchUpdatesTo(this)
     }
 
@@ -36,19 +35,17 @@ class RoomMemberAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val roomMember = data[position]
-        roomMember.surface = holder.binding.itemStreamSurface
+        roomMember.setSurface(holder.binding.itemStreamSurface, holder.binding.itemSurfaceMask)
         renderMemberMedia(roomMember)
     }
 
     private fun renderMemberMedia(roomMember: RoomMember) = viewModel.viewModelScope.launch {
-        val status = viewModel.startMemberMedia(roomMember)
-        Timber.d("Started member renderer: $status : $roomMember")
+        viewModel.startMemberMedia(roomMember)
     }
 
     inner class ViewHolder(val binding: RowMemberItemBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.itemSurfaceHolder.setOnClickListener {
-                Timber.d("Member clicked: $adapterPosition")
                 data.getOrNull(adapterPosition)?.let { roomMember ->
                     callback.onMemberClicked(roomMember)
                 }
@@ -56,8 +53,8 @@ class RoomMemberAdapter(
         }
     }
 
-    inner class RoomMemberDiff(private val oldItems: List<RoomMember>,
-                               private val newItems: List<RoomMember>
+    inner class RoomMemberDiff(private val oldItems: MutableList<RoomMember>,
+                               private val newItems: MutableList<RoomMember>
     ) : DiffUtil.Callback() {
 
         override fun getOldListSize() = oldItems.size
