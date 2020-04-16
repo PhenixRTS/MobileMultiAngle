@@ -17,7 +17,7 @@ import kotlin.coroutines.suspendCoroutine
 class RoomExpressRepository(
     val roomExpress: RoomExpress,
     val roomStatus: MutableLiveData<RoomStatus>
-) : Repository() {
+) {
 
     suspend fun joinMultiAngleRoom() = suspendCoroutine<RoomStatus> { continuation ->
         roomExpress.pCastExpress.waitForOnline {

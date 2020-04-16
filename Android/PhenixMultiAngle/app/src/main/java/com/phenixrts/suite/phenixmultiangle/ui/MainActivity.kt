@@ -85,7 +85,7 @@ class MainActivity : FragmentActivity(), RoomMemberAdapter.OnMemberSelected {
 
     private fun renderActiveMember(roomMember: RoomMember) = viewModel.viewModelScope.launch {
         Timber.d("Active room member changed: $roomMember")
-        roomMember.setSurface(main_stream_surface, main_surface_mask)
+        roomMember.setSurface(main_stream_surface, main_surface_mask, true)
         val status = viewModel.startMemberMedia(roomMember)
         if (status != RendererStartStatus.OK) {
             Timber.d("Failed to start main renderer: $status")

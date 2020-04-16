@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import com.phenixrts.common.RequestStatus
 import com.phenixrts.pcast.RendererStartStatus
+import com.phenixrts.suite.phenixmultiangle.common.launchIO
 import com.phenixrts.suite.phenixmultiangle.common.swap
 import com.phenixrts.suite.phenixmultiangle.models.RoomMember
 import com.phenixrts.suite.phenixmultiangle.models.RoomStatus
@@ -35,7 +36,7 @@ class RoomViewModel(
     }
 
     suspend fun joinMultiAngleRoom() = suspendCoroutine<RoomStatus> { continuation ->
-        roomExpressRepository.launch {
+        launchIO {
             val status = roomExpressRepository.joinMultiAngleRoom()
             Timber.d("Multi Angle room joined: $status")
             if (status.status == RequestStatus.OK && status.roomService != null) {

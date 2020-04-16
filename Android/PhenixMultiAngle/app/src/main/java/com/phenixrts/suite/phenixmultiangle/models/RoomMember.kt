@@ -6,6 +6,7 @@ package com.phenixrts.suite.phenixmultiangle.models
 
 import android.view.SurfaceView
 import android.view.View
+import com.phenixrts.common.Disposable
 import com.phenixrts.express.ExpressSubscriber
 import com.phenixrts.pcast.Renderer
 import com.phenixrts.pcast.RendererStartStatus
@@ -13,7 +14,7 @@ import com.phenixrts.pcast.android.AndroidVideoRenderSurface
 import com.phenixrts.room.Member
 import com.phenixrts.suite.phenixmultiangle.common.fadeIn
 import com.phenixrts.suite.phenixmultiangle.common.fadeOut
-import kotlinx.coroutines.*
+import com.phenixrts.suite.phenixmultiangle.common.launchMain
 import timber.log.Timber
 import kotlin.coroutines.suspendCoroutine
 
@@ -24,18 +25,21 @@ data class RoomMember(val member: Member) {
     private var renderer: Renderer? = null
     private var expressSubscriber: ExpressSubscriber? = null
     private val videoRenderSurface = AndroidVideoRenderSurface()
-    private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var bandwidthLimiter: Disposable? = null
 
     var isMainRendered: Boolean = false
     var isRendererStarted: Boolean = false
 
-    private fun launch(block: suspend CoroutineScope.() -> Unit) = mainScope.launch(
-        context = CoroutineExceptionHandler { _, e ->
-            Timber.w("Coroutine failed: ${e.localizedMessage}")
-            e.printStackTrace()
-        },
-        block = block
-    )
+    private fun limitBandwidth() {
+        Timber.d("Limiting Bandwidth: ${toString()}")
+        bandwidthLimiter = expressSubscriber?.videoTracks?.getOrNull(0)?.limitBandwidth(BANDWIDTH_LIMIT)
+    }
+
+    private fun releaseBandwidthLimiter() {
+        Timber.d("Releasing Bandwidth limiter: ${toString()}")
+        bandwidthLimiter?.dispose()
+        bandwidthLimiter = null
+    }
 
     private suspend fun hideMask() = suspendCoroutine<Unit> { continuation ->
         mask?.fadeOut(continuation)
@@ -55,10 +59,15 @@ data class RoomMember(val member: Member) {
         expressSubscriber = subscriber
     }
 
-    fun setSurface(surfaceView: SurfaceView, surfaceMask: View) = launch {
+    fun setSurface(surfaceView: SurfaceView, surfaceMask: View, isMainRenderer: Boolean = false) = launchMain {
         mask = surfaceMask
         surface = surfaceView
         videoRenderSurface.setSurfaceHolder(surfaceView.holder)
+        if (isMainRenderer) {
+            releaseBandwidthLimiter()
+        } else {
+            limitBandwidth()
+        }
         hideMask()
         Timber.d("Changed member surface: ${this@RoomMember.toString()}")
     }
@@ -70,7 +79,7 @@ data class RoomMember(val member: Member) {
         muteAudio()
         val status = renderer?.start(videoRenderSurface) ?: RendererStartStatus.FAILED
         isRendererStarted = status == RendererStartStatus.OK
-        Timber.d("Started video renderer: $status : ${this@RoomMember.toString()}")
+        Timber.d("Started video renderer: $status : ${toString()}")
         return status
     }
 
@@ -80,5 +89,9 @@ data class RoomMember(val member: Member) {
                 "\"surfaceId\":\"${surface?.id}\"," +
                 "\"isSubscribed\":\"${expressSubscriber != null}\"," +
                 "\"isMainRendered\":\"$isMainRendered\"}"
+    }
+
+    private companion object {
+        private const val BANDWIDTH_LIMIT = 1000 * 100L
     }
 }

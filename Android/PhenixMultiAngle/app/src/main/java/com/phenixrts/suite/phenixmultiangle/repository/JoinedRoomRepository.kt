@@ -11,15 +11,14 @@ import com.phenixrts.express.RoomExpress
 import com.phenixrts.room.RoomService
 import com.phenixrts.suite.phenixmultiangle.common.getRoomMember
 import com.phenixrts.suite.phenixmultiangle.common.getMemberOptions
+import com.phenixrts.suite.phenixmultiangle.common.launchMain
 import com.phenixrts.suite.phenixmultiangle.models.RoomMember
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class JoinedRoomRepository(
     private val roomExpress: RoomExpress,
     private val roomService: RoomService
-) : Repository() {
+) {
 
     val roomMembers = MutableLiveData<List<RoomMember>>()
     private val disposables: MutableList<Disposable?> = mutableListOf()
@@ -30,20 +29,18 @@ class JoinedRoomRepository(
 
     private fun observeRoomMembers() {
         roomService.observableActiveRoom.value.observableMembers.subscribe { members ->
-            launch {
-                launch(Dispatchers.Main) {
-                    Timber.d("Received RAW members count: ${members.size}")
-                    val memberList = ArrayList<RoomMember>()
-                    members.forEach { member ->
-                        val roomMember = member.getRoomMember(roomMembers.value)
-                        memberList.add(roomMember)
-                    }
-                    val hasMainRenderer = memberList.firstOrNull { it.isMainRendered } != null
-                    if (!hasMainRenderer) {
-                        memberList.getOrNull(0)?.isMainRendered = true
-                    }
-                    subscribeMembers(memberList)
+            launchMain {
+                Timber.d("Received RAW members count: ${members.size}")
+                val memberList = ArrayList<RoomMember>()
+                members.forEach { member ->
+                    val roomMember = member.getRoomMember(roomMembers.value)
+                    memberList.add(roomMember)
                 }
+                val hasMainRenderer = memberList.firstOrNull { it.isMainRendered } != null
+                if (!hasMainRenderer) {
+                    memberList.getOrNull(0)?.isMainRendered = true
+                }
+                subscribeMembers(memberList)
             }
         }.run { disposables.add(this) }
     }
@@ -57,14 +54,12 @@ class JoinedRoomRepository(
                         Timber.d("Subscribing to member media: $roomMember")
                         streams.getOrNull(0)?.let { stream ->
                             roomExpress.subscribeToMemberStream(stream, getMemberOptions()) { status, subscriber, _ ->
-                                launch {
-                                    launch(Dispatchers.Main) {
-                                        Timber.d("Subscribed to member media: $status $roomMember")
-                                        if (status == RequestStatus.OK) {
-                                            roomMember.setSubscriber(subscriber)
-                                            subscribedMembers.add(roomMember)
-                                            updateRoomMembers(subscribedMembers)
-                                        }
+                                launchMain {
+                                    Timber.d("Subscribed to member media: $status $roomMember")
+                                    if (status == RequestStatus.OK) {
+                                        roomMember.setSubscriber(subscriber)
+                                        subscribedMembers.add(roomMember)
+                                        updateRoomMembers(subscribedMembers)
                                     }
                                 }
                             }
