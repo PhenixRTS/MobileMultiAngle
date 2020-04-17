@@ -92,6 +92,6 @@ data class RoomMember(val member: Member) {
     }
 
     private companion object {
-        private const val BANDWIDTH_LIMIT = 1000 * 100L
+        private const val BANDWIDTH_LIMIT = 1000 * 350L
     }
 }
