@@ -35,7 +35,7 @@ class InjectionModule(private val context: MultiAngleApp) {
                 Timber.e("Unrecoverable error in PhenixSDK. Error status: [$status]. Description: [$description]")
                 roomStatus.value = RoomStatus(status)
             }
-            .withMinimumConsoleLogLevel("info")
+            .withMinimumConsoleLogLevel("debug")
             .buildPCastExpressOptions()
 
         val roomExpressOptions = RoomExpressFactory.createRoomExpressOptionsBuilder()

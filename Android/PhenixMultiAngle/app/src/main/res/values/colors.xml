@@ -25,4 +25,9 @@
     <color name="primaryBackgroundLightColor">#808080</color>
 
     <color name="primaryTranslucentColor">#80000000</color>
+
+    <color name="colorRePlay">#FF669900</color>
+    <color name="colorRePlayAccent">#558000</color>
+    <color name="colorRePlayDisabled">#858585</color>
+    <color name="colorRePlayDisabledAccent">#6E6E6E</color>
 </resources>

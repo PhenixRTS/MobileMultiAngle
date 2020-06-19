@@ -55,3 +55,5 @@ fun View.fadeOut(continuation: Continuation<Unit>) {
             continuation.resume(Unit)
         }.start()
 }
+
+fun RoomMember.asString() = toString()

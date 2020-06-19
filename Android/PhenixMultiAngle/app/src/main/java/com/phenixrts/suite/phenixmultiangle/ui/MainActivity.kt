@@ -16,6 +16,7 @@ import com.phenixrts.common.RequestStatus
 import com.phenixrts.pcast.RendererStartStatus
 import com.phenixrts.suite.phenixmultiangle.MultiAngleApp
 import com.phenixrts.suite.phenixmultiangle.R
+import com.phenixrts.suite.phenixmultiangle.common.enums.ReplayState
 import com.phenixrts.suite.phenixmultiangle.common.lazyViewModel
 import com.phenixrts.suite.phenixmultiangle.models.RoomMember
 import com.phenixrts.suite.phenixmultiangle.repository.RoomExpressRepository
@@ -72,6 +73,11 @@ class MainActivity : FragmentActivity(), RoomMemberAdapter.OnMemberSelected {
         main_stream_list.setHasFixedSize(true)
         main_stream_list.adapter = adapter
 
+        replay_button.setOnClickListener {
+            Timber.d("Replay button clicked")
+            viewModel.switchReplayState()
+        }
+
         viewModel.roomMembers.observe(this, Observer { members ->
             Timber.d("Member list updated: $members")
             members.firstOrNull { it.isMainRendered }?.let { member ->
@@ -79,6 +85,23 @@ class MainActivity : FragmentActivity(), RoomMemberAdapter.OnMemberSelected {
             }
             val listMembers = members.filter { !it.isMainRendered }
             adapter.data = listMembers.toMutableList()
+        })
+        viewModel.onReplayButtonVisible.observe(this, Observer { isVisible ->
+            replay_button.visibility = if (isVisible) View.VISIBLE else View.GONE
+        })
+        viewModel.onReplayButtonState.observe(this, Observer { state ->
+            if (state == ReplayState.LIVE) {
+                replay_button_icon.setImageResource(R.drawable.ic_replay_30)
+                replay_button_title.setText(R.string.button_replay)
+            } else {
+                replay_button_icon.setImageResource(R.drawable.ic_play)
+                replay_button_title.setText(R.string.button_go_live)
+            }
+        })
+        viewModel.isReplayButtonClickable.observe(this, Observer { isClickable ->
+            replay_button.setBackgroundResource(
+                if (isClickable) R.drawable.bg_replay_button else R.drawable.bg_replay_button_disabled
+            )
         })
         Timber.d("Initializing Main Activity: $rotation")
     }

@@ -4,4 +4,6 @@
 
 <resources>
     <string name="app_name">Phenix MultiAngle</string>
+    <string name="button_replay">Replay</string>
+    <string name="button_go_live">Go Live</string>
 </resources>

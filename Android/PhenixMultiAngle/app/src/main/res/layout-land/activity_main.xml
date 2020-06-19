@@ -60,4 +60,39 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <LinearLayout
+        android:id="@+id/replay_button"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_replay_button"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/main_stream_list"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/replay_button_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_replay_30"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/replay_button_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_replay"
+            android:layout_marginStart="8dp"
+            android:textAllCaps="true"
+            android:textColor="@color/primaryTextColor"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="18sp"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

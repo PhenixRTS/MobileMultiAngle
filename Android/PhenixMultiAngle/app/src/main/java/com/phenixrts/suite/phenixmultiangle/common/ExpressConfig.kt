@@ -9,6 +9,8 @@ import com.phenixrts.express.RoomExpressFactory
 import com.phenixrts.express.SubscribeToMemberStreamOptions
 import com.phenixrts.suite.phenixmultiangle.BuildConfig
 
+const val SEEK_DELAY = 1000 * 30L
+
 fun getRoomOptions(): JoinRoomOptions = RoomExpressFactory.createJoinRoomOptionsBuilder()
     .withRoomAlias(BuildConfig.ROOM_ALIAS)
     .buildJoinRoomOptions()
