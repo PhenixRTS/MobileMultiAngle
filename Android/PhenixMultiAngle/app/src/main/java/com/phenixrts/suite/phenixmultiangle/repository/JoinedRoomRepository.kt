@@ -47,6 +47,7 @@ class JoinedRoomRepository(
 
     private fun subscribeMembers(memberList: List<RoomMember>) {
         val subscribedMembers = memberList.filter { it.isSubscribed() }.toMutableList()
+
         memberList.forEach { roomMember ->
             if (!roomMember.isSubscribed()) {
                 roomMember.member.observableStreams.subscribe { streams ->

@@ -9,7 +9,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import com.phenixrts.common.RequestStatus
 import com.phenixrts.pcast.RendererStartStatus
-import com.phenixrts.suite.phenixmultiangle.common.SEEK_DELAY
 import com.phenixrts.suite.phenixmultiangle.common.enums.ReplayState
 import com.phenixrts.suite.phenixmultiangle.common.launchIO
 import com.phenixrts.suite.phenixmultiangle.common.swap
@@ -89,7 +88,7 @@ class RoomViewModel(
             Timber.d("Multi Angle room joined: $status")
             if (status.status == RequestStatus.OK && status.roomService != null) {
                 joinedRoomRepository = JoinedRoomRepository(roomExpressRepository.roomExpress, status.roomService)
-                startTime = System.currentTimeMillis() - SEEK_DELAY
+                startTime = System.currentTimeMillis()
                 observeRoomMembers()
             }
             continuation.resume(status)

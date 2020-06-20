@@ -4,6 +4,7 @@
 
 package com.phenixrts.suite.phenixmultiangle.models
 
+import android.os.Handler
 import android.view.SurfaceView
 import android.view.View
 import androidx.lifecycle.MutableLiveData
@@ -29,6 +30,7 @@ data class RoomMember(val member: Member) {
     private var bandwidthLimiter: Disposable? = null
     private var timeShiftDisposable: Disposable? = null
     private var timeShift: TimeShift? = null
+    private var timeShiftCreationInitiated: Boolean = false
 
     var isMainRendered: Boolean = false
     var isRendererStarted: Boolean = false
@@ -36,7 +38,8 @@ data class RoomMember(val member: Member) {
 
     private fun limitBandwidth() {
         Timber.d("Limiting Bandwidth: ${toString()}")
-        bandwidthLimiter = expressSubscriber?.videoTracks?.getOrNull(0)?.limitBandwidth(BANDWIDTH_LIMIT)
+        bandwidthLimiter =
+            expressSubscriber?.videoTracks?.getOrNull(0)?.limitBandwidth(BANDWIDTH_LIMIT)
     }
 
     private fun releaseBandwidthLimiter() {
@@ -47,15 +50,25 @@ data class RoomMember(val member: Member) {
 
     private fun createTimeShift(startTime: Long) {
         if (renderer?.isSeekable == false) return
-        if (timeShift == null) {
-            timeShift = renderer?.seek(Date(startTime))
-            timeShift?.observableReadyForPlaybackStatus?.subscribe { isReady ->
-                launchMain {
-                    Timber.d("Playback status: $isReady, ${this@RoomMember.asString()}")
-                    onTimeShiftReady.value = isReady
-                }
-            }.run { timeShiftDisposable = this }
+        if (!timeShiftCreationInitiated) {
+            timeShiftCreationInitiated = true
+
+            Handler().postDelayed({
+                timeShift = renderer?.seek(Date(startTime + SEEK_DELAY))
+                subscribeToTimeShiftReadyForPlaybackObservable()
+            }, TIME_SHIFT_CREATION_DELAY)
         }
+    }
+
+    private fun subscribeToTimeShiftReadyForPlaybackObservable() {
+        timeShiftDisposable?.dispose()
+
+        timeShift?.observableReadyForPlaybackStatus?.subscribe { isReady ->
+            launchMain {
+                Timber.d("Playback status: $isReady, ${this@RoomMember.asString()}")
+                onTimeShiftReady.value = isReady
+            }
+        }.run { timeShiftDisposable = this }
     }
 
     private suspend fun hideMask() = suspendCoroutine<Unit> { continuation ->
@@ -76,18 +89,19 @@ data class RoomMember(val member: Member) {
         expressSubscriber = subscriber
     }
 
-    fun setSurface(surfaceView: SurfaceView, surfaceMask: View, isMainRenderer: Boolean = false) = launchMain {
-        mask = surfaceMask
-        surface = surfaceView
-        videoRenderSurface.setSurfaceHolder(surfaceView.holder)
-        if (isMainRenderer) {
-            releaseBandwidthLimiter()
-        } else {
-            limitBandwidth()
+    fun setSurface(surfaceView: SurfaceView, surfaceMask: View, isMainRenderer: Boolean = false) =
+        launchMain {
+            mask = surfaceMask
+            surface = surfaceView
+            videoRenderSurface.setSurfaceHolder(surfaceView.holder)
+            if (isMainRenderer) {
+                releaseBandwidthLimiter()
+            } else {
+                limitBandwidth()
+            }
+            hideMask()
+            Timber.d("Changed member surface: ${this@RoomMember.asString()}")
         }
-        hideMask()
-        Timber.d("Changed member surface: ${this@RoomMember.asString()}")
-    }
 
     fun startVideoRenderer(startTime: Long): RendererStartStatus {
         if (renderer == null) {
@@ -104,12 +118,15 @@ data class RoomMember(val member: Member) {
     fun startVideoReplay() {
         Timber.d("Looping time shift: ${renderer?.isSeekable}, ${toString()}")
         if (renderer?.isSeekable == false) return
-        timeShift?.loop(SEEK_DELAY)
+        timeShift?.loop(REPLAY_LOOP_DURATION)
     }
 
     fun endVideoReplay() {
-        Timber.d("Releasing time shift: ${toString()}")
+        Timber.d("Stopping time shift: ${toString()}")
         timeShift?.stop()
+
+        // Need to re-subscribe to observable in order to become ready again:
+        subscribeToTimeShiftReadyForPlaybackObservable()
     }
 
     override fun toString(): String {
