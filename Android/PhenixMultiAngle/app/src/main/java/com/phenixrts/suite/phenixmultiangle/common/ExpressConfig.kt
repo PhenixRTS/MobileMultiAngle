@@ -9,7 +9,7 @@ import com.phenixrts.express.RoomExpressFactory
 import com.phenixrts.express.SubscribeToMemberStreamOptions
 import com.phenixrts.suite.phenixmultiangle.BuildConfig
 
-const val SEEK_DELAY = 1000 * 10L
+const val SEEK_DELAY = 1000 * 5L
 const val REPLAY_LOOP_DURATION = 1000 * 30L
 const val TIME_SHIFT_CREATION_DELAY = 1000 * 40L
 
