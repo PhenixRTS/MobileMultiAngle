@@ -11,7 +11,8 @@ import com.phenixrts.suite.phenixmultiangle.BuildConfig
 
 const val SEEK_DELAY = 1000 * 5L
 const val REPLAY_LOOP_DURATION = 1000 * 30L
-const val TIME_SHIFT_CREATION_DELAY = 1000 * 40L
+// The delay before showing time shift button
+const val TIME_SHIFT_CREATION_DELAY = 1000 * 5L
 
 fun getRoomOptions(): JoinRoomOptions = RoomExpressFactory.createJoinRoomOptionsBuilder()
     .withRoomAlias(BuildConfig.ROOM_ALIAS)

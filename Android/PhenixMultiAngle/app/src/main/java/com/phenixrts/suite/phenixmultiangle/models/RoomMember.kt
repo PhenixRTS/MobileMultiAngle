@@ -62,7 +62,6 @@ data class RoomMember(val member: Member) {
 
     private fun subscribeToTimeShiftReadyForPlaybackObservable() {
         timeShiftDisposable?.dispose()
-
         timeShift?.observableReadyForPlaybackStatus?.subscribe { isReady ->
             launchMain {
                 Timber.d("Playback status: $isReady, ${this@RoomMember.asString()}")
@@ -133,6 +132,8 @@ data class RoomMember(val member: Member) {
         return "{\"name\":\"${member.observableScreenName.value}\"," +
                 "\"hasRenderer\":\"${renderer != null}\"," +
                 "\"surfaceId\":\"${surface?.id}\"," +
+                "\"isSeakable\":\"${renderer?.isSeekable}\"," +
+                "\"isTimeShiftReady\":\"${onTimeShiftReady.value}\"," +
                 "\"isSubscribed\":\"${expressSubscriber != null}\"," +
                 "\"isMainRendered\":\"$isMainRendered\"}"
     }
