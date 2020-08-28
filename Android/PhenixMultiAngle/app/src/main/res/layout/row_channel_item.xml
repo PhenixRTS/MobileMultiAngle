@@ -2,9 +2,17 @@
 <!--
   ~ Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
   -->
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <import type="com.phenixrts.suite.phenixmultiangle.common.enums.StreamStatus" />
+        <variable
+            name="channel"
+            type="com.phenixrts.suite.phenixmultiangle.models.Channel" />
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
@@ -16,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="150dp"
             android:background="@color/primaryDarkColor"
-            android:foreground="@drawable/bg_surface"
+            android:foreground="@{channel.isMainRendered ? @drawable/bg_surface_selected : @drawable/bg_surface}"
             android:padding="2dp"
             android:clipChildren="true"
             app:layout_constraintStart_toStartOf="parent"
@@ -34,12 +42,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp" />
 
-            <View
-                android:id="@+id/item_surface_mask"
-                android:alpha="0"
-                android:background="@color/primaryDarkColor"
+            <SurfaceView
+                android:id="@+id/item_bitmap_surface"
                 android:layout_width="match_parent"
-                android:layout_height="150dp" />
+                android:layout_height="150dp"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/item_gone"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:textColor="@color/primaryTextColor"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="16sp"
+                android:text="@string/channel_offline"
+                android:gravity="center"
+                android:visibility="@{channel.onChannelJoined == StreamStatus.ONLINE ? View.GONE : View.VISIBLE}"
+                tools:visibility="visible" />
+
         </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,25 +4,15 @@
   -->
 
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
     <color name="primaryColor">#212121</color>
-    <color name="primaryLightColor">#484848</color>
     <color name="primaryDarkColor">#000000</color>
 
     <color name="accentColor">#ff1744</color>
-    <color name="accentLightColor">#ff616f</color>
     <color name="accentDarkColor">#c4001d</color>
 
     <color name="primaryTextColor">#ffffff</color>
     <color name="primaryTextDarkColor">#333</color>
-    <color name="secondaryTextColor">#ffffff</color>
     <color name="primaryTextAccentColor">#FF99CC00</color>
-
-    <color name="primaryBackgroundColor">#fff</color>
-    <color name="primaryBackgroundDarkColor">#333</color>
-    <color name="primaryBackgroundLightColor">#808080</color>
 
     <color name="primaryTranslucentColor">#80000000</color>
 

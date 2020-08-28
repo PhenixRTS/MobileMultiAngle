@@ -19,6 +19,7 @@
         android:foreground="@drawable/bg_surface"
         android:visibility="invisible"
         tools:visibility="visible"
+        android:animateLayoutChanges="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,12 +39,52 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <View
-            android:id="@+id/main_surface_mask"
-            android:alpha="0"
-            android:background="@color/primaryDarkColor"
+        <TextView
+            android:id="@+id/stream_text_overlay"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:layout_margin="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="14sp"
+            android:textColor="@color/primaryTextColor"
+            android:background="@color/primaryTranslucentColor"
+            android:visibility="gone"
+            tools:text="1\nTEST MESSAGE\nMESSAGE TEST"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/stream_head_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible" >
+
+            <TextView
+                android:id="@+id/stream_head_overlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"
+                android:textColor="@color/primaryTextColor"
+                android:background="@color/primaryTranslucentColor"
+                tools:text="10:00:11"/>
+
+            <SeekBar
+                android:id="@+id/stream_head_progress"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:indeterminate="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@color/primaryTranslucentColor"
+                android:progressTint="@color/colorRePlay"
+                android:thumbTint="@color/primaryTextAccentColor" />
+
+        </LinearLayout>
 
     </FrameLayout>
 
@@ -54,44 +95,79 @@
         android:background="@color/primaryDarkColor"
         android:visibility="invisible"
         tools:itemCount="4"
-        tools:listitem="@layout/row_member_item"
+        tools:listitem="@layout/row_channel_item"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/main_stream_holder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <LinearLayout
-        android:id="@+id/replay_button"
-        android:layout_width="200dp"
-        android:layout_height="48dp"
-        android:layout_margin="16dp"
-        android:gravity="center"
+        android:id="@+id/replay_holder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
         android:orientation="horizontal"
-        android:background="@drawable/bg_replay_button"
+        android:baselineAligned="false"
+        android:animateLayoutChanges="true"
         android:visibility="gone"
         tools:visibility="visible"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
-            android:id="@+id/replay_button_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_replay_30"
-            android:contentDescription="@null" />
-
-        <TextView
-            android:id="@+id/replay_button_title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/spinner_highlights_holder"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/button_replay"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_spinner"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spinner_highlights"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:theme="@style/SpinnerTheme" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/replay_button"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:textAllCaps="true"
-            android:textColor="@color/primaryTextColor"
-            android:fontFamily="sans-serif-medium"
-            android:textSize="18sp"
-            android:gravity="center"/>
+            android:layout_marginEnd="4dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_replay_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                android:id="@+id/replay_button_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_replay_30"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/replay_button_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/button_replay"
+                android:layout_marginStart="8dp"
+                android:textAllCaps="true"
+                android:textColor="@color/primaryTextColor"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="18sp"
+                android:gravity="center"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

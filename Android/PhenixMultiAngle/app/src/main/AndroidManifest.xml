@@ -14,13 +14,29 @@
         android:hardwareAccelerated="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-        <activity android:name=".ui.MainActivity">
+        <activity
+            android:name=".ui.SplashActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="phenixrts.com"
+                    android:pathPrefix="/multiangle/"
+                    android:scheme="https" />
+                <data
+                    android:host="stg.phenixrts.com"
+                    android:pathPrefix="/multiangle/"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
+
+        <activity android:name=".ui.MainActivity" android:launchMode="singleTop" />
 
     </application>
 

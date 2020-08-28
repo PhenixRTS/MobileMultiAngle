@@ -4,20 +4,19 @@
 
 package com.phenixrts.suite.phenixmultiangle.common
 
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.phenixrts.suite.phenixmultiangle.MultiAngleApp
 
-inline fun <reified T : ViewModel> FragmentActivity.getViewModel(noinline creator: (() -> T)? = null): T {
+inline fun <reified T : ViewModel> getViewModel(noinline owner: (() -> MultiAngleApp), noinline creator: (() -> T)? = null): T {
     return if (creator == null)
-        ViewModelProvider(this).get(T::class.java)
+        ViewModelProvider(owner()).get(T::class.java)
     else
-        ViewModelProvider(this, BaseViewModelFactory(creator)).get(T::class.java)
+        ViewModelProvider(owner(), BaseViewModelFactory(creator)).get(T::class.java)
 }
 
-inline fun <reified T : ViewModel> FragmentActivity.lazyViewModel(noinline creator: (() -> T)? = null) = lazy {
-    getViewModel(creator)
-}
+inline fun <reified T : ViewModel> lazyViewModel(noinline owner: (() -> MultiAngleApp), noinline creator: (() -> T)? = null) =
+    lazy { getViewModel(owner, creator) }
 
 class BaseViewModelFactory<T>(val creator: () -> T) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {

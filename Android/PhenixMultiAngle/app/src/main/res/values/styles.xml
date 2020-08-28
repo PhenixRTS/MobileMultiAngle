@@ -15,4 +15,13 @@
         <item name="android:windowBackground">@drawable/bg_splash</item>
     </style>
 
+    <style name="SpinnerTheme">
+        <item name="android:textColor">@color/primaryTextDarkColor</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="android:textColor">@color/primaryTextDarkColor</item>
+    </style>
+
 </resources>

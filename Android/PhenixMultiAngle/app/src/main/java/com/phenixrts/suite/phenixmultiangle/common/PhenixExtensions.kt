@@ -4,8 +4,11 @@
 
 package com.phenixrts.suite.phenixmultiangle.common
 
+import com.phenixrts.express.*
 import kotlinx.coroutines.*
 import timber.log.Timber
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 private val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -25,3 +28,9 @@ fun launchIO(block: suspend CoroutineScope.() -> Unit) = ioScope.launch(
     },
     block = block
 )
+
+suspend fun PCastExpress.waitForOnline() = suspendCoroutine<Unit> { continuation ->
+    waitForOnline {
+        continuation.resume(Unit)
+    }
+}
