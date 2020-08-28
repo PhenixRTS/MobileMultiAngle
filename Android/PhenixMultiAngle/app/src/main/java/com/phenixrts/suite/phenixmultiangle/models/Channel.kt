@@ -199,7 +199,6 @@ data class Channel(
         renderer?.dispose()
         expressSubscriber = subscriber
         renderer = expressRenderer
-        createTimeShift(startTime)
         setVideoFrameCallback()
         if (isMainRendered.value == true) {
             unmuteAudio()
