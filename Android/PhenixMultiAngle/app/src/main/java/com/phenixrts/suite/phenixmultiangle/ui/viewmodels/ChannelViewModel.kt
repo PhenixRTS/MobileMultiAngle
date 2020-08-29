@@ -29,7 +29,7 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
             Timber.d("Channel list changed $channelList")
             channels.value = channelList
             channelList?.forEach { channel ->
-                channel.joinChannel(channelExpressRepository.channelJoinTime)
+                channel.joinChannel(channelExpressRepository.timeShiftStartTime)
             }
             onChannelsJoined.call()
             Timber.d("Channel list joined $channelList")
