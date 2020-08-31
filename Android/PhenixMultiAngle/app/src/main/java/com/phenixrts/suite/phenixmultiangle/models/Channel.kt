@@ -36,13 +36,13 @@ data class Channel(
     private val channelExpress: ChannelExpress,
     val channelAlias: String
 ) {
-
     private val videoRenderSurface = AndroidVideoRenderSurface()
     private var thumbnailSurface: SurfaceView? = null
     private var bitmapSurface: SurfaceView? = null
     private var renderer: Renderer? = null
     private var expressSubscriber: ExpressSubscriber? = null
     private var timeShift: TimeShift? = null
+    private var joinedChannel: RoomService? = null
 
     private var chatDisposable: Disposable? = null
     private var bandwidthLimiter: Disposable? = null
@@ -220,6 +220,7 @@ data class Channel(
             launchMain {
                 Timber.d("Channel join status: $requestStatus")
                 if (requestStatus == RequestStatus.OK) {
+                    joinedChannel = roomService
                     observeChatMessages(roomService)
                     onChannelJoined.value = StreamStatus.ONLINE
                 } else {
