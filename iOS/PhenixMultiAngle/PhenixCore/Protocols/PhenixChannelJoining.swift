@@ -31,10 +31,10 @@ fileprivate extension PhenixManager {
         dispatchPrecondition(condition: .onQueue(privateQueue))
         precondition(channelExpress != nil, "Must call PhenixManager.start() before this method")
         // swiftlint:disable multiline_arguments
-        channelExpress.joinChannel(options) { status, roomService in
+        channelExpress.joinChannel(options, { status, roomService in
             os_log(.debug, log: .phenixManager, "Join channel callback received with status: %{PUBLIC}d, %{PRIVATE}s", status.rawValue, channel.description)
             channel.joinChannelHandler(status: status, roomService: roomService)
-        } _: { status, subscriber, renderer in
+        }) { status, subscriber, renderer in
             os_log(.debug, log: .phenixManager, "Channel stream subscription callback received with status: %{PUBLIC}d, %{PRIVATE}s", status.rawValue, channel.description)
             channel.subscriberHandler(status: status, subscriber: subscriber, renderer: renderer)
         }
