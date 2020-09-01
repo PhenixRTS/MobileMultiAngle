@@ -1,0 +1,19 @@
+source 'https://cdn.cocoapods.org/'
+source 'git@github.com:PhenixRTS/CocoaPodsSpecs.git' # Phenix private repository
+
+platform :ios, '12.0'
+use_frameworks!
+inhibit_all_warnings!
+
+def phenix
+  pod 'PhenixSdk', '~> 2020.1.54-beta'
+end
+
+target 'PhenixMultiAngle' do
+  phenix
+  pod 'SwiftLint', '~> 0.39.2'
+end
+
+target 'PhenixCore' do
+  phenix
+end

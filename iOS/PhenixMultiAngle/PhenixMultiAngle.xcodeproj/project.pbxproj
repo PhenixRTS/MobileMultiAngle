@@ -1,0 +1,871 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		24B88F1E60BCABD93FF3D4B6 /* Pods_PhenixCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A13A557AA541B77E45D7816A /* Pods_PhenixCore.framework */; };
+		B50AE82E24F54681001DD9AA /* CATransaction+NoAnimations.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AE82D24F54681001DD9AA /* CATransaction+NoAnimations.swift */; };
+		B51141C324FD0CDE007584A1 /* CVPixelBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51141C224FD0CDE007584A1 /* CVPixelBuffer+Extension.swift */; };
+		B51E2D7A24F63FB3000D4A69 /* ChannelJoinObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51E2D7924F63FB3000D4A69 /* ChannelJoinObserver.swift */; };
+		B51E2D7E24F642A6000D4A69 /* ChannelStreamObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51E2D7D24F642A6000D4A69 /* ChannelStreamObserver.swift */; };
+		B591328E24E3D58600A5B7D1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B591328D24E3D58600A5B7D1 /* AppDelegate.swift */; };
+		B591329024E3D58600A5B7D1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B591328F24E3D58600A5B7D1 /* SceneDelegate.swift */; };
+		B591329524E3D58600A5B7D1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B591329324E3D58600A5B7D1 /* Main.storyboard */; };
+		B591329724E3D58800A5B7D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B591329624E3D58800A5B7D1 /* Assets.xcassets */; };
+		B591329A24E3D58800A5B7D1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B591329824E3D58800A5B7D1 /* LaunchScreen.storyboard */; };
+		B59132B024E3D7E200A5B7D1 /* PhenixCore.h in Headers */ = {isa = PBXBuildFile; fileRef = B59132AE24E3D7E200A5B7D1 /* PhenixCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B59132B324E3D7E200A5B7D1 /* PhenixCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B59132AC24E3D7E200A5B7D1 /* PhenixCore.framework */; };
+		B59132B424E3D7E200A5B7D1 /* PhenixCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B59132AC24E3D7E200A5B7D1 /* PhenixCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B59132C524E3DE1D00A5B7D1 /* PhenixConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132BE24E3DE1C00A5B7D1 /* PhenixConfiguration.swift */; };
+		B59132C724E3DE1D00A5B7D1 /* PhenixManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132C024E3DE1D00A5B7D1 /* PhenixManager.swift */; };
+		B59132DE24E3DE4000A5B7D1 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132CD24E3DE4000A5B7D1 /* Channel.swift */; };
+		B59132E324E3DE4000A5B7D1 /* PhenixDisposables.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132D424E3DE4000A5B7D1 /* PhenixDisposables.swift */; };
+		B59132E424E3DE4000A5B7D1 /* OSLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132D524E3DE4000A5B7D1 /* OSLog.swift */; };
+		B59132E824E3DE4000A5B7D1 /* PhenixChannelJoining.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132DA24E3DE4000A5B7D1 /* PhenixChannelJoining.swift */; };
+		B59132EA24E3F43D00A5B7D1 /* Launcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132E924E3F43D00A5B7D1 /* Launcher.swift */; };
+		B59132EC24E3F46000A5B7D1 /* OSLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132EB24E3F46000A5B7D1 /* OSLog.swift */; };
+		B59132EF24E3F4A800A5B7D1 /* LaunchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132EE24E3F4A800A5B7D1 /* LaunchViewController.swift */; };
+		B59132F124E3F4B800A5B7D1 /* Storyboarded.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132F024E3F4B800A5B7D1 /* Storyboarded.swift */; };
+		B59132F324E3F52500A5B7D1 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B59132F224E3F52500A5B7D1 /* Colors.xcassets */; };
+		B59132F524E3F5A100A5B7D1 /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132F424E3F5A100A5B7D1 /* DependencyContainer.swift */; };
+		B59132F824E3F5FA00A5B7D1 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132F724E3F5FA00A5B7D1 /* Coordinator.swift */; };
+		B59132FA24E3F60B00A5B7D1 /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59132F924E3F60B00A5B7D1 /* MainCoordinator.swift */; };
+		B5B0BBE724EFBEC600A45C82 /* MultiStreamPreviewCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B0BBE624EFBEC600A45C82 /* MultiStreamPreviewCollectionViewCell.swift */; };
+		B5E3841124F54F76006077DF /* PhenixOptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E3841024F54F76006077DF /* PhenixOptionBuilder.swift */; };
+		B5F00B1924E55FAD00540FCE /* MultiStreamViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F00B1824E55FAD00540FCE /* MultiStreamViewController.swift */; };
+		B5F00B1C24E5600200540FCE /* MultiStreamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F00B1B24E5600200540FCE /* MultiStreamView.swift */; };
+		B5F00B1E24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F00B1D24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift */; };
+		B5F225B824F56ABE00404673 /* VideoLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F225B724F56ABE00404673 /* VideoLayer.swift */; };
+		E50C8CD4E3F4ED1523AFFD60 /* Pods_PhenixMultiAngle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A5CB1857823993E7D9203FA /* Pods_PhenixMultiAngle.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B59132B124E3D7E200A5B7D1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B591328224E3D58600A5B7D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B59132AB24E3D7E200A5B7D1;
+			remoteInfo = PhenixCore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B59132B824E3D7E200A5B7D1 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B59132B424E3D7E200A5B7D1 /* PhenixCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		072AB4D8CB79BAA865BB01DA /* Pods-PhenixCore.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhenixCore.release.xcconfig"; path = "Target Support Files/Pods-PhenixCore/Pods-PhenixCore.release.xcconfig"; sourceTree = "<group>"; };
+		2A5CB1857823993E7D9203FA /* Pods_PhenixMultiAngle.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PhenixMultiAngle.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		64E103A4812D5F4E0FB97483 /* Pods-PhenixCore.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhenixCore.debug.xcconfig"; path = "Target Support Files/Pods-PhenixCore/Pods-PhenixCore.debug.xcconfig"; sourceTree = "<group>"; };
+		7A92E3E1BE9C65B90A6CE2ED /* Pods-PhenixMultiAngle.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhenixMultiAngle.release.xcconfig"; path = "Target Support Files/Pods-PhenixMultiAngle/Pods-PhenixMultiAngle.release.xcconfig"; sourceTree = "<group>"; };
+		83D9FE197D8C723D3E17B4B2 /* Pods-PhenixMultiAngle.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhenixMultiAngle.debug.xcconfig"; path = "Target Support Files/Pods-PhenixMultiAngle/Pods-PhenixMultiAngle.debug.xcconfig"; sourceTree = "<group>"; };
+		A13A557AA541B77E45D7816A /* Pods_PhenixCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PhenixCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B50AE82D24F54681001DD9AA /* CATransaction+NoAnimations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CATransaction+NoAnimations.swift"; sourceTree = "<group>"; };
+		B51141C224FD0CDE007584A1 /* CVPixelBuffer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Extension.swift"; sourceTree = "<group>"; };
+		B51E2D7924F63FB3000D4A69 /* ChannelJoinObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelJoinObserver.swift; sourceTree = "<group>"; };
+		B51E2D7D24F642A6000D4A69 /* ChannelStreamObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelStreamObserver.swift; sourceTree = "<group>"; };
+		B591328A24E3D58600A5B7D1 /* Phenix MultiAngle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Phenix MultiAngle.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B591328D24E3D58600A5B7D1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B591328F24E3D58600A5B7D1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		B591329424E3D58600A5B7D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B591329624E3D58800A5B7D1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B591329924E3D58800A5B7D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B591329B24E3D58800A5B7D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B59132AC24E3D7E200A5B7D1 /* PhenixCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PhenixCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B59132AE24E3D7E200A5B7D1 /* PhenixCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PhenixCore.h; sourceTree = "<group>"; };
+		B59132AF24E3D7E200A5B7D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B59132BE24E3DE1C00A5B7D1 /* PhenixConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhenixConfiguration.swift; sourceTree = "<group>"; };
+		B59132C024E3DE1D00A5B7D1 /* PhenixManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhenixManager.swift; sourceTree = "<group>"; };
+		B59132CD24E3DE4000A5B7D1 /* Channel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
+		B59132D424E3DE4000A5B7D1 /* PhenixDisposables.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhenixDisposables.swift; sourceTree = "<group>"; };
+		B59132D524E3DE4000A5B7D1 /* OSLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSLog.swift; sourceTree = "<group>"; };
+		B59132DA24E3DE4000A5B7D1 /* PhenixChannelJoining.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhenixChannelJoining.swift; sourceTree = "<group>"; };
+		B59132E924E3F43D00A5B7D1 /* Launcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Launcher.swift; sourceTree = "<group>"; };
+		B59132EB24E3F46000A5B7D1 /* OSLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLog.swift; sourceTree = "<group>"; };
+		B59132EE24E3F4A800A5B7D1 /* LaunchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LaunchViewController.swift; sourceTree = "<group>"; };
+		B59132F024E3F4B800A5B7D1 /* Storyboarded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storyboarded.swift; sourceTree = "<group>"; };
+		B59132F224E3F52500A5B7D1 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
+		B59132F424E3F5A100A5B7D1 /* DependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyContainer.swift; sourceTree = "<group>"; };
+		B59132F724E3F5FA00A5B7D1 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		B59132F924E3F60B00A5B7D1 /* MainCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinator.swift; sourceTree = "<group>"; };
+		B5B0BBE624EFBEC600A45C82 /* MultiStreamPreviewCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamPreviewCollectionViewCell.swift; sourceTree = "<group>"; };
+		B5E3841024F54F76006077DF /* PhenixOptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixOptionBuilder.swift; sourceTree = "<group>"; };
+		B5F00B1824E55FAD00540FCE /* MultiStreamViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamViewController.swift; sourceTree = "<group>"; };
+		B5F00B1B24E5600200540FCE /* MultiStreamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamView.swift; sourceTree = "<group>"; };
+		B5F00B1D24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamPreviewCollectionViewManager.swift; sourceTree = "<group>"; };
+		B5F225B724F56ABE00404673 /* VideoLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoLayer.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B591328724E3D58600A5B7D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B59132B324E3D7E200A5B7D1 /* PhenixCore.framework in Frameworks */,
+				E50C8CD4E3F4ED1523AFFD60 /* Pods_PhenixMultiAngle.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B59132A924E3D7E200A5B7D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24B88F1E60BCABD93FF3D4B6 /* Pods_PhenixCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		10DDB7D5B2ADB6C3B10DD26A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				64E103A4812D5F4E0FB97483 /* Pods-PhenixCore.debug.xcconfig */,
+				072AB4D8CB79BAA865BB01DA /* Pods-PhenixCore.release.xcconfig */,
+				83D9FE197D8C723D3E17B4B2 /* Pods-PhenixMultiAngle.debug.xcconfig */,
+				7A92E3E1BE9C65B90A6CE2ED /* Pods-PhenixMultiAngle.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		A5277E3193ACD9585E748886 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A13A557AA541B77E45D7816A /* Pods_PhenixCore.framework */,
+				2A5CB1857823993E7D9203FA /* Pods_PhenixMultiAngle.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B591328124E3D58600A5B7D1 = {
+			isa = PBXGroup;
+			children = (
+				B591328C24E3D58600A5B7D1 /* PhenixMultiAngle */,
+				B59132AD24E3D7E200A5B7D1 /* PhenixCore */,
+				B591328B24E3D58600A5B7D1 /* Products */,
+				10DDB7D5B2ADB6C3B10DD26A /* Pods */,
+				A5277E3193ACD9585E748886 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		B591328B24E3D58600A5B7D1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B591328A24E3D58600A5B7D1 /* Phenix MultiAngle.app */,
+				B59132AC24E3D7E200A5B7D1 /* PhenixCore.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B591328C24E3D58600A5B7D1 /* PhenixMultiAngle */ = {
+			isa = PBXGroup;
+			children = (
+				B591328D24E3D58600A5B7D1 /* AppDelegate.swift */,
+				B591328F24E3D58600A5B7D1 /* SceneDelegate.swift */,
+				B59132F624E3F5EB00A5B7D1 /* Coordinator */,
+				B59132A224E3D62700A5B7D1 /* Managers */,
+				B59132A624E3D65600A5B7D1 /* Resources */,
+				B59132A124E3D61800A5B7D1 /* Scenes */,
+				B59132A324E3D62C00A5B7D1 /* Supporting Files */,
+				B59132A424E3D63700A5B7D1 /* User Interface */,
+				B59132A524E3D64B00A5B7D1 /* Utils */,
+			);
+			path = PhenixMultiAngle;
+			sourceTree = "<group>";
+		};
+		B59132A124E3D61800A5B7D1 /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				B59132ED24E3F4A800A5B7D1 /* Launch Scene */,
+				B5F00B1724E55F8E00540FCE /* Streams */,
+			);
+			path = Scenes;
+			sourceTree = "<group>";
+		};
+		B59132A224E3D62700A5B7D1 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				B59132E924E3F43D00A5B7D1 /* Launcher.swift */,
+				B59132F424E3F5A100A5B7D1 /* DependencyContainer.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		B59132A324E3D62C00A5B7D1 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				B591329824E3D58800A5B7D1 /* LaunchScreen.storyboard */,
+				B591329B24E3D58800A5B7D1 /* Info.plist */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		B59132A424E3D63700A5B7D1 /* User Interface */ = {
+			isa = PBXGroup;
+			children = (
+				B591329324E3D58600A5B7D1 /* Main.storyboard */,
+			);
+			path = "User Interface";
+			sourceTree = "<group>";
+		};
+		B59132A524E3D64B00A5B7D1 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				B59132EB24E3F46000A5B7D1 /* OSLog.swift */,
+				B59132F024E3F4B800A5B7D1 /* Storyboarded.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		B59132A624E3D65600A5B7D1 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B591329624E3D58800A5B7D1 /* Assets.xcassets */,
+				B59132F224E3F52500A5B7D1 /* Colors.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B59132AD24E3D7E200A5B7D1 /* PhenixCore */ = {
+			isa = PBXGroup;
+			children = (
+				B59132BE24E3DE1C00A5B7D1 /* PhenixConfiguration.swift */,
+				B59132C024E3DE1D00A5B7D1 /* PhenixManager.swift */,
+				B5E3841024F54F76006077DF /* PhenixOptionBuilder.swift */,
+				B5F225B724F56ABE00404673 /* VideoLayer.swift */,
+				B59132C924E3DE4000A5B7D1 /* Channel */,
+				B59132D724E3DE4000A5B7D1 /* Protocols */,
+				B59132B924E3DDB200A5B7D1 /* Supporting Files */,
+				B59132D324E3DE4000A5B7D1 /* Utils */,
+			);
+			path = PhenixCore;
+			sourceTree = "<group>";
+		};
+		B59132B924E3DDB200A5B7D1 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				B59132AE24E3D7E200A5B7D1 /* PhenixCore.h */,
+				B59132AF24E3D7E200A5B7D1 /* Info.plist */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		B59132C924E3DE4000A5B7D1 /* Channel */ = {
+			isa = PBXGroup;
+			children = (
+				B59132CD24E3DE4000A5B7D1 /* Channel.swift */,
+				B51E2D7924F63FB3000D4A69 /* ChannelJoinObserver.swift */,
+				B51E2D7D24F642A6000D4A69 /* ChannelStreamObserver.swift */,
+			);
+			path = Channel;
+			sourceTree = "<group>";
+		};
+		B59132D324E3DE4000A5B7D1 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				B50AE82D24F54681001DD9AA /* CATransaction+NoAnimations.swift */,
+				B51141C224FD0CDE007584A1 /* CVPixelBuffer+Extension.swift */,
+				B59132D524E3DE4000A5B7D1 /* OSLog.swift */,
+				B59132D424E3DE4000A5B7D1 /* PhenixDisposables.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		B59132D724E3DE4000A5B7D1 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				B59132DA24E3DE4000A5B7D1 /* PhenixChannelJoining.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		B59132ED24E3F4A800A5B7D1 /* Launch Scene */ = {
+			isa = PBXGroup;
+			children = (
+				B59132EE24E3F4A800A5B7D1 /* LaunchViewController.swift */,
+			);
+			path = "Launch Scene";
+			sourceTree = "<group>";
+		};
+		B59132F624E3F5EB00A5B7D1 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				B59132F724E3F5FA00A5B7D1 /* Coordinator.swift */,
+				B59132F924E3F60B00A5B7D1 /* MainCoordinator.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		B5F00B1724E55F8E00540FCE /* Streams */ = {
+			isa = PBXGroup;
+			children = (
+				B5F00B1D24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift */,
+				B5F00B1824E55FAD00540FCE /* MultiStreamViewController.swift */,
+				B5F00B1A24E55FD300540FCE /* Views */,
+			);
+			path = Streams;
+			sourceTree = "<group>";
+		};
+		B5F00B1A24E55FD300540FCE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B5B0BBE624EFBEC600A45C82 /* MultiStreamPreviewCollectionViewCell.swift */,
+				B5F00B1B24E5600200540FCE /* MultiStreamView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		B59132A724E3D7E200A5B7D1 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B59132B024E3D7E200A5B7D1 /* PhenixCore.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		B591328924E3D58600A5B7D1 /* PhenixMultiAngle */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B591329E24E3D58800A5B7D1 /* Build configuration list for PBXNativeTarget "PhenixMultiAngle" */;
+			buildPhases = (
+				EA89B036601A5BF76C55EF91 /* [CP] Check Pods Manifest.lock */,
+				B591328624E3D58600A5B7D1 /* Sources */,
+				B591328724E3D58600A5B7D1 /* Frameworks */,
+				B591328824E3D58600A5B7D1 /* Resources */,
+				B59132B824E3D7E200A5B7D1 /* Embed Frameworks */,
+				D1B2354C64117F6F659BB150 /* [CP] Embed Pods Frameworks */,
+				B54CD17924FCE2FA009249D7 /* Static Analysis for Swift using SwiftLint */,
+				B54CD17A24FCE335009249D7 /* Catch bad copyrights */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B59132B224E3D7E200A5B7D1 /* PBXTargetDependency */,
+			);
+			name = PhenixMultiAngle;
+			productName = PhenixMultiAngle;
+			productReference = B591328A24E3D58600A5B7D1 /* Phenix MultiAngle.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B59132AB24E3D7E200A5B7D1 /* PhenixCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B59132B524E3D7E200A5B7D1 /* Build configuration list for PBXNativeTarget "PhenixCore" */;
+			buildPhases = (
+				95979220E5D725E5FC2A3D7A /* [CP] Check Pods Manifest.lock */,
+				B59132A724E3D7E200A5B7D1 /* Headers */,
+				B59132A824E3D7E200A5B7D1 /* Sources */,
+				B59132A924E3D7E200A5B7D1 /* Frameworks */,
+				B59132AA24E3D7E200A5B7D1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PhenixCore;
+			productName = PhenixCore;
+			productReference = B59132AC24E3D7E200A5B7D1 /* PhenixCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B591328224E3D58600A5B7D1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1160;
+				LastUpgradeCheck = 1160;
+				ORGANIZATIONNAME = "Phenix Real Time Solutions, Inc";
+				TargetAttributes = {
+					B591328924E3D58600A5B7D1 = {
+						CreatedOnToolsVersion = 11.6;
+					};
+					B59132AB24E3D7E200A5B7D1 = {
+						CreatedOnToolsVersion = 11.6;
+						LastSwiftMigration = 1160;
+					};
+				};
+			};
+			buildConfigurationList = B591328524E3D58600A5B7D1 /* Build configuration list for PBXProject "PhenixMultiAngle" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B591328124E3D58600A5B7D1;
+			productRefGroup = B591328B24E3D58600A5B7D1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B591328924E3D58600A5B7D1 /* PhenixMultiAngle */,
+				B59132AB24E3D7E200A5B7D1 /* PhenixCore */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B591328824E3D58600A5B7D1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B591329A24E3D58800A5B7D1 /* LaunchScreen.storyboard in Resources */,
+				B59132F324E3F52500A5B7D1 /* Colors.xcassets in Resources */,
+				B591329724E3D58800A5B7D1 /* Assets.xcassets in Resources */,
+				B591329524E3D58600A5B7D1 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B59132AA24E3D7E200A5B7D1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		95979220E5D725E5FC2A3D7A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PhenixCore-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B54CD17924FCE2FA009249D7 /* Static Analysis for Swift using SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Static Analysis for Swift using SwiftLint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/SwiftLint/swiftlint\"\n";
+		};
+		B54CD17A24FCE335009249D7 /* Catch bad copyrights */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Catch bad copyrights";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "COPYRIGHT=\"Copyright $(date +\"%Y\") Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.\"\n\n# Paths which contains files, which needs to be checked.\nPATH1=\"${SRCROOT}/PhenixMultiAngle\"\nPATH2=\"${SRCROOT}/PhenixCore\"\n\nPATHS=(${PATH1} ${PATH2})\n\nfor i in \"${PATHS[@]}\"\ndo\n   echo \"searching ${i} for ${COPYRIGHT}\"\n   find \"${i}\" \\( -name \"*.h\" -or -name \"*.m\" -or -name \"*.swift\" \\) -print0 \\\n       | xargs -0 egrep --with-filename --files-without-match \"($COPYRIGHT)\" \\\n       | perl -p -e \"s/(.*)$/\\$1: warning: Incorrect or no copyright \\$1/\"\ndone\n";
+		};
+		D1B2354C64117F6F659BB150 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PhenixMultiAngle/Pods-PhenixMultiAngle-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PhenixMultiAngle/Pods-PhenixMultiAngle-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PhenixMultiAngle/Pods-PhenixMultiAngle-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EA89B036601A5BF76C55EF91 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PhenixMultiAngle-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B591328624E3D58600A5B7D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B59132EF24E3F4A800A5B7D1 /* LaunchViewController.swift in Sources */,
+				B591328E24E3D58600A5B7D1 /* AppDelegate.swift in Sources */,
+				B5F00B1E24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift in Sources */,
+				B59132FA24E3F60B00A5B7D1 /* MainCoordinator.swift in Sources */,
+				B591329024E3D58600A5B7D1 /* SceneDelegate.swift in Sources */,
+				B59132EA24E3F43D00A5B7D1 /* Launcher.swift in Sources */,
+				B5F00B1C24E5600200540FCE /* MultiStreamView.swift in Sources */,
+				B59132EC24E3F46000A5B7D1 /* OSLog.swift in Sources */,
+				B59132F524E3F5A100A5B7D1 /* DependencyContainer.swift in Sources */,
+				B5F00B1924E55FAD00540FCE /* MultiStreamViewController.swift in Sources */,
+				B5B0BBE724EFBEC600A45C82 /* MultiStreamPreviewCollectionViewCell.swift in Sources */,
+				B59132F124E3F4B800A5B7D1 /* Storyboarded.swift in Sources */,
+				B59132F824E3F5FA00A5B7D1 /* Coordinator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B59132A824E3D7E200A5B7D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B59132DE24E3DE4000A5B7D1 /* Channel.swift in Sources */,
+				B51141C324FD0CDE007584A1 /* CVPixelBuffer+Extension.swift in Sources */,
+				B59132C524E3DE1D00A5B7D1 /* PhenixConfiguration.swift in Sources */,
+				B50AE82E24F54681001DD9AA /* CATransaction+NoAnimations.swift in Sources */,
+				B59132E824E3DE4000A5B7D1 /* PhenixChannelJoining.swift in Sources */,
+				B59132E324E3DE4000A5B7D1 /* PhenixDisposables.swift in Sources */,
+				B51E2D7A24F63FB3000D4A69 /* ChannelJoinObserver.swift in Sources */,
+				B59132E424E3DE4000A5B7D1 /* OSLog.swift in Sources */,
+				B5E3841124F54F76006077DF /* PhenixOptionBuilder.swift in Sources */,
+				B51E2D7E24F642A6000D4A69 /* ChannelStreamObserver.swift in Sources */,
+				B5F225B824F56ABE00404673 /* VideoLayer.swift in Sources */,
+				B59132C724E3DE1D00A5B7D1 /* PhenixManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B59132B224E3D7E200A5B7D1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B59132AB24E3D7E200A5B7D1 /* PhenixCore */;
+			targetProxy = B59132B124E3D7E200A5B7D1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		B591329324E3D58600A5B7D1 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B591329424E3D58600A5B7D1 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		B591329824E3D58800A5B7D1 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B591329924E3D58800A5B7D1 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		B591329C24E3D58800A5B7D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B591329D24E3D58800A5B7D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B591329F24E3D58800A5B7D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 83D9FE197D8C723D3E17B4B2 /* Pods-PhenixMultiAngle.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = LU4S6LX25U;
+				INFOPLIST_FILE = "PhenixMultiAngle/Supporting Files/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2020.1.54;
+				PRODUCT_BUNDLE_IDENTIFIER = com.phenixrts.suite.multiangle;
+				PRODUCT_NAME = "Phenix MultiAngle";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B59132A024E3D58800A5B7D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7A92E3E1BE9C65B90A6CE2ED /* Pods-PhenixMultiAngle.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = LU4S6LX25U;
+				INFOPLIST_FILE = "PhenixMultiAngle/Supporting Files/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2020.1.54;
+				PRODUCT_BUNDLE_IDENTIFIER = com.phenixrts.suite.multiangle;
+				PRODUCT_NAME = "Phenix MultiAngle";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B59132B624E3D7E200A5B7D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 64E103A4812D5F4E0FB97483 /* Pods-PhenixCore.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = LU4S6LX25U;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "PhenixCore/Supporting Files/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 2020.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.phenixrts.suite.core;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		B59132B724E3D7E200A5B7D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 072AB4D8CB79BAA865BB01DA /* Pods-PhenixCore.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = LU4S6LX25U;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "PhenixCore/Supporting Files/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 2020.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.phenixrts.suite.core;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B591328524E3D58600A5B7D1 /* Build configuration list for PBXProject "PhenixMultiAngle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B591329C24E3D58800A5B7D1 /* Debug */,
+				B591329D24E3D58800A5B7D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B591329E24E3D58800A5B7D1 /* Build configuration list for PBXNativeTarget "PhenixMultiAngle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B591329F24E3D58800A5B7D1 /* Debug */,
+				B59132A024E3D58800A5B7D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B59132B524E3D7E200A5B7D1 /* Build configuration list for PBXNativeTarget "PhenixCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B59132B624E3D7E200A5B7D1 /* Debug */,
+				B59132B724E3D7E200A5B7D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B591328224E3D58600A5B7D1 /* Project object */;
+}
