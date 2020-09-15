@@ -18,6 +18,8 @@
 		B57B51EC250F8D7B00111C4D /* PhenixClosedCaptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57B51EB250F8D7B00111C4D /* PhenixClosedCaptionView.swift */; };
 		B57B51EE250F9F1F00111C4D /* OSLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57B51ED250F9F1F00111C4D /* OSLog.swift */; };
 		B57B51F12510F3F400111C4D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B57B51F02510F3F400111C4D /* README.md */; };
+		B57B51F52511148F00111C4D /* PhenixClosedCaptions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B58FEA37250A38FF00E65F40 /* PhenixClosedCaptions.framework */; };
+		B57B51F62511148F00111C4D /* PhenixClosedCaptions.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B58FEA37250A38FF00E65F40 /* PhenixClosedCaptions.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B58273C42508FF6600CC9EF9 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58273C32508FF6600CC9EF9 /* Throttler.swift */; };
 		B58273C62508FFA000CC9EF9 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58273C52508FFA000CC9EF9 /* Debouncer.swift */; };
 		B58FEA3B250A38FF00E65F40 /* PhenixClosedCaptions.h in Headers */ = {isa = PBXBuildFile; fileRef = B58FEA39250A38FF00E65F40 /* PhenixClosedCaptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -61,6 +63,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		B57B51F72511148F00111C4D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B591328224E3D58600A5B7D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B58FEA36250A38FF00E65F40;
+			remoteInfo = PhenixClosedCaptions;
+		};
 		B58FEA3C250A38FF00E65F40 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B591328224E3D58600A5B7D1 /* Project object */;
@@ -78,6 +87,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		B57B51F92511149000111C4D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B57B51F62511148F00111C4D /* PhenixClosedCaptions.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B59132B824E3D7E200A5B7D1 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -178,6 +198,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				24B88F1E60BCABD93FF3D4B6 /* Pods_PhenixCore.framework in Frameworks */,
+				B57B51F52511148F00111C4D /* PhenixClosedCaptions.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -531,10 +552,12 @@
 				B59132A824E3D7E200A5B7D1 /* Sources */,
 				B59132A924E3D7E200A5B7D1 /* Frameworks */,
 				B59132AA24E3D7E200A5B7D1 /* Resources */,
+				B57B51F92511149000111C4D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B57B51F82511148F00111C4D /* PBXTargetDependency */,
 			);
 			name = PhenixCore;
 			productName = PhenixCore;
@@ -797,6 +820,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		B57B51F82511148F00111C4D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B58FEA36250A38FF00E65F40 /* PhenixClosedCaptions */;
+			targetProxy = B57B51F72511148F00111C4D /* PBXContainerItemProxy */;
+		};
 		B58FEA3D250A38FF00E65F40 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B58FEA36250A38FF00E65F40 /* PhenixClosedCaptions */;
