@@ -7,6 +7,12 @@ import PhenixCore
 import UIKit
 
 class MultiStreamPreviewCollectionViewCell: UICollectionViewCell {
+    enum State {
+        case notReady
+        case pending
+        case ready
+    }
+
     private lazy var activityIndicatorView: UIActivityIndicatorView = {
         let view = UIActivityIndicatorView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -32,22 +38,19 @@ class MultiStreamPreviewCollectionViewCell: UICollectionViewCell {
         return label
     }()
 
-    var isActivityIndicatorVisible: Bool = false {
+    var state: State = .notReady {
         didSet {
-            if isActivityIndicatorVisible && isOfflineLabelVisible == false {
-                add(activityIndicatorView)
-            } else {
+            switch state {
+            case .notReady:
                 remove(activityIndicatorView)
-            }
-        }
-    }
-
-    var isOfflineLabelVisible: Bool = false {
-        didSet {
-            if isOfflineLabelVisible {
                 add(offlineLabel)
-            } else {
+            case .pending:
                 remove(offlineLabel)
+                add(activityIndicatorView)
+                activityIndicatorView.startAnimating()
+            case .ready:
+                remove(offlineLabel)
+                remove(activityIndicatorView)
             }
         }
     }
@@ -101,9 +104,11 @@ extension MultiStreamPreviewCollectionViewCell: ChannelStreamObserver {
             }
             switch state {
             case .playing:
-                self.isActivityIndicatorVisible = false
+                self.state = .ready
+
             case .noStreamPlaying:
-                self.isActivityIndicatorVisible = true
+                self.state = .pending
+
             case .failure:
                 fatalError("Stream couldn't be played for the channel, \(channel)")
             }
@@ -119,14 +124,16 @@ extension MultiStreamPreviewCollectionViewCell: ChannelJoinObserver {
             }
             switch state {
             case .joined:
-                self.isOfflineLabelVisible = false
-
                 if channel.streamState == .noStreamPlaying {
-                    self.isActivityIndicatorVisible = true
+                    self.state = .pending
+                } else {
+                    self.state = .ready
                 }
+
             case .pending,
                  .notJoined:
-                self.isOfflineLabelVisible = true
+                self.state = .notReady
+
             case .failure:
                 fatalError("Could not establish the connection to the channel, \(channel)")
             }

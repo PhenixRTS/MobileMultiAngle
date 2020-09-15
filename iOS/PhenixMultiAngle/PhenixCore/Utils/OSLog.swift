@@ -12,4 +12,5 @@ extension OSLog {
     /// Logs the main Phenix manager
     static let phenixManager = OSLog(subsystem: subsystem, category: "Phenix.Core.PhenixManager")
     static let channel = OSLog(subsystem: subsystem, category: "Phenix.Core.Channel")
+    static let timeShift = OSLog(subsystem: subsystem, category: "Phenix.Core.TimeShiftWorker")
 }

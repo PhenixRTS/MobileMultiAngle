@@ -24,16 +24,20 @@ class MainCoordinator: Coordinator {
         // Get default channel aliases
         let channelAliases = PhenixConfiguration.channelAliases
 
+        let date = Date()
         var channels: [Channel] = []
 
+        // Initiate default
+        let vc = MultiStreamViewController.instantiate()
+
         // Convert aliases into channel models
-        for alias in channelAliases {
-            let channel = Channel(alias: alias)
+        for (index, alias) in channelAliases.enumerated() {
+            // Enable closed captions only for the first channel in the list
+            let channel = Channel(alias: alias, timeShiftStartDateTime: date, replayConfiguration: .far, closedCaptionsEnabled: index == 0)
+            channel.closedCaptionServiceDelegate = vc
             channels.append(channel)
         }
 
-        // Initiate default 
-        let vc = MultiStreamViewController.instantiate()
         vc.phenixManager = phenixManager
         vc.channels = channels
         

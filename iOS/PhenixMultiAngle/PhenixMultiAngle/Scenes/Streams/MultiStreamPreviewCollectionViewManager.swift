@@ -63,6 +63,7 @@ extension MultiStreamPreviewCollectionViewManager: UICollectionViewDataSource {
 
             channel.addSecondaryLayer(to: cell.contentView.layer)
             channel.setAudio(enabled: true)
+            channel.stopBandwidthLimitation()
 
             // Save the secondary preview layer inside the preview array
             secondaryPreviewLayers.insert(channel.secondaryPreviewLayer)
@@ -71,10 +72,17 @@ extension MultiStreamPreviewCollectionViewManager: UICollectionViewDataSource {
         } else {
             channel.addPrimaryLayer(to: cell.contentView.layer)
             channel.setAudio(enabled: false)
+            channel.startBandwidthLimitation()
         }
 
-        cell.isOfflineLabelVisible = channel.joinState != .joined
-        cell.isActivityIndicatorVisible = channel.streamState == .noStreamPlaying
+        switch (channel.joinState, channel.streamState) {
+        case (.joined, .playing):
+            cell.state = .ready
+        case (.joined, .noStreamPlaying):
+            cell.state = .pending
+        default:
+            cell.state = .notReady
+        }
 
         channel.addStreamObserver(cell)
         channel.addJoinObserver(cell)

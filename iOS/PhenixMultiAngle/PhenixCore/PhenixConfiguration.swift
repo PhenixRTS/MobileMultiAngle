@@ -9,4 +9,5 @@ public enum PhenixConfiguration {
     // swiftlint:disable force_unwrapping
     public static var backend = URL(string: "https://demo.phenixrts.com/pcast")!
     public static var channelAliases: [String] = ["NFL.1", "NFL.2", "NFL.3", "NFL.4", "NFL.5"]
+    static let channelBandwidthLimitation: UInt64 = 400_000
 }

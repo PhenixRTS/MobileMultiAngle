@@ -8,7 +8,6 @@ import UIKit
 
 /// Have all instructions how to initiate application dependencies and the main coordinator
 class Launcher {
-    // swiftlint:disable force_unwrapping
     private let url = PhenixConfiguration.backend
     private weak var window: UIWindow?
 
