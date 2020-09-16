@@ -15,11 +15,26 @@ public final class PhenixClosedCaptionsService {
 
     public weak var delegate: PhenixClosedCaptionsServiceDelegate?
 
+    /// A Boolean value indicating whether the Closed Captions service is enabled.
+    ///
+    /// If set to `true` then Closed Captions service will subscribe to receive the messages, or if set to `false` - unsubscribe from message retrieval.
+    ///
+    /// The default value of this property is true for a newly ClosedCaptions service.
+    public var isClosedCaptionsEnabled: Bool {
+        didSet {
+            guard isClosedCaptionsEnabled != oldValue else {
+                return
+            }
+            closedCaptionStateDidChange()
+        }
+    }
+
     public init(roomService: PhenixRoomService) {
         let batchSize: UInt = 0
+        self.decoder = JSONDecoder()
         self.roomService = roomService
         self.chatService = PhenixRoomChatServiceFactory.createRoomChatService(roomService, batchSize, acceptableMimeTypes)
-        self.decoder = JSONDecoder()
+        self.isClosedCaptionsEnabled = true
 
         self.subscribeForLastChatMessage()
     }
@@ -42,6 +57,16 @@ private extension PhenixClosedCaptionsService {
     func deliverClosedCaption(_ message: PhenixClosedCaptionMessage) {
         os_log(.debug, log: .service, "Deliver closed caption message to delegate")
         delegate?.closedCaptionsService(self, didReceive: message)
+    }
+
+    func closedCaptionStateDidChange() {
+        if isClosedCaptionsEnabled {
+            os_log(.debug, log: .service, "Enable closed captions")
+            subscribeForLastChatMessage()
+        } else {
+            os_log(.debug, log: .service, "Disable closed captions")
+            dispose()
+        }
     }
 }
 

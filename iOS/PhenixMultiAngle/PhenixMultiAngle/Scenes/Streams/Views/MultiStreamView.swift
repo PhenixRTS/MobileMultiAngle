@@ -138,16 +138,19 @@ private extension MultiStreamView {
     }
 
     func setControlInteraction(forReplay state: ReplayState) {
-        replayButton.isEnabled = state == .ready
-        replayButton.backgroundColor = state == .ready ? UIColor.green : UIColor.white
-        replayButton.alpha = state == .ready ? 1 : 0.5
+        let isReplayButtonEnabled = state == .ready
+        replayButton.isEnabled = isReplayButtonEnabled
+        replayButton.backgroundColor = isReplayButtonEnabled ? UIColor.green : UIColor.white
+        replayButton.alpha = isReplayButtonEnabled ? 1 : 0.5
 
-        goLiveButton.isEnabled = state == .active
-        goLiveButton.backgroundColor = state == .active ? UIColor.green : UIColor.white
-        goLiveButton.alpha = state == .active ? 1 : 0.5
+        let isGoLiveButtonEnabled = state == .active
+        goLiveButton.isEnabled = isGoLiveButtonEnabled
+        goLiveButton.backgroundColor = isGoLiveButtonEnabled ? UIColor.green : UIColor.white
+        goLiveButton.alpha = isGoLiveButtonEnabled ? 1 : 0.5
 
-        replayConfigurationButton.isEnabled = state == .ready
-        replayConfigurationButton.alpha = state == .ready ? 1 : 0.5
+        let isReplayConfigurationButtonEnabled = state == .ready || state == .failure
+        replayConfigurationButton.isEnabled = isReplayConfigurationButtonEnabled
+        replayConfigurationButton.alpha = isReplayConfigurationButtonEnabled ? 1 : 0.5
     }
 
     func setSliderPosition(startDate: Date, currentDate: Date, endDate: Date) {

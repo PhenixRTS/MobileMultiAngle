@@ -9,10 +9,11 @@ import UIKit
 
 class MultiStreamViewController: UIViewController, Storyboarded {
     enum ReplayState: String {
-        case notReady
-        case ready
-        case waitingForPlayback
-        case active
+        case notReady           // Time Shift is still loading or currently is not available.
+        case failure            // Time Shift has failed to start.
+        case ready              // Time Shift is ready to replay.
+        case waitingForPlayback // Time Shift has moved its playback head and loading now.
+        case active             // Time Shift is replaying right now.
     }
 
     var phenixManager: PhenixChannelJoining!
@@ -85,8 +86,9 @@ class MultiStreamViewController: UIViewController, Storyboarded {
 
 private extension MultiStreamViewController {
     func join(_ channel: Channel) {
-        phenixManager.join(channel)
+        channel.addStreamObserver(self)
         channel.addTimeShiftObserver(self)
+        phenixManager.join(channel)
     }
 
     func select(channelAt indexPath: IndexPath) {
@@ -113,8 +115,9 @@ private extension MultiStreamViewController {
     }
 
     func configurePlayback(with replayConfiguration: TimeShiftReplayConfiguration) {
+        os_log(.debug, log: .ui, "Change replay configuration to %{PRIVATE}s", replayConfiguration.title)
         let initialDate = Date()
-        for channel in channels where channel.timeShiftState == .ready {
+        for channel in channels {
             channel.startTimeShift(with: replayConfiguration, from: initialDate)
         }
 
@@ -149,9 +152,7 @@ private extension MultiStreamViewController {
                 guard let self = self else {
                     return
                 }
-                guard configuration.title != self.multiStreamView.replayConfigurationTitle else {
-                    return
-                }
+
                 self.multiStreamView.setReplayConfigurationButtonTitle(configuration.title)
                 self.configurePlayback(with: configuration)
             })
@@ -161,13 +162,26 @@ private extension MultiStreamViewController {
     }
 
     func updateReplayState() {
+        // Filter out channels, which are currently streaming
+        let channels = self.channels.filter { $0.streamState == .playing }
+
+        guard channels.isEmpty == false else {
+            replayState = .notReady
+            playbackHeadDidMove = false
+            return
+        }
+
         // Filter out failed channels, and check if all the rest of the channels are ready for replay
         let timeShiftChannels = channels.filter { $0.timeShiftState != .failure }
-        let isTimeShiftReady = timeShiftChannels.allSatisfy { $0.timeShiftState == .ready }
 
-        if timeShiftChannels.isEmpty {
-            replayState = .notReady
+        guard timeShiftChannels.isEmpty == false else {
+            replayState = .failure
+            playbackHeadDidMove = false
+            return
         }
+
+        // Check if all available channel TimeShift is ready to replay
+        let isTimeShiftReady = timeShiftChannels.allSatisfy { $0.timeShiftState == .ready }
 
         switch (isTimeShiftReady, playbackHeadDidMove) {
         case (true, true):
@@ -196,8 +210,16 @@ private extension MultiStreamViewController {
     }
 }
 
+extension MultiStreamViewController: ChannelStreamObserver {
+    func channel(_ channel: Channel, didChange state: Channel.StreamState) {
+        DispatchQueue.main.async { [weak self] in
+            self?.updateReplayState()
+        }
+    }
+}
+
 extension MultiStreamViewController: ChannelTimeShiftObserver {
-    func channelTimeShiftStateDidChange(_ channel: Channel, state: ChannelTimeShiftWorker.TimeShiftAvailability) {
+    func channel(_ channel: Channel, didChange state: ChannelTimeShiftWorker.TimeShiftAvailability) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else {
                 return
@@ -222,7 +244,7 @@ extension MultiStreamViewController: ChannelTimeShiftObserver {
         }
     }
 
-    func channelTimeShiftDidChangePlaybackHead(_ channel: Channel, startDate: Date, currentDate: Date, endDate: Date) {
+    func channel(_ channel: Channel, didChangePlaybackHeadTo currentDate: Date, startDate: Date, endDate: Date) {
         DispatchQueue.main.async { [weak self] in
             self?.multiStreamView.setReplayPlaybackHeadDate(startDate: startDate, currentDate: currentDate, endDate: endDate)
         }

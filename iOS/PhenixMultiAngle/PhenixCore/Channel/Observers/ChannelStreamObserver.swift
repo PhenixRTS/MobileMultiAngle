@@ -5,7 +5,7 @@
 import Foundation
 
 public protocol ChannelStreamObserver: AnyObject {
-    func channelStreamStateDidChange(_ channel: Channel, state: Channel.StreamState)
+    func channel(_ channel: Channel, didChange state: Channel.StreamState)
 }
 
 // MARK: - Stream observation
@@ -34,7 +34,7 @@ internal extension Channel {
                 continue
             }
 
-            observer.channelStreamStateDidChange(self, state: state)
+            observer.channel(self, didChange: state)
         }
     }
 }

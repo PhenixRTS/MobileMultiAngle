@@ -28,7 +28,7 @@ public class ChannelTimeShiftWorker {
 
     private(set) var state: TimeShiftAvailability = .notReady {
         didSet {
-            os_log(.debug, log: .timeShift, "TimeShift state changed to %{PRIVATE}s, (%{PRIVATE}s)", String(describing: state), channel.description)
+            os_log(.debug, log: .timeShift, "TimeShift state did change to %{PRIVATE}s, (%{PRIVATE}s)", String(describing: state), channel.description)
             channel.channelTimeShiftStateDidChange(state: state)
         }
     }
@@ -64,13 +64,13 @@ public class ChannelTimeShiftWorker {
     }
 
     func subscribeForStatusEvents() {
-        os_log(.debug, log: .timeShift, "Subscribe for TimeShift status changes, (%{PRIVATE}s)", channel.description)
+        os_log(.debug, log: .timeShift, "Subscribe for TimeShift status events, (%{PRIVATE}s)", channel.description)
         timeShift.getObservableReadyForPlaybackStatus()?.subscribe(timeShiftReadyForPlaybackStatusDidChange)?.append(to: &disposables)
         timeShift.getObservableFailure()?.subscribe(timeShiftFailureDidChange)?.append(to: &disposables)
     }
 
     func subscribeForPlaybackHeadEvents() {
-        os_log(.debug, log: .timeShift, "Subscribe for TimeShift playback head changes, (%{PRIVATE}s)", channel.description)
+        os_log(.debug, log: .timeShift, "Subscribe for TimeShift playback head change events, (%{PRIVATE}s)", channel.description)
         playbackHeadDisposable = timeShift.getObservablePlaybackHead()?.subscribe(timeShiftPlaybackHeadDidChange)
     }
 

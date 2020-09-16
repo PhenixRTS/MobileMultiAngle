@@ -61,7 +61,12 @@ public class Channel {
     // MARK: - ClosedCaptions
 
     private var closedCaptionsService: PhenixClosedCaptionsService?
-    private var isClosedCaptionsEnabled: Bool
+    /// A Boolean value indicating whether the Closed Captions service should be initialized after a successful Channel joining.
+    private var provideClosedCaptions: Bool
+    public var isClosedCaptionEnabled: Bool {
+        get { closedCaptionsService?.isClosedCaptionsEnabled ?? false }
+        set { closedCaptionsService?.isClosedCaptionsEnabled = newValue }
+    }
     public weak var closedCaptionServiceDelegate: PhenixClosedCaptionsServiceDelegate?
 
     // MARK: - Observers
@@ -83,7 +88,7 @@ public class Channel {
         self.alias = alias
         self.timeShiftStartTime = date
         self.timeShiftReplayConfiguration = replayConfiguration
-        self.isClosedCaptionsEnabled = closedCaptionsEnabled
+        self.provideClosedCaptions = closedCaptionsEnabled
 
         self.primaryPreviewLayer = VideoLayer()
 
@@ -260,7 +265,7 @@ internal extension Channel {
 
         switch status {
         case .ok:
-            if isClosedCaptionsEnabled, let service = roomService {
+            if provideClosedCaptions, let service = roomService {
                 closedCaptionsService = makeClosedCationsService(with: service)
                 closedCaptionsService?.delegate = closedCaptionServiceDelegate
             }

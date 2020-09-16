@@ -5,7 +5,7 @@
 import Foundation
 
 public protocol ChannelJoinObserver: AnyObject {
-    func channelJoinStateDidChange(_ channel: Channel, state: Channel.JoinState)
+    func channel(_ channel: Channel, didChange state: Channel.JoinState)
 }
 
 // MARK: - Connection observation
@@ -34,7 +34,7 @@ internal extension Channel {
                 continue
             }
 
-            observer.channelJoinStateDidChange(self, state: state)
+            observer.channel(self, didChange: state)
         }
     }
 }

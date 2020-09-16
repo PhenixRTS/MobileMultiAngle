@@ -97,7 +97,7 @@ private extension MultiStreamPreviewCollectionViewCell {
 }
 
 extension MultiStreamPreviewCollectionViewCell: ChannelStreamObserver {
-    func channelStreamStateDidChange(_ channel: Channel, state: Channel.StreamState) {
+    func channel(_ channel: Channel, didChange state: Channel.StreamState) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else {
                 return
@@ -117,7 +117,7 @@ extension MultiStreamPreviewCollectionViewCell: ChannelStreamObserver {
 }
 
 extension MultiStreamPreviewCollectionViewCell: ChannelJoinObserver {
-    func channelJoinStateDidChange(_ channel: Channel, state: Channel.JoinState) {
+    func channel(_ channel: Channel, didChange state: Channel.JoinState) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else {
                 return
