@@ -7,8 +7,8 @@ package com.phenixrts.suite.phenixmultiangle.ui.viewmodels
 import android.view.SurfaceView
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
+import com.phenixrts.suite.phenixclosedcaption.PhenixClosedCaptionView
 import com.phenixrts.suite.phenixmultiangle.common.DEFAULT_HIGHLIGHT
-import com.phenixrts.suite.phenixmultiangle.common.SingleLiveEvent
 import com.phenixrts.suite.phenixmultiangle.common.enums.Highlight
 import com.phenixrts.suite.phenixmultiangle.common.enums.ReplayState
 import com.phenixrts.suite.phenixmultiangle.common.launchMain
@@ -31,14 +31,9 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
             channelList?.forEach { channel ->
                 channel.joinChannel(channelExpressRepository.timeShiftStartTime)
             }
-            onChannelsJoined.call()
+            onChannelsJoined.value = true
             Timber.d("Channel list joined $channelList")
         }
-    }
-
-    private val chatMessageObserver = Observer<String> { message ->
-        Timber.d("Received chat message $message")
-        chatMessages.value = message
     }
 
     private val timeShiftObserver = Observer<Boolean> {
@@ -50,12 +45,11 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
     }
 
     val channels = MutableLiveData<List<Channel>>()
-    val chatMessages = MutableLiveData<String>()
     val headTimeStamp = MutableLiveData<Date>()
     val onReplayButtonState = MutableLiveData<ReplayState>().apply { value = ReplayState.LIVE }
     val onReplayButtonVisible = MutableLiveData<Boolean>().apply { value = false }
     val isReplayButtonClickable = MutableLiveData<Boolean>().apply { value = true }
-    val onChannelsJoined = SingleLiveEvent<Unit>()
+    val onChannelsJoined = MutableLiveData<Boolean>()
     var selectedHighlight = DEFAULT_HIGHLIGHT
 
     init {
@@ -99,7 +93,7 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
         }
     }
 
-    fun updateActiveChannel(surfaceView: SurfaceView, channel: Channel) = launchMain {
+    fun updateActiveChannel(surfaceView: SurfaceView, closedCaptionView: PhenixClosedCaptionView, channel: Channel) = launchMain {
         val channels = channels.value?.toMutableList() ?: mutableListOf()
         channels.filter { it.isMainRendered.value == true && it.channelAlias != channel.channelAlias }.forEach { channel ->
             channel.isMainRendered.value = false
@@ -107,7 +101,6 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
             channel.muteAudio()
             channel.onTimeShiftReady.removeObserver(timeShiftObserver)
             channel.onPlaybackHead.removeObserver(playbackHeadObserver)
-            channel.chatMessages.removeObserver(chatMessageObserver)
         }
         channels.find { it.channelAlias == channel.channelAlias }?.apply {
             isMainRendered.value = true
@@ -118,7 +111,9 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
                 onTimeShiftReady.observeForever(timeShiftObserver)
             }
             onPlaybackHead.observeForever(playbackHeadObserver)
-            chatMessages.observeForever(chatMessageObserver)
+            roomService?.let { service ->
+                closedCaptionView.subscribe(service, channelExpressRepository.getMimeTypes())
+            }
         }
         Timber.d("Updated active channel: $channel")
         updateRePlayState()

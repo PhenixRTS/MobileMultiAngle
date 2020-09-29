@@ -11,7 +11,7 @@
     android:keepScreenOn="true"
     tools:context=".ui.MainActivity">
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main_stream_holder"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -37,41 +37,32 @@
         <SurfaceView
             android:id="@+id/main_stream_surface"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        <TextView
-            android:id="@+id/stream_text_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:layout_margin="8dp"
-            android:fontFamily="sans-serif-medium"
-            android:textSize="14sp"
-            android:textColor="@color/primaryTextColor"
-            android:background="@color/primaryTranslucentColor"
-            android:visibility="gone"
-            tools:text="1\nTEST MESSAGE\nMESSAGE TEST"
-            tools:visibility="visible" />
+        <com.phenixrts.suite.phenixclosedcaption.PhenixClosedCaptionView
+            android:id="@+id/closed_caption_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/stream_head_holder" />
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/stream_head_holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:orientation="vertical"
+            android:background="@color/primaryTranslucentColor"
             android:visibility="gone"
-            tools:visibility="visible" >
-
-            <TextView
-                android:id="@+id/stream_head_overlay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:fontFamily="sans-serif-medium"
-                android:textSize="14sp"
-                android:textColor="@color/primaryTextColor"
-                android:background="@color/primaryTranslucentColor"
-                tools:text="10:00:11"/>
+            tools:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"  >
 
             <SeekBar
                 android:id="@+id/stream_head_progress"
@@ -80,13 +71,25 @@
                 android:indeterminate="false"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:background="@color/primaryTranslucentColor"
                 android:progressTint="@color/colorRePlay"
-                android:thumbTint="@color/primaryTextAccentColor" />
+                android:thumbTint="@color/primaryTextAccentColor"
+                android:layout_toStartOf="@id/stream_head_overlay"/>
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/stream_head_overlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"
+                android:textColor="@color/primaryTextColor"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                tools:text="10:00:11"/>
 
-    </FrameLayout>
+        </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/main_stream_list"

@@ -58,7 +58,7 @@ fun View.setVisible(condition: Boolean) {
     }
 }
 
-fun Date.toDateString(): String = SimpleDateFormat("MM-dd-yyyy HH:mm:ss", Locale.getDefault()).format(this)
+fun Date.toDateString(): String = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(this)
 
 fun Spinner.onSelectionChanged(callback: (Int) -> Unit) {
     var lastSelectedPosition = 0

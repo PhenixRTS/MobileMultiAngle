@@ -58,7 +58,9 @@ class ChannelExpressRepository(private val context: MultiAngleApp) {
         ChannelExpressFactory.createChannelExpress(channelExpressOptions)?.let { express ->
             channelExpress = express
             roomExpress = express.roomExpress
-            channels.value = expressConfiguration.channelAliases.map { Channel(express, it) }.apply {
+            channels.value = expressConfiguration.channelAliases.map {
+                Channel(express, it)
+            }.apply {
                 firstOrNull()?.isMainRendered?.value = true
             }
             Timber.d("Channel express initialized")
@@ -92,5 +94,7 @@ class ChannelExpressRepository(private val context: MultiAngleApp) {
     }
 
     fun isRoomExpressInitialized(): Boolean = roomExpress != null
+
+    fun getMimeTypes() = expressConfiguration.mimeTypes
 
 }

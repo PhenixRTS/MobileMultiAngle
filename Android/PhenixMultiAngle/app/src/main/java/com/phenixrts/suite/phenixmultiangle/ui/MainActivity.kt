@@ -6,8 +6,6 @@ package com.phenixrts.suite.phenixmultiangle.ui
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import androidx.fragment.app.FragmentActivity
@@ -25,7 +23,6 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-private const val MESSAGE_DISMISS_DELAY = 1000 * 10L
 const val SPAN_COUNT_PORTRAIT = 2
 const val SPAN_COUNT_LANDSCAPE = 1
 
@@ -38,13 +35,8 @@ class MainActivity : FragmentActivity() {
     private val adapter: ChannelAdapter by lazy {
         ChannelAdapter { roomMember ->
             Timber.d("Member clicked: $roomMember")
-            viewModel.updateActiveChannel(main_stream_surface, roomMember)
+            viewModel.updateActiveChannel(main_stream_surface, closed_caption_view, roomMember)
         }
-    }
-
-    private val messageRunnableHandler = Handler(Looper.getMainLooper())
-    private val messageRunnable = Runnable {
-        stream_text_overlay.setVisible(false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,14 +89,13 @@ class MainActivity : FragmentActivity() {
             Timber.d("Channel list updated: $channels")
             adapter.data = channels
         })
-        viewModel.onChannelsJoined.observe(this, {
-            Timber.d("On all channels ready")
-            viewModel.channels.value?.find { it.isMainRendered.value == true }?.let { channel ->
-                viewModel.updateActiveChannel(main_stream_surface, channel)
+        viewModel.onChannelsJoined.observe(this, { ready ->
+            Timber.d("On all channels ready: $ready")
+            if (ready) {
+                viewModel.channels.value?.find { it.isMainRendered.value == true }?.let { channel ->
+                    viewModel.updateActiveChannel(main_stream_surface, closed_caption_view, channel)
+                }
             }
-        })
-        viewModel.chatMessages.observe(this, { message ->
-            showMessage(message)
         })
         viewModel.headTimeStamp.observe(this, { head ->
             stream_head_progress.progress = viewModel.getProgressFromTimestamp(head)
@@ -134,12 +125,5 @@ class MainActivity : FragmentActivity() {
             )
         })
         Timber.d("Initializing Main Activity: $rotation")
-    }
-
-    private fun showMessage(message: String) = launchMain {
-        messageRunnableHandler.removeCallbacks(messageRunnable)
-        stream_text_overlay.setVisible(true)
-        stream_text_overlay.text = message
-        messageRunnableHandler.postDelayed(messageRunnable, MESSAGE_DISMISS_DELAY)
     }
 }

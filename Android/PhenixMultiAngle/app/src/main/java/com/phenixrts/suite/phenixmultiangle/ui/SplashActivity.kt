@@ -60,10 +60,11 @@ class SplashActivity : AppCompatActivity() {
             if (intent?.data != null) {
                 intent.data?.let { data ->
                     val channelAliases = (data.getQueryParameter(QUERY_CHANNEL_ALIASES) ?: BuildConfig.CHANNEL_ALIASES).split(",")
+                    val mimeTypes = (data.getQueryParameter(QUERY_MIME_TYPES) ?: BuildConfig.MIME_TYPES).split(",")
                     val edgeAuth = data.getQueryParameter(QUERY_EDGE_AUTH)
                     val uri = data.getQueryParameter(QUERY_URI) ?: BuildConfig.PCAST_URL
                     val backend = data.getQueryParameter(QUERY_BACKEND) ?: BuildConfig.BACKEND_URL
-                    ChannelExpressConfiguration(uri, backend, edgeAuth, channelAliases).let { createdConfiguration ->
+                    ChannelExpressConfiguration(uri, backend, edgeAuth, channelAliases, mimeTypes).let { createdConfiguration ->
                         Timber.d("Checking deep link: $channelAliases $createdConfiguration")
                         configuration = createdConfiguration
                         if (channelExpressRepository.isRoomExpressInitialized()) {

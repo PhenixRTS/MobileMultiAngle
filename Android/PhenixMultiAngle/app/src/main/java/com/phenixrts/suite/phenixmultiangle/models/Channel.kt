@@ -5,12 +5,9 @@
 package com.phenixrts.suite.phenixmultiangle.models
 
 import android.graphics.Bitmap
-import android.graphics.Paint
-import android.util.Base64
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.lifecycle.MutableLiveData
-import com.phenixrts.chat.RoomChatServiceFactory
 import com.phenixrts.common.Disposable
 import com.phenixrts.common.RequestStatus
 import com.phenixrts.express.ChannelExpress
@@ -42,9 +39,7 @@ data class Channel(
     private var renderer: Renderer? = null
     private var expressSubscriber: ExpressSubscriber? = null
     private var timeShift: TimeShift? = null
-    private var joinedChannel: RoomService? = null
 
-    private var chatDisposable: Disposable? = null
     private var bandwidthLimiter: Disposable? = null
     private var timeShiftDisposables = mutableListOf<Disposable>()
     private var timeShiftSeekDisposables = mutableListOf<Disposable>()
@@ -66,24 +61,8 @@ data class Channel(
     val isMainRendered= MutableLiveData<Boolean>().apply { value = false }
     val onPlaybackHead = MutableLiveData<Date>().apply { value = Date() }
     val onChannelJoined = MutableLiveData<StreamStatus>()
-    val chatMessages = MutableLiveData<String>()
+    var roomService: RoomService? = null
     var isReplaying = false
-
-    private suspend fun observeChatMessages(roomService: RoomService?) {
-        delay(CHAT_SERVICE_DELAY)
-        chatDisposable?.dispose()
-        chatDisposable = null
-        RoomChatServiceFactory.createRoomChatService(roomService, MESSAGE_BATCH_SIZE).observableLastChatMessage.subscribe { lastMessage ->
-            launchMain {
-                Timber.d("RAW message received: ${lastMessage.observableMessage.value} from: ${lastMessage.observableFrom.value.observableScreenName.value}")
-                lastMessage.takeIf {
-                    it.observableFrom.value.observableScreenName.value == MESSAGE_FILTER
-                }?.observableMessage?.value?.let { message ->
-                    chatMessages.value = Base64.decode(message, Base64.DEFAULT).toString(charset("UTF-8"))
-                }
-            }
-        }.run { chatDisposable = this }
-    }
 
     private fun limitBandwidth() {
         Timber.d("Limiting Bandwidth: ${toString()}")
@@ -146,20 +125,7 @@ data class Channel(
                     holder.lockCanvas()?.let { canvas ->
                         val targetWidth = bitmapSurface?.measuredWidth ?: 0
                         val targetHeight = bitmapSurface?.measuredHeight ?: 0
-                        val ratioBitmap = bitmap.width.toFloat() / bitmap.height.toFloat()
-                        val ratioTarget = targetWidth.toFloat() / targetHeight.toFloat()
-
-                        var finalWidth = targetWidth
-                        var finalHeight = targetHeight
-                        if (ratioTarget > 1) {
-                            finalWidth = (targetHeight.toFloat() * ratioBitmap).toInt()
-                        } else {
-                            finalHeight = (targetWidth.toFloat() / ratioBitmap).toInt()
-                        }
-                        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true)
-                        canvas.drawBitmap(scaledBitmap, 0f, 0f, Paint())
-                        scaledBitmap.recycle()
-                        bitmap.recycle()
+                        canvas.drawScaledBitmap(bitmap, targetWidth, targetHeight)
                         holder.unlockCanvasAndPost(canvas)
                     }
                 }
@@ -216,12 +182,11 @@ data class Channel(
     suspend fun joinChannel(startTime: Date) = suspendCancellableCoroutine<Unit> { continuation ->
         Timber.d("Joining channel with alias: $channelAlias")
         val options = getChannelConfiguration(channelAlias, videoRenderSurface)
-        channelExpress.joinChannel(options, { requestStatus: RequestStatus?, roomService: RoomService? ->
+        channelExpress.joinChannel(options, { requestStatus: RequestStatus?, service: RoomService? ->
             launchMain {
                 Timber.d("Channel join status: $requestStatus")
                 if (requestStatus == RequestStatus.OK) {
-                    joinedChannel = roomService
-                    observeChatMessages(roomService)
+                    roomService = service
                     onChannelJoined.value = StreamStatus.ONLINE
                 } else {
                     onChannelJoined.value = StreamStatus.OFFLINE

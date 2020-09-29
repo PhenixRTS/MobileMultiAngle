@@ -9,26 +9,28 @@ import com.phenixrts.pcast.RendererOptions
 import com.phenixrts.pcast.android.AndroidVideoRenderSurface
 import com.phenixrts.suite.phenixmultiangle.BuildConfig
 import com.phenixrts.suite.phenixmultiangle.common.enums.Highlight
-import java.io.Serializable
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 // The delay before starting to draw bitmaps on surface
 const val THUMBNAIL_DRAW_DELAY = 100L
-// SDK issue - cannot reliable create chat service right after joining room
-const val CHAT_SERVICE_DELAY = 2000L
-const val MESSAGE_FILTER = "CC"
-const val MESSAGE_BATCH_SIZE = 10
 const val QUERY_URI = "uri"
 const val QUERY_BACKEND = "backend"
 const val QUERY_EDGE_AUTH = "edgeauth"
 const val QUERY_CHANNEL_ALIASES = "channelAliases"
+const val QUERY_MIME_TYPES = "mimetypes"
 val DEFAULT_HIGHLIGHT = Highlight.FAR
 
+@Serializable
 data class ChannelExpressConfiguration(
     val uri: String = BuildConfig.PCAST_URL,
     val backend: String = BuildConfig.BACKEND_URL,
     val edgeAuth: String? = null,
-    val channelAliases: List<String> = listOf()
-) : Serializable
+    val channelAliases: List<String> = listOf(),
+    val mimeTypes: List<String> = listOf()
+)
 
 fun getChannelConfiguration(channelAlias: String, surface: AndroidVideoRenderSurface): JoinChannelOptions {
     val joinRoomOptions = RoomExpressFactory.createJoinRoomOptionsBuilder()
@@ -42,3 +44,11 @@ fun getChannelConfiguration(channelAlias: String, surface: AndroidVideoRenderSur
         .withRendererOptions(RendererOptions())
         .buildJoinChannelOptions()
 }
+
+fun String.fromJson(): ChannelExpressConfiguration? = try {
+    Json{ ignoreUnknownKeys = true }.decodeFromString(this)
+} catch (e: Exception) {
+    null
+}
+
+fun ChannelExpressConfiguration.toJson(): String = Json.encodeToString(this)
