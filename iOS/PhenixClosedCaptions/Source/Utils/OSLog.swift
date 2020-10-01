@@ -9,7 +9,7 @@ extension OSLog {
     // swiftlint:disable force_unwrapping
     private static var subsystem = Bundle.main.bundleIdentifier!
 
-    /// Logs the main Phenix manager
     static let service = OSLog(subsystem: subsystem, category: "Phenix.Core.ClosedCaptionsService")
+    static let containerView = OSLog(subsystem: subsystem, category: "Phenix.Core.ClosedCaptionsView")
 }
 

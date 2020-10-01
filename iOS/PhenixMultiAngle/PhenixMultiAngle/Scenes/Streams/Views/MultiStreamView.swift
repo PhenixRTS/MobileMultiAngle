@@ -6,6 +6,8 @@ import PhenixClosedCaptions
 import UIKit
 
 protocol MultiStreamViewDelegate: AnyObject {
+    var isClosedCaptionsEnabled: Bool { get set }
+
     func replayModeDidChange(_ inReplayMode: Bool)
     func replayConfigurationButtonTapped()
     func replayTimeSliderDidMove(_ time: TimeInterval)
@@ -24,7 +26,8 @@ class MultiStreamView: UIView {
     @IBOutlet private var slider: UISlider!
     @IBOutlet private var timerLabel: UILabel!
     @IBOutlet private var replaySliderViewContainers: [UIView]!
-    private var closedCaptionView: PhenixClosedCaptionView!
+    @IBOutlet private(set) var closedCaptionsView: PhenixClosedCaptionsView!
+    @IBOutlet private var closedCaptionsButton: UIButton!
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -52,10 +55,6 @@ class MultiStreamView: UIView {
         slider.isExclusiveTouch = true
 
         timerLabel.text = ""
-
-        // Create Closed Captions view
-        closedCaptionView = PhenixClosedCaptionView()
-        primaryPreviewOverlayView.addSubview(closedCaptionView)
 
         replay(state: .notReady)
     }
@@ -90,19 +89,9 @@ class MultiStreamView: UIView {
         setSliderPosition(startDate: startDate, currentDate: currentDate, endDate: endDate)
     }
 
-    func setCaption(_ caption: String?) {
-        closedCaptionView.caption = caption
-    }
-
     func replay(state: ReplayState) {
         setControlVisibility(forReplay: state)
         setControlInteraction(forReplay: state)
-    }
-
-    func updateVisibilityForClosedCaptions(forReplay state: ReplayState) {
-        let inReplayMode = state == .active || state == .waitingForPlayback
-
-        closedCaptionView.isHidden = inReplayMode || closedCaptionView?.caption?.isEmpty != false
     }
 
     @IBAction
@@ -124,13 +113,23 @@ class MultiStreamView: UIView {
     private func sliderDidMove(_ sender: UISlider) {
         delegate?.replayTimeSliderDidMove(TimeInterval(sender.value))
     }
+
+    @IBAction func closedCaptionsButtonTapped(_ sender: Any) {
+        delegate?.isClosedCaptionsEnabled.toggle()
+        if delegate?.isClosedCaptionsEnabled == true {
+            closedCaptionsButton.setImage(UIImage(named: "cc_enabled"), for: .normal)
+        } else {
+            closedCaptionsButton.setImage(UIImage(named: "cc_disabled"), for: .normal)
+        }
+    }
 }
 
 private extension MultiStreamView {
     func setControlVisibility(forReplay state: ReplayState) {
         let inReplayMode = state == .active || state == .waitingForPlayback
 
-        updateVisibilityForClosedCaptions(forReplay: state)
+        closedCaptionsButton.isHidden = inReplayMode
+        closedCaptionsView.isHidden = inReplayMode
         replayButton.isHidden = inReplayMode
         goLiveButton.isHidden = !inReplayMode
         replayConfigurationButton.isHidden = inReplayMode

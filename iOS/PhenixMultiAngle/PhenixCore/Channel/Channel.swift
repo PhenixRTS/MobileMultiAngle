@@ -63,11 +63,12 @@ public class Channel {
     private var closedCaptionsService: PhenixClosedCaptionsService?
     /// A Boolean value indicating whether the Closed Captions service should be initialized after a successful Channel joining.
     private var provideClosedCaptions: Bool
-    public var isClosedCaptionEnabled: Bool {
-        get { closedCaptionsService?.isClosedCaptionsEnabled ?? false }
-        set { closedCaptionsService?.isClosedCaptionsEnabled = newValue }
+    private weak var closedCaptionsView: PhenixClosedCaptionsView?
+    public var isClosedCaptionsEnabled: Bool {
+        get { closedCaptionsService?.isEnabled ?? false }
+        set { closedCaptionsService?.isEnabled = newValue }
     }
-    public weak var closedCaptionServiceDelegate: PhenixClosedCaptionsServiceDelegate?
+    public weak var closedCaptionsServiceDelegate: PhenixClosedCaptionsServiceDelegate?
 
     // MARK: - Observers
 
@@ -171,6 +172,10 @@ public class Channel {
         timeShiftWorker?.stopBandwidthLimitation()
     }
 
+    public func setClosedCaptionsView(_ view: PhenixClosedCaptionsView) {
+        closedCaptionsView = view
+    }
+
     deinit {
         resetTimeShift()
     }
@@ -267,7 +272,6 @@ internal extension Channel {
         case .ok:
             if provideClosedCaptions, let service = roomService {
                 closedCaptionsService = makeClosedCationsService(with: service)
-                closedCaptionsService?.delegate = closedCaptionServiceDelegate
             }
 
             joinState = .joined
@@ -300,7 +304,10 @@ internal extension Channel {
 
 private extension Channel {
     func makeClosedCationsService(with roomService: PhenixRoomService) -> PhenixClosedCaptionsService {
-        PhenixClosedCaptionsService(roomService: roomService)
+        let service = PhenixClosedCaptionsService(roomService: roomService)
+        service.setContainerView(closedCaptionsView)
+        service.delegate = closedCaptionsServiceDelegate
+        return service
     }
 }
 

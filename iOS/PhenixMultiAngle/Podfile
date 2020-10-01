@@ -6,7 +6,8 @@ use_frameworks!
 inhibit_all_warnings!
 
 def phenix
-  pod 'PhenixSdk', '2020.1.60-beta'
+  pod 'PhenixSdk', '2020.1.61-beta'
+  pod 'PhenixClosedCaptions', :path => '../PhenixClosedCaptions'
 end
 
 target 'PhenixMultiAngle' do
@@ -15,9 +16,5 @@ target 'PhenixMultiAngle' do
 end
 
 target 'PhenixCore' do
-  phenix
-end
-
-target 'PhenixClosedCaptions' do
   phenix
 end

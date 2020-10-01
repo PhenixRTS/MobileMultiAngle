@@ -18,6 +18,7 @@ class MultiStreamViewController: UIViewController, Storyboarded {
 
     var phenixManager: PhenixChannelJoining!
     var channels: [Channel] = []
+    var ccChannel: Channel?
 
     private var timeShiftReplayConfigurations: [TimeShiftReplayConfiguration] = [.far, .near, .close]
     private var collectionViewManager: MultiStreamPreviewCollectionViewManager!
@@ -46,6 +47,12 @@ class MultiStreamViewController: UIViewController, Storyboarded {
     
     var multiStreamView: MultiStreamView {
         view as! MultiStreamView
+    }
+
+    var isClosedCaptionsEnabled: Bool = true {
+        didSet {
+            ccChannel?.isClosedCaptionsEnabled = isClosedCaptionsEnabled
+        }
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -88,6 +95,7 @@ private extension MultiStreamViewController {
     func join(_ channel: Channel) {
         channel.addStreamObserver(self)
         channel.addTimeShiftObserver(self)
+        channel.setClosedCaptionsView(multiStreamView.closedCaptionsView)
         phenixManager.join(channel)
     }
 
@@ -273,16 +281,9 @@ extension MultiStreamViewController: MultiStreamViewDelegate {
 }
 
 extension MultiStreamViewController: PhenixClosedCaptionsServiceDelegate {
-    public func closedCaptionsService(_ service: PhenixClosedCaptionsService, didReceive message: PhenixClosedCaptionMessage) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-
-            os_log(.debug, log: .ui, "Did receive closed caption message: %{PRIVATE}s", message.debugDescription)
-
-            self.multiStreamView.setCaption(message.textUpdates.first?.caption)
-            self.multiStreamView.updateVisibilityForClosedCaptions(forReplay: self.replayState)
+    public func closedCaptionsService(_ service: PhenixClosedCaptionsService, didReceive message: PhenixClosedCaptionsMessage) {
+        DispatchQueue.main.async {
+            os_log(.debug, log: .ui, "Did receive closed captions: %{PRIVATE}s", String(reflecting: message))
         }
     }
 }

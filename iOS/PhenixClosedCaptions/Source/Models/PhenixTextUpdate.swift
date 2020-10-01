@@ -8,9 +8,3 @@ public struct PhenixTextUpdate: Codable {
     public var timestamp: TimeInterval
     public var caption: String
 }
-
-extension PhenixTextUpdate: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        "PhenixTextUpdate(timestamp: \"\(timestamp)\", caption: \(caption))"
-    }
-}

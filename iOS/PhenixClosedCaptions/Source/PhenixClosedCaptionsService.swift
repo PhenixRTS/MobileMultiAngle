@@ -7,11 +7,11 @@ import os.log
 import PhenixSdk
 
 public final class PhenixClosedCaptionsService {
-    private weak var roomService: PhenixRoomService!
     private let chatService: PhenixRoomChatService
     private let decoder: JSONDecoder
-    private let acceptableMimeTypes: [String] = ["text/subtitle"]
+    private let acceptableMimeTypes: [String] = ["application/Phenix-CC"]
     private var disposables: [PhenixDisposable] = []
+    private weak var containerView: PhenixClosedCaptionsView?
 
     public weak var delegate: PhenixClosedCaptionsServiceDelegate?
 
@@ -20,21 +20,22 @@ public final class PhenixClosedCaptionsService {
     /// If set to `true` then Closed Captions service will subscribe to receive the messages, or if set to `false` - unsubscribe from message retrieval.
     ///
     /// The default value of this property is true for a newly ClosedCaptions service.
-    public var isClosedCaptionsEnabled: Bool {
+    ///
+    /// - Tag: PhenixClosedCaptionsService_isEnabled
+    public var isEnabled: Bool {
         didSet {
-            guard isClosedCaptionsEnabled != oldValue else {
+            guard isEnabled != oldValue else {
                 return
             }
-            closedCaptionStateDidChange()
+            closedCaptionsStateDidChange()
         }
     }
 
     public init(roomService: PhenixRoomService) {
         let batchSize: UInt = 0
         self.decoder = JSONDecoder()
-        self.roomService = roomService
         self.chatService = PhenixRoomChatServiceFactory.createRoomChatService(roomService, batchSize, acceptableMimeTypes)
-        self.isClosedCaptionsEnabled = true
+        self.isEnabled = true
 
         self.subscribeForLastChatMessage()
     }
@@ -45,27 +46,58 @@ public final class PhenixClosedCaptionsService {
     public func dispose() {
         disposables.removeAll()
     }
+
+    public func setContainerView(_ containerView: PhenixClosedCaptionsView?) {
+        self.containerView = containerView
+    }
 }
 
 // MARK: - Private methods
 private extension PhenixClosedCaptionsService {
+    /// Subscribe for chat messages
+    ///
+    /// Do not call this method manually.
+    /// Instead set [isEnabled](x-source-tag://PhenixClosedCaptionsService_isEnabled) `= true` to subscribe for the messages.
     func subscribeForLastChatMessage() {
-        os_log(.debug, log: .service, "Subscribe for closed caption messages")
+        os_log(.debug, log: .service, "Subscribe for closed captions")
         chatService.getObservableLastChatMessage()?.subscribe(lastChatMessageDidChange)?.append(to: &disposables)
     }
 
-    func deliverClosedCaption(_ message: PhenixClosedCaptionMessage) {
-        os_log(.debug, log: .service, "Deliver closed caption message to delegate")
+    /// Send Closed Captions to the delegate, if it is provided.
+    /// - Parameter message: Received Closed Captions
+    func deliverClosedCaptions(_ message: PhenixClosedCaptionsMessage) {
+        os_log(.debug, log: .service, "Deliver closed captions to delegate")
         delegate?.closedCaptionsService(self, didReceive: message)
     }
 
-    func closedCaptionStateDidChange() {
-        if isClosedCaptionsEnabled {
+    /// Refresh current state by enabling or disabling the the subscription for the chat messages.
+    ///
+    /// Do not call this method manually.
+    /// Instead update [isEnabled](x-source-tag://PhenixClosedCaptionsService_isEnabled) parameter to refresh the state.
+    func closedCaptionsStateDidChange() {
+        if isEnabled {
             os_log(.debug, log: .service, "Enable closed captions")
             subscribeForLastChatMessage()
         } else {
             os_log(.debug, log: .service, "Disable closed captions")
             dispose()
+            containerView?.removeAllWindows()
+        }
+    }
+
+    func process(_ message: PhenixClosedCaptionsMessage) {
+        DispatchQueue.main.async { [weak self] in
+            guard let containerView = self?.containerView else {
+                return
+            }
+
+            // First we need to provide the text properties of the window.
+            containerView.update(message.textUpdates, forWindow: message.windowIndex)
+
+            // After the text properties has been provided, set the window properties, so that the window size could be calculated correctly based on the size of the caption text provided.
+            if let window = message.windowUpdate {
+                containerView.update(window, forWindow: message.windowIndex)
+            }
         }
     }
 }
@@ -89,10 +121,12 @@ private extension PhenixClosedCaptionsService {
         }
 
         do {
-            let closedCaption = try decoder.decode(PhenixClosedCaptionMessage.self, from: data)
-            deliverClosedCaption(closedCaption)
+            let closedCaptions = try decoder.decode(PhenixClosedCaptionsMessage.self, from: data)
+            deliverClosedCaptions(closedCaptions)
+            process(closedCaptions)
         } catch {
-            os_log(.debug, log: .service, "Could not parse message into PhenixClosedCaptionMessage data model, error: %{PRIVATE}s", error.localizedDescription)
+            let e = error as NSError
+            os_log(.debug, log: .service, "Could not parse message into PhenixClosedCaptionsMessage data model, error: %{PRIVATE}s", e.debugDescription)
         }
     }
 }

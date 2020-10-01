@@ -32,9 +32,15 @@ class MainCoordinator: Coordinator {
 
         // Convert aliases into channel models
         for (index, alias) in channelAliases.enumerated() {
+            let ccEnabled = index == 0 ? true : false
             // Enable closed captions only for the first channel in the list
-            let channel = Channel(alias: alias, timeShiftStartDateTime: date, replayConfiguration: .far, closedCaptionsEnabled: index == 0)
-            channel.closedCaptionServiceDelegate = vc
+            let channel = Channel(alias: alias, timeShiftStartDateTime: date, replayConfiguration: .far, closedCaptionsEnabled: ccEnabled)
+
+            if ccEnabled {
+                vc.ccChannel = channel
+            }
+            
+            channel.closedCaptionsServiceDelegate = vc
             channels.append(channel)
         }
 

@@ -5,5 +5,5 @@
 import Foundation
 
 public protocol PhenixClosedCaptionsServiceDelegate: AnyObject {
-    func closedCaptionsService(_ service: PhenixClosedCaptionsService, didReceive message: PhenixClosedCaptionMessage)
+    func closedCaptionsService(_ service: PhenixClosedCaptionsService, didReceive message: PhenixClosedCaptionsMessage)
 }
