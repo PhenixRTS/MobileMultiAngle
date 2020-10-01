@@ -243,6 +243,8 @@ internal extension Channel {
                 return
             }
 
+            self.modify(sampleBuffer)
+
             if self.secondaryPreviewLayer.isReadyForMoreMediaData {
                 self.secondaryPreviewLayer.enqueue(sampleBuffer)
             }
@@ -308,6 +310,22 @@ private extension Channel {
         service.setContainerView(closedCaptionsView)
         service.delegate = closedCaptionsServiceDelegate
         return service
+    }
+
+    func modify(_ sampleBuffer: CMSampleBuffer) {
+        if let attachmentArray = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: true) {
+            let count = CFArrayGetCount(attachmentArray)
+            for index in 0..<count {
+                if let unsafeRawPointer = CFArrayGetValueAtIndex(attachmentArray, index) {
+                    let attachments = unsafeBitCast(unsafeRawPointer, to: CFMutableDictionary.self)
+                    // Need to set the sample buffer to display frame immediately and ignore whatever timestamps are included.
+                    // Without this, iOS 14 will not render the frames.
+                    CFDictionarySetValue(attachments,
+                                         unsafeBitCast(kCMSampleAttachmentKey_DisplayImmediately, to: UnsafeRawPointer.self),
+                                         unsafeBitCast(kCFBooleanTrue, to: UnsafeRawPointer.self))
+                }
+            }
+        }
     }
 }
 
