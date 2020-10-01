@@ -110,6 +110,7 @@ class MainActivity : FragmentActivity() {
                 replay_button_icon.setImageResource(R.drawable.ic_replay_30)
                 replay_button_title.setText(R.string.button_replay)
                 stream_head_holder.setVisible(false)
+                closed_caption_view.defaultConfiguration.isButtonVisible = true
             } else {
                 replay_button_icon.setImageResource(R.drawable.ic_play)
                 replay_button_title.setText(R.string.button_go_live)
@@ -117,7 +118,9 @@ class MainActivity : FragmentActivity() {
                 val loopLength = viewModel.selectedHighlight.loopLength
                 Timber.d("Stream head ready: $loopLength ${TimeUnit.MILLISECONDS.toSeconds(loopLength).toInt()}")
                 stream_head_progress.max = TimeUnit.MILLISECONDS.toSeconds(loopLength).toInt()
+                closed_caption_view.defaultConfiguration.isButtonVisible = false
             }
+            closed_caption_view.refresh()
         })
         viewModel.isReplayButtonClickable.observe(this, { isClickable ->
             replay_button.setBackgroundResource(

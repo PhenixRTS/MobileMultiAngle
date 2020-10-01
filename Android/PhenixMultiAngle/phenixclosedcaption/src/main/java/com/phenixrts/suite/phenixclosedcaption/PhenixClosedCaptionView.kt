@@ -34,9 +34,6 @@ private const val MESSAGE_BATCH_SIZE = 0
 private const val DEFAULT_MIME_TYPE = "application/Phenix-CC"
 private const val MEASURABLE_CHARACTER = "W"
 
-private val Int.dp: Int
-    get() = (this / Resources.getSystem().displayMetrics.density).toInt()
-
 val Int.px: Int
     get() = (this * Resources.getSystem().displayMetrics.density).toInt()
 
@@ -91,6 +88,7 @@ class PhenixClosedCaptionView : FrameLayout {
     }
 
     private fun addClosedCaptionButton() {
+        if (!defaultConfiguration.isButtonVisible) return
         val ccButton = ImageButton(context)
         val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         layoutParams.gravity = Gravity.BOTTOM or Gravity.END
@@ -163,7 +161,6 @@ class PhenixClosedCaptionView : FrameLayout {
             MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),
             MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST)
         )
-        Timber.d("TextView size: $textViewWidth, $textViewHeight, ${textView.lineHeight}")
         val locationX = width *( windowUpdate.positionOfTextWindow ?: defaultConfiguration.positionOfTextWindow).x -
                 textView.measuredWidth * (windowUpdate.anchorPointOnTextWindow ?: defaultConfiguration.anchorPointOnTextWindow).x
         val locationY = height * (windowUpdate.positionOfTextWindow ?: defaultConfiguration.positionOfTextWindow).y -
@@ -199,6 +196,11 @@ class PhenixClosedCaptionView : FrameLayout {
 
     fun updateConfiguration(configuration: ClosedCaptionConfiguration) {
         defaultConfiguration = configuration.copy()
+    }
+
+    fun refresh() {
+        removeAllViews()
+        addClosedCaptionButton()
     }
 }
 
@@ -257,10 +259,11 @@ data class ClosedCaptionConfiguration(
     var wordWrap: Boolean = true,
     var effectType: String = "pop-on",
     var effectDurationInSeconds: Int = 1,
-    var textPadding: Int = 8.dp,
+    var textPadding: Int = 8.px,
     var textColor: String = "#f4f4f4",
     var textSize: Float = 14f,
-    var isEnabled: Boolean = true
+    var isEnabled: Boolean = true,
+    var isButtonVisible: Boolean = true
 )
 
 enum class JustificationMode(val value: String) {
