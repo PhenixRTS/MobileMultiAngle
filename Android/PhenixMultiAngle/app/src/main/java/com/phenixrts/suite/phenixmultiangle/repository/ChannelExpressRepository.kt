@@ -41,8 +41,10 @@ class ChannelExpressRepository(private val context: MultiAngleApp) {
             .withBackendUri(expressConfiguration.backend)
             .withPCastUri(expressConfiguration.uri)
             .withUnrecoverableErrorCallback { status: RequestStatus, description: String ->
-                Timber.e("Unrecoverable error in PhenixSDK. Error status: [$status]. Description: [$description]")
-                onChannelExpressError.value = ExpressError.UNRECOVERABLE_ERROR
+                launchMain {
+                    Timber.e("Unrecoverable error in PhenixSDK. Error status: [$status]. Description: [$description]")
+                    onChannelExpressError.value = ExpressError.UNRECOVERABLE_ERROR
+                }
             }
         if (expressConfiguration.edgeAuth != null) {
             pcastBuilder = pcastBuilder.withAuthenticationToken(expressConfiguration.edgeAuth)

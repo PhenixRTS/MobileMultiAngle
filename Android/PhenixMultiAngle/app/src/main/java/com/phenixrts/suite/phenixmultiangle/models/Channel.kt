@@ -65,9 +65,18 @@ data class Channel(
     var isReplaying = false
 
     private fun limitBandwidth() {
-        Timber.d("Limiting Bandwidth: ${toString()}")
-        bandwidthLimiter =
-            expressSubscriber?.videoTracks?.getOrNull(0)?.limitBandwidth(BANDWIDTH_LIMIT)
+        expressSubscriber?.videoTracks?.getOrNull(0)?.limitBandwidth(BANDWIDTH_LIMIT)?.let { disposable ->
+            Timber.d("Bandwidth limited: ${toString()}")
+            bandwidthLimiter = disposable
+        }
+    }
+
+    private fun releaseBandwidthLimiter() {
+        bandwidthLimiter?.let { disposable ->
+            Timber.d("Bandwidth limiter released: ${toString()}")
+            disposable.dispose()
+        }
+        bandwidthLimiter = null
     }
 
     private fun subscribeToTimeShiftReadyForPlaybackObservable() = launchMain {
@@ -112,7 +121,9 @@ data class Channel(
 
     private fun setVideoFrameCallback() {
         expressSubscriber?.videoTracks?.getOrNull(0)?.let { videoTrack ->
-            renderer?.setFrameReadyCallback(videoTrack, if (isMainRendered.value == false) null else frameCallback)
+            val callback = if (isMainRendered.value == false) null else frameCallback
+            renderer?.setFrameReadyCallback(videoTrack, callback)
+            Timber.d("Frame callback ${if (callback != null) "set" else "removed"} for: ${toString()}")
         }
     }
 
@@ -131,31 +142,30 @@ data class Channel(
                 }
             }
         } catch (e: Exception) {
-            Timber.d(e, "Failed to draw bitmap")
+            Timber.d(e, "Failed to draw bitmap: ${toString()}")
         }
-    }
-
-    private fun releaseBandwidthLimiter() {
-        Timber.d("Releasing Bandwidth limiter: ${toString()}")
-        bandwidthLimiter?.dispose()
-        bandwidthLimiter = null
     }
 
     private fun releaseTimeShiftObservers() {
         isReplaying = false
+        val disposed = timeShiftDisposables.isNotEmpty() || timeShiftSeekDisposables.isNotEmpty()
         timeShiftDisposables.forEach { it.dispose() }
         timeShiftDisposables.clear()
         timeShiftSeekDisposables.forEach { it.dispose() }
         timeShiftSeekDisposables.clear()
-        Timber.d("Time shift disposables released")
+        if (disposed) {
+            Timber.d("Time shift disposables released: ${toString()}")
+        }
     }
 
     private fun releaseTimeShift() {
         releaseTimeShiftObservers()
-        timeShift?.stop()
-        timeShift?.dispose()
+        timeShift?.run {
+            stop()
+            dispose()
+            Timber.d("Time shift released: ${toString()}")
+        }
         timeShift = null
-        Timber.d("Time shift released")
     }
 
     private fun renderSubscriber(subscriber: ExpressSubscriber?, expressRenderer: Renderer?, startTime: Date) {
@@ -165,13 +175,15 @@ data class Channel(
         renderer?.dispose()
         expressSubscriber = subscriber
         renderer = expressRenderer
+        if (isMainRendered.value == false) {
+            limitBandwidth()
+            muteAudio()
+        } else {
+            releaseBandwidthLimiter()
+            unmuteAudio()
+        }
         createTimeShift(startTime)
         setVideoFrameCallback()
-        if (isMainRendered.value == true) {
-            unmuteAudio()
-        } else {
-            muteAudio()
-        }
         Timber.d("Started subscriber renderer: ${toString()}")
     }
 
@@ -184,7 +196,7 @@ data class Channel(
         val options = getChannelConfiguration(channelAlias, videoRenderSurface)
         channelExpress.joinChannel(options, { requestStatus: RequestStatus?, service: RoomService? ->
             launchMain {
-                Timber.d("Channel join status: $requestStatus")
+                Timber.d("Channel join status: $requestStatus for: ${asString()}")
                 if (requestStatus == RequestStatus.OK) {
                     roomService = service
                     onChannelJoined.value = StreamStatus.ONLINE
@@ -195,7 +207,7 @@ data class Channel(
             }
         }, { requestStatus: RequestStatus?, subscriber: ExpressSubscriber?, renderer: Renderer? ->
             launchMain {
-                Timber.d("Stream status: $requestStatus")
+                Timber.d("Stream status: $requestStatus for: ${asString()}")
                 if (requestStatus == RequestStatus.OK) {
                     renderSubscriber(subscriber, renderer, startTime)
                     onChannelJoined.value = StreamStatus.ONLINE
@@ -230,8 +242,8 @@ data class Channel(
     }
 
     fun startVideoReplay(highlight: Highlight) {
-        Timber.d("Looping time shift: ${renderer?.isSeekable}, ${toString()}")
         if (renderer?.isSeekable == false) return
+        Timber.d("Looping time shift: ${toString()}")
         timeShift?.loop(highlight.loopLength)
         isReplaying = true
     }
@@ -244,27 +256,30 @@ data class Channel(
     }
 
     fun createTimeShift(startTime: Date) {
-        Timber.d("Creating time shift: ${renderer?.isSeekable}")
         if (renderer?.isSeekable == false) return
+        Timber.d("Creating time shift: ${toString()}")
         releaseTimeShift()
         timeShift = renderer?.seek(startTime)
-        Timber.d("Time shift created for: $startTime $timeShift")
         subscribeToTimeShiftReadyForPlaybackObservable()
     }
 
     fun playFromHere(selectedTimeStamp: Date) {
-        Timber.d("Seeking timeshift: $selectedTimeStamp")
-        timeShift?.seek(selectedTimeStamp)?.subscribe { status ->
-            Timber.d("Time shift seek status: $status for $selectedTimeStamp")
-            if (status == RequestStatus.OK) {
-                timeShift?.play()
-            }
-        }?.run { timeShiftSeekDisposables.add(this) }
+        timeShift?.run {
+            Timber.d("Seeking time shift: $selectedTimeStamp")
+            seek(selectedTimeStamp)?.subscribe { status ->
+                Timber.d("Time shift seek status: $status for $selectedTimeStamp")
+                if (status == RequestStatus.OK) {
+                    play()
+                }
+            }?.run { timeShiftSeekDisposables.add(this) }
+        }
     }
 
     fun pausePlayback() {
-        Timber.d("Playback paused")
-        timeShift?.pause()
+        timeShift?.run {
+            Timber.d("Playback paused: ${toString()}")
+            pause()
+        }
     }
 
     override fun toString(): String {
