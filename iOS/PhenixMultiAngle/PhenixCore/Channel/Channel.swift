@@ -41,7 +41,7 @@ public class Channel {
         }
     }
 
-    private var bandwidthLimitationDisposable: PhenixDisposable?
+    private var bandwidthLimitationDisposables: [PhenixDisposable] = []
 
     internal var renderer: PhenixRenderer?
     internal var subscriber: PhenixExpressSubscriber?
@@ -162,13 +162,21 @@ public class Channel {
 
     public func startBandwidthLimitation() {
         os_log(.debug, log: .channel, "Start limiting bandwidth, (%{PRIVATE}s)", self.description)
-        bandwidthLimitationDisposable = subscriber?.getVideoTracks()?.first?.limitBandwidth(PhenixConfiguration.channelBandwidthLimitation)
+
+        guard let subscriber = subscriber else {
+            os_log(.debug, log: .channel, "Subscriber is not available for bandwidth limitation, (%{PRIVATE}s)", self.description)
+            return
+        }
+
+        subscriber.getVideoTracks()?.forEach { stream in
+            stream.limitBandwidth(PhenixConfiguration.channelBandwidthLimitation).append(to: &bandwidthLimitationDisposables)
+        }
         timeShiftWorker?.startBandwidthLimitation()
     }
 
     public func stopBandwidthLimitation() {
         os_log(.debug, log: .channel, "Stop limiting bandwidth, (%{PRIVATE}s)", self.description)
-        bandwidthLimitationDisposable = nil
+        bandwidthLimitationDisposables.removeAll()
         timeShiftWorker?.stopBandwidthLimitation()
     }
 

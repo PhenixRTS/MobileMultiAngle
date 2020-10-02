@@ -221,7 +221,16 @@ private extension MultiStreamViewController {
 extension MultiStreamViewController: ChannelStreamObserver {
     func channel(_ channel: Channel, didChange state: Channel.StreamState) {
         DispatchQueue.main.async { [weak self] in
-            self?.updateReplayState()
+            guard let self = self else {
+                return
+            }
+
+            self.updateReplayState()
+
+            // If channel state changed to playing, we need to limit its bandwidth if that isn't the Hero channel (selected channel)
+            if state == .playing && channel != self.selectedChannel {
+                channel.startBandwidthLimitation()
+            }
         }
     }
 }
