@@ -7,6 +7,9 @@ package com.phenixrts.suite.phenixmultiangle.common
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.view.SurfaceView
+
+private var isDrawingBitmap = false
 
 fun Bitmap.scaleToSize(targetWidth: Int, targetHeight: Int): Bitmap {
     val ratioWidth = width.toFloat() / height.toFloat()
@@ -31,4 +34,19 @@ fun Canvas.drawScaledBitmap(bitmap: Bitmap, targetWidth: Int, targetHeight: Int)
     drawBitmap(scaledBitmap, offsetX, offsetY, Paint())
     scaledBitmap.recycle()
     bitmap.recycle()
+}
+
+fun SurfaceView.drawBitmap(bitmap: Bitmap) {
+    if (!isDrawingBitmap) {
+        isDrawingBitmap = true
+        launchIO {
+            holder?.let { holder ->
+                holder.lockCanvas()?.let { canvas ->
+                    canvas.drawScaledBitmap(bitmap, measuredWidth, measuredHeight)
+                    holder.unlockCanvasAndPost(canvas)
+                }
+            }
+            isDrawingBitmap = false
+        }
+    }
 }

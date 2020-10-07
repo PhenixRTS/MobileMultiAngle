@@ -44,6 +44,7 @@ data class Channel(
     private var timeShiftDisposables = mutableListOf<Disposable>()
     private var timeShiftSeekDisposables = mutableListOf<Disposable>()
     private var isBitmapSurfaceAvailable = false
+    private var isFirstFrameDrawn = false
 
     private var bitmapCallback: SurfaceHolder.Callback? = null
     private val frameCallback = Renderer.FrameReadyForProcessingCallback { frameNotification ->
@@ -122,6 +123,7 @@ data class Channel(
     private fun setVideoFrameCallback() {
         expressSubscriber?.videoTracks?.getOrNull(0)?.let { videoTrack ->
             val callback = if (isMainRendered.value == false) null else frameCallback
+            if (callback == null) isFirstFrameDrawn = false
             renderer?.setFrameReadyCallback(videoTrack, callback)
             Timber.d("Frame callback ${if (callback != null) "set" else "removed"} for: ${toString()}")
         }
@@ -129,17 +131,11 @@ data class Channel(
 
     private fun drawFrameBitmap(bitmap: Bitmap) {
         try {
-            if (isMainRendered.value == false || !isBitmapSurfaceAvailable) return
             launchIO {
-                delay(THUMBNAIL_DRAW_DELAY)
-                bitmapSurface?.holder?.let { holder ->
-                    holder.lockCanvas()?.let { canvas ->
-                        val targetWidth = bitmapSurface?.measuredWidth ?: 0
-                        val targetHeight = bitmapSurface?.measuredHeight ?: 0
-                        canvas.drawScaledBitmap(bitmap, targetWidth, targetHeight)
-                        holder.unlockCanvasAndPost(canvas)
-                    }
-                }
+                if (isMainRendered.value == false || !isBitmapSurfaceAvailable) return@launchIO
+                if (isFirstFrameDrawn) delay(THUMBNAIL_DRAW_DELAY)
+                bitmapSurface?.drawBitmap(bitmap)
+                isFirstFrameDrawn = true
             }
         } catch (e: Exception) {
             Timber.d(e, "Failed to draw bitmap: ${toString()}")
