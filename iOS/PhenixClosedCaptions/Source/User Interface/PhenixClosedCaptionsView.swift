@@ -33,7 +33,7 @@ public class PhenixClosedCaptionsView: UIView {
     }
 
     internal func getWindowIndexList() -> Set<UInt> {
-        Set(textViews.map(\.key))
+        Set(textViews.map { $0.key })
     }
 
     internal func update(_ window: PhenixWindowUpdate, forWindow index: UInt) {

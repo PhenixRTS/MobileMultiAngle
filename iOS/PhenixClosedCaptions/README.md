@@ -3,17 +3,51 @@
 Support library providing Closed Captions integration using PhenixSdk under-the-hood.
 
 ## Requirements
-* iOS 12.0 or above
+* iOS 12.0+
+* Xcode 11+
+* Swift 5.1+
 
-## 1. Usage
+## 1. Installation
 
-1. Import `PhenixClosedCaptions` framework
+### CocoaPods (using Development Pods)
+
+[CocoaPods](https://cocoapods.org) is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website.
+To integrate Phenix Closed Captions into your Xcode project using CocoaPods:
+
+1. Copy `PhenixClosedCaptions` directory inside the ROOT directory of your iOS project.
+
+2. Modify your `Podfile`:
+
+```ruby
+source 'https://cdn.cocoapods.org/'
+source 'git@github.com:PhenixRTS/CocoaPodsSpecs.git' # Phenix private repository
+
+target 'your app name'
+  use_frameworks!
+  pod 'PhenixClosedCaptions', :path => './PhenixClosedCaptions' # Closed Captions development pod
+```
+
+### Manually
+
+If you prefer not to use [CocoaPods](https://cocoapods.org), you can integrate Phenix Closed Captions into your project manually.
+
+1. Open the `PhenixClosedCaptions` folder, and drag the `Source` folder into the Project Navigator of your application's Xcode project.
+
+> Check the "Copy items if needed" checkbox and under the "Add to targets" check the applications destination target as well.
+
+2. Delete `Source/Supporting Files` folder and its content.
+
+3. Make sure that your application target has embeded `PhenixSdk` framework because the `PhenixClosedCaptions` depends on it.
+
+## 2. Usage
+
+1. _(only when using CocoaPods)_ Import `PhenixClosedCaptions` framework
 
 ```
 import PhenixClosedCaptions
 ```
 
-2. Create a `PhenixClosedCaptionsService` instance by providing to it `PhenixRoomService` instance and set the delegate. Keep a strong reference to the  `PhenixClosedCaptionsService` instance:
+2. Create a `PhenixClosedCaptionsService` instance by providing to it `PhenixRoomService` instance. Keep a strong reference to the  `PhenixClosedCaptionsService` instance:
 
 ```
 let roomService: PhenixRoomService = ...  // previously obtained
@@ -31,7 +65,7 @@ view.addSubview(closedCaptionsView)
 closedCaptionsService.setContainerView(closedCaptionsView)
 ```
 
-## 2. Advanced Usage
+## 3. Advanced Usage
 
 1. If you want to provide a custom functionality for Closed Captions, you can conform to the `PhenixClosedCaptionsServiceDelegate` protocol, implement required method and provide your own logic, for example:
 
@@ -45,13 +79,13 @@ extension ViewController: PhenixClosedCaptionsServiceDelegate {
 }
 ```
 
-2. Set delegate for the `PhenixClosedCaptionsService` instance to receive `PhenixClosedCaptionsServiceDelegate` updates:
+2. Set the delegate for the `PhenixClosedCaptionsService` instance to receive `PhenixClosedCaptionsServiceDelegate` updates:
 
 ```
 closedCaptionsService.delegate = self
 ```
 
-3. If you do not want to relay on the provided *out-of-box* user interface for the Closed Captions, you can disable automatic user interface updates by setting `PhenixClosedCaptionsService` instance container view to `nil`:
+3. If you do not want to rely on the provided *out-of-box* user interface for the Closed Captions, you can disable automatic user interface updates by setting `PhenixClosedCaptionsService` instance container view to `nil`:
 
 ```
 closedCaptionsService.setContainerView(nil)
@@ -63,7 +97,7 @@ closedCaptionsService.setContainerView(nil)
 closedCaptionsService.isEnabled = true
 ```
 
-## 3. Customization
+## 4. Customization
 
 It is possible to provide your own user interface properties to customize the default look of the Closed Captions.
 
