@@ -19,6 +19,7 @@ import com.phenixrts.pcast.android.AndroidReadVideoFrameCallback
 import com.phenixrts.pcast.android.AndroidVideoRenderSurface
 import com.phenixrts.room.RoomService
 import com.phenixrts.suite.phenixmultiangle.common.*
+import com.phenixrts.suite.phenixmultiangle.common.enums.Bandwidth
 import com.phenixrts.suite.phenixmultiangle.common.enums.Highlight
 import com.phenixrts.suite.phenixmultiangle.common.enums.StreamStatus
 import kotlinx.coroutines.delay
@@ -26,8 +27,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import java.util.*
 import kotlin.coroutines.resume
-
-private const val BANDWIDTH_LIMIT = 1000 * 520L
 
 data class Channel(
     private val channelExpress: ChannelExpress,
@@ -64,9 +63,10 @@ data class Channel(
     val onChannelJoined = MutableLiveData<StreamStatus>()
     var roomService: RoomService? = null
     var isReplaying = false
+    var isFullScreen = false
 
-    private fun limitBandwidth() {
-        expressSubscriber?.videoTracks?.getOrNull(0)?.limitBandwidth(BANDWIDTH_LIMIT)?.let { disposable ->
+    private fun limitBandwidth(bandwidth: Bandwidth) {
+        expressSubscriber?.videoTracks?.getOrNull(0)?.limitBandwidth(bandwidth.value)?.let { disposable ->
             Timber.d("Bandwidth limited: ${toString()}")
             bandwidthLimiter = disposable
         }
@@ -78,6 +78,19 @@ data class Channel(
             disposable.dispose()
         }
         bandwidthLimiter = null
+    }
+
+    private fun updateBandwidth() {
+        val bandwidth: Bandwidth = if (isFullScreen) {
+            if (isMainRendered.value == true) Bandwidth.UNLIMITED else Bandwidth.ULD
+        } else {
+            if (isMainRendered.value == true) Bandwidth.HD else Bandwidth.LD
+        }
+        if (bandwidth == Bandwidth.UNLIMITED) {
+            releaseBandwidthLimiter()
+        } else {
+            limitBandwidth(bandwidth)
+        }
     }
 
     private fun subscribeToTimeShiftReadyForPlaybackObservable() = launchMain {
@@ -105,17 +118,13 @@ data class Channel(
                 onTimeShiftReady.value = false
             }
         }?.run { timeShiftDisposables.add(this) }
-        timeShift?.limitBandwidth(BANDWIDTH_LIMIT)?.run {
+        timeShift?.limitBandwidth(Bandwidth.LD.value)?.run {
             timeShiftDisposables.add(this)
         }
     }
 
     private fun updateSurfaces() {
-        if (isMainRendered.value == false) {
-            limitBandwidth()
-        } else {
-            releaseBandwidthLimiter()
-        }
+        updateBandwidth()
         thumbnailSurface?.setVisible(isMainRendered.value == false)
         bitmapSurface?.setVisible(isMainRendered.value == true)
     }
@@ -172,12 +181,11 @@ data class Channel(
         expressSubscriber = subscriber
         renderer = expressRenderer
         if (isMainRendered.value == false) {
-            limitBandwidth()
             muteAudio()
         } else {
-            releaseBandwidthLimiter()
             unmuteAudio()
         }
+        updateBandwidth()
         createTimeShift(startTime)
         setVideoFrameCallback()
         Timber.d("Started subscriber renderer: ${toString()}")

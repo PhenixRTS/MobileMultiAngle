@@ -96,7 +96,7 @@
         android:layout_width="150dp"
         android:layout_height="match_parent"
         android:background="@color/primaryDarkColor"
-        android:visibility="invisible"
+        android:visibility="gone"
         tools:itemCount="4"
         tools:listitem="@layout/row_channel_item"
         app:layout_constraintTop_toTopOf="parent"

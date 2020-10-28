@@ -49,8 +49,9 @@ class MainActivity : FragmentActivity() {
     private fun initViews() {
         val rotation = resources.configuration.orientation
         val spanCount = if (rotation == Configuration.ORIENTATION_PORTRAIT) SPAN_COUNT_PORTRAIT else SPAN_COUNT_LANDSCAPE
+        val isFullScreen = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         main_stream_holder.setVisible(true)
-        main_stream_list.setVisible(true)
+        main_stream_list.setVisible(!isFullScreen)
         main_stream_list.layoutManager = GridLayoutManager(this, spanCount)
         main_stream_list.setHasFixedSize(true)
         main_stream_list.adapter = adapter
@@ -86,7 +87,10 @@ class MainActivity : FragmentActivity() {
         })
 
         viewModel.channels.observe(this, { channels ->
-            Timber.d("Channel list updated: $channels")
+            Timber.d("Channel list updated: $channels, full screen: $isFullScreen")
+            channels.forEach { channel ->
+                channel.isFullScreen = isFullScreen
+            }
             adapter.data = channels
         })
         viewModel.onChannelsJoined.observe(this, { ready ->
