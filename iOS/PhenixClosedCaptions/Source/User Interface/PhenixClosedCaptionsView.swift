@@ -6,7 +6,7 @@ import os.log
 import UIKit
 
 public class PhenixClosedCaptionsView: UIView {
-    internal private(set) var textViews: [UInt: PhenixTextView] = [:]
+    internal private(set) var windows: [UInt: PhenixWindowView] = [:]
 
     // MARK: - Public properties
 
@@ -28,68 +28,68 @@ public class PhenixClosedCaptionsView: UIView {
     }
 
     public override func layoutSubviews() {
-        textViews.forEach { $0.value.setNeedsUpdateConstraints() }
+        windows.forEach { $0.value.setNeedsUpdateConstraints() }
         super.layoutSubviews()
     }
 
     internal func getWindowIndexList() -> Set<UInt> {
-        Set(textViews.map { $0.key })
+        Set(windows.map { $0.key })
     }
 
-    internal func update(_ window: PhenixWindowUpdate, forWindow index: UInt) {
+    internal func update(_ windowUpdate: PhenixWindowUpdate, forWindow index: UInt) {
         // Retrieve the view from the set
-        let textView = getTextView(withIndex: index)
+        let window = getWindow(withIndex: index)
 
         // TODO: Make those properties "sticky" in the cache.
 
-        if let backgroundAlpha = window.backgroundAlpha {
-            textView.backgroundAlpha = backgroundAlpha
+        if let backgroundAlpha = windowUpdate.backgroundAlpha {
+            window.configuration.textBackgroundAlpha = backgroundAlpha
         }
 
-        if let justify = window.justify {
-            textView.justify = justify
+        if let justify = windowUpdate.justify {
+            window.configuration.justify = justify
         }
 
-        if let backgroundColor = UIColor(hex: window.backgroundColor) {
-            textView.backgroundColor = backgroundColor
+        if let backgroundColor = UIColor(hex: windowUpdate.backgroundColor) {
+            window.configuration.textBackgroundColor = backgroundColor
         }
 
-        if let wordWrap = window.wordWrap {
-            textView.wordWrap = wordWrap
+        if let wordWrap = windowUpdate.wordWrap {
+            window.configuration.wordWrap = wordWrap
         }
 
-        if let zOrder = window.zOrder {
-            textView.zOrder = zOrder
+        if let zOrder = windowUpdate.zOrder {
+            window.configuration.zOrder = zOrder
         }
 
-        if let visible = window.visible {
-            textView.isHidden = visible == false
+        if let visible = windowUpdate.visible {
+            window.isHidden = visible == false
         }
 
-        if let anchorPointOnTextWindow = window.anchorPointOnTextWindow?.cgPoint {
-            textView.relativeAnchorPoint = anchorPointOnTextWindow
-            textView.setNeedsUpdateConstraints()
+        if let anchorPointOnTextWindow = windowUpdate.anchorPointOnTextWindow?.cgPoint {
+            window.configuration.anchorPointOnTextWindow = anchorPointOnTextWindow
+            window.setNeedsUpdateConstraints()
         }
 
-        if let positionOfTextWindow = window.positionOfTextWindow?.cgPoint {
-            textView.relativePositionInSuperview = positionOfTextWindow
-            textView.setNeedsUpdateConstraints()
+        if let positionOfTextWindow = windowUpdate.positionOfTextWindow?.cgPoint {
+            window.configuration.positionOfTextWindow = positionOfTextWindow
+            window.setNeedsUpdateConstraints()
         }
 
-        if let widthInCharacters = window.widthInCharacters {
-            textView.widthInCharacters = widthInCharacters
-            textView.setNeedsUpdateConstraints()
+        if let widthInCharacters = windowUpdate.widthInCharacters {
+            window.configuration.widthInCharacters = widthInCharacters
+            window.setNeedsUpdateConstraints()
         }
 
-        if let heightInTextLines = window.heightInTextLines {
-            textView.heightInTextLines = heightInTextLines
-            textView.setNeedsUpdateConstraints()
+        if let heightInTextLines = windowUpdate.heightInTextLines {
+            window.configuration.heightInTextLines = heightInTextLines
+            window.setNeedsUpdateConstraints()
         }
     }
 
     internal func update(_ texts: [PhenixTextUpdate], forWindow index: UInt) {
         // Retrieve the view from the set
-        let textView = getTextView(withIndex: index)
+        let window = getWindow(withIndex: index)
 
         // Combine captions from all `PhenixTextUpdate` objects together into one string
         let caption: String = texts
@@ -97,39 +97,39 @@ public class PhenixClosedCaptionsView: UIView {
             .reduce("", +)
 
         // Configure the text view.
-        textView.caption = caption
+        window.set(text: caption)
 
         // If the caption is empty, then we need to hide the view (but not remove the view)
-        textView.isHidden = caption.isEmpty
+        window.isHidden = caption.isEmpty
     }
 
     internal func remove(windowWithIndex index: UInt) {
-        let window = textViews.removeValue(forKey: index)
+        let window = windows.removeValue(forKey: index)
         window?.removeFromSuperview()
     }
 
     internal func removeAllWindows() {
-        textViews.forEach { $0.value.removeFromSuperview() }
-        textViews.removeAll()
+        windows.forEach { $0.value.removeFromSuperview() }
+        windows.removeAll()
     }
 
-    internal func getTextView(withIndex index: UInt) -> PhenixTextView {
+    internal func getWindow(withIndex index: UInt) -> PhenixWindowView {
         // Retrieve the view from the set or create a new one.
-        let textView = textViews[index] ?? PhenixTextView()
+        let window = windows[index] ?? PhenixWindowView()
 
-        if textViews[index] == nil { // If the textView didn't exist...
-            textView.translatesAutoresizingMaskIntoConstraints = false
-            textView.tag = Int(index)
-            setDefaultVisualization(for: textView)
+        if windows[index] == nil { // If the window didn't exist...
+            window.translatesAutoresizingMaskIntoConstraints = false
+            window.tag = Int(index)
+            window.configuration = configuration
 
             // Add to the container.
-            addSubview(textView)
+            addSubview(window)
 
             // Insert into the view set.
-            textViews[index] = textView
+            windows[index] = window
         }
 
-        return textView
+        return window
     }
 }
 
@@ -137,18 +137,5 @@ private extension PhenixClosedCaptionsView {
     func setup() {
         isOpaque = false
         backgroundColor = .clear
-    }
-
-    func setDefaultVisualization(for textView: PhenixTextView) {
-        textView.backgroundAlpha = configuration.textBackgroundAlpha
-        textView.justify = configuration.justify
-        textView.backgroundColor = configuration.textBackgroundColor
-        textView.wordWrap = configuration.wordWrap
-        textView.zOrder = configuration.zOrder
-        textView.isHidden = configuration.visible == false
-        textView.relativeAnchorPoint = configuration.anchorPointOnTextWindow
-        textView.relativePositionInSuperview = configuration.positionOfTextWindow
-        textView.widthInCharacters = configuration.widthInCharacters
-        textView.heightInTextLines = configuration.heightInTextLines
     }
 }

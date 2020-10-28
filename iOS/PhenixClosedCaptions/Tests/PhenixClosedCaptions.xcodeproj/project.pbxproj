@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		9F5D87FBDA95EF9F29845FFF /* Pods_PhenixClosedCaptionsTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 140B9C817C859FA423D08780 /* Pods_PhenixClosedCaptionsTests.framework */; };
 		B51D87722521DBCD005CE7B7 /* PhenixClosedCaptionsViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D87712521DBCD005CE7B7 /* PhenixClosedCaptionsViewTests.swift */; };
+		B5BE03682535CE890009CD73 /* PhenixWindowViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BE03672535CE890009CD73 /* PhenixWindowViewTests.swift */; };
 		B5DBCA732521DE4A000AAE9E /* PhenixTextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DBCA722521DE4A000AAE9E /* PhenixTextViewTests.swift */; };
 		B5DBCA8425220051000AAE9E /* PhenixClosedCaptionsViewIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DBCA8325220051000AAE9E /* PhenixClosedCaptionsViewIntegrationTests.swift */; };
 /* End PBXBuildFile section */
@@ -19,8 +20,10 @@
 		B51D874C2521DA93005CE7B7 /* PhenixClosedCaptionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhenixClosedCaptionsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B51D87532521DA93005CE7B7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B51D87712521DBCD005CE7B7 /* PhenixClosedCaptionsViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixClosedCaptionsViewTests.swift; sourceTree = "<group>"; };
+		B5BE03672535CE890009CD73 /* PhenixWindowViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixWindowViewTests.swift; sourceTree = "<group>"; };
 		B5DBCA722521DE4A000AAE9E /* PhenixTextViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixTextViewTests.swift; sourceTree = "<group>"; };
 		B5DBCA8325220051000AAE9E /* PhenixClosedCaptionsViewIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixClosedCaptionsViewIntegrationTests.swift; sourceTree = "<group>"; };
+		B5FDA820253ECBAE00177E72 /* GLOSSARY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GLOSSARY.md; sourceTree = "<group>"; };
 		D45A860FDCAE90A3C564DAA3 /* Pods-PhenixClosedCaptionsTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhenixClosedCaptionsTests.release.xcconfig"; path = "Target Support Files/Pods-PhenixClosedCaptionsTests/Pods-PhenixClosedCaptionsTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -74,10 +77,12 @@
 		B51D87502521DA93005CE7B7 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				B5FDA820253ECBAE00177E72 /* GLOSSARY.md */,
 				B51D87532521DA93005CE7B7 /* Info.plist */,
 				B5DBCA8325220051000AAE9E /* PhenixClosedCaptionsViewIntegrationTests.swift */,
 				B51D87712521DBCD005CE7B7 /* PhenixClosedCaptionsViewTests.swift */,
 				B5DBCA722521DE4A000AAE9E /* PhenixTextViewTests.swift */,
+				B5BE03672535CE890009CD73 /* PhenixWindowViewTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -195,6 +200,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B51D87722521DBCD005CE7B7 /* PhenixClosedCaptionsViewTests.swift in Sources */,
+				B5BE03682535CE890009CD73 /* PhenixWindowViewTests.swift in Sources */,
 				B5DBCA732521DE4A000AAE9E /* PhenixTextViewTests.swift in Sources */,
 				B5DBCA8425220051000AAE9E /* PhenixClosedCaptionsViewIntegrationTests.swift in Sources */,
 			);

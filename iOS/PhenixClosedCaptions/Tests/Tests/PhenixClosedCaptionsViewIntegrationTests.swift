@@ -18,12 +18,12 @@ class PhenixClosedCaptionsViewIntegrationTests: XCTestCase {
         sut.configuration = configuration // Provide custom configuration
         sut.update([textUpdate], forWindow: 0) // Create text view
 
-        let textView = sut.getTextView(withIndex: 0)
-        XCTAssertEqual(textView.relativeAnchorPoint, sut.configuration.anchorPointOnTextWindow)
+        let window = sut.getWindow(withIndex: 0)
+        XCTAssertEqual(window.configuration.anchorPointOnTextWindow, sut.configuration.anchorPointOnTextWindow)
 
         sut.update(windowUpdate, forWindow: 0) // Update text window
 
-        XCTAssertEqual(textView.relativeAnchorPoint, windowUpdate.anchorPointOnTextWindow?.cgPoint)
+        XCTAssertEqual(window.configuration.anchorPointOnTextWindow, windowUpdate.anchorPointOnTextWindow?.cgPoint)
     }
 
     func testViewUsesLastWindowUpdateConfigurationNotDefaultConfiguration() {
@@ -42,7 +42,7 @@ class PhenixClosedCaptionsViewIntegrationTests: XCTestCase {
         sut.configuration = modifiedConfiguration // Provide custom configuration
 
         // Then
-        let textView = sut.getTextView(withIndex: 0)
-        XCTAssertEqual(textView.relativeAnchorPoint, windowUpdate.anchorPointOnTextWindow?.cgPoint)
+        let textView = sut.getWindow(withIndex: 0)
+        XCTAssertEqual(textView.configuration.anchorPointOnTextWindow, windowUpdate.anchorPointOnTextWindow?.cgPoint)
     }
 }
