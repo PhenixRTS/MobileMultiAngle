@@ -10,6 +10,8 @@
     <string name="err_configuration_changed">Configuration has changed. Please start the app again to apply the changes.</string>
     <string name="popup_ok">OK</string>
     <string name="button_replay">Replay</string>
+    <string name="button_replay_failed">Replay failed</string>
+    <string name="button_replay_starting">Starting</string>
     <string name="button_go_live">Go Live</string>
 
     <string name="highlight_far">FAR</string>

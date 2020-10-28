@@ -35,7 +35,7 @@ data class ChannelExpressConfiguration(
 fun getChannelConfiguration(channelAlias: String, surface: AndroidVideoRenderSurface): JoinChannelOptions {
     val joinRoomOptions = RoomExpressFactory.createJoinRoomOptionsBuilder()
         .withRoomAlias(channelAlias)
-        .withCapabilities(arrayOf("real-time"))
+        .withCapabilities(arrayOf("real-time", "time-shift"))
         .buildJoinRoomOptions()
     return ChannelExpressFactory
         .createJoinChannelOptionsBuilder()

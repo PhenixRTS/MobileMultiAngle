@@ -8,13 +8,13 @@ import androidx.lifecycle.MutableLiveData
 import com.phenixrts.common.RequestStatus
 import com.phenixrts.environment.android.AndroidContext
 import com.phenixrts.express.*
+import com.phenixrts.suite.phenixmultiangle.BuildConfig
 import com.phenixrts.suite.phenixmultiangle.MultiAngleApp
 import com.phenixrts.suite.phenixmultiangle.common.*
 import com.phenixrts.suite.phenixmultiangle.common.enums.ExpressError
 import com.phenixrts.suite.phenixmultiangle.models.Channel
 import kotlinx.coroutines.delay
 import timber.log.Timber
-import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -26,8 +26,6 @@ class ChannelExpressRepository(private val context: MultiAngleApp) {
     private var roomExpress: RoomExpress? = null
     private var channelExpress: ChannelExpress? = null
     val channels = MutableLiveData<List<Channel>>()
-    val channelJoinTime = Date(System.currentTimeMillis())
-    var timeShiftStartTime = Date(channelJoinTime.time - DEFAULT_HIGHLIGHT.minutesAgo)
 
     val onChannelExpressError = MutableLiveData<ExpressError>()
 
@@ -37,7 +35,7 @@ class ChannelExpressRepository(private val context: MultiAngleApp) {
         Timber.d("Creating Channel Express with configuration: $expressConfiguration")
         AndroidContext.setContext(context)
         var pcastBuilder = PCastExpressFactory.createPCastExpressOptionsBuilder()
-            .withMinimumConsoleLogLevel("info")
+            .withMinimumConsoleLogLevel(BuildConfig.SDK_DEBUG_LEVEL)
             .withBackendUri(expressConfiguration.backend)
             .withPCastUri(expressConfiguration.uri)
             .withUnrecoverableErrorCallback { status: RequestStatus, description: String ->

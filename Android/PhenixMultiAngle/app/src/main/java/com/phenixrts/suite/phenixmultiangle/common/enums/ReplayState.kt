@@ -5,6 +5,8 @@
 package com.phenixrts.suite.phenixmultiangle.common.enums
 
 enum class ReplayState {
-    LIVE,
-    REPLAYING
+    STARTING,
+    READY,
+    REPLAYING,
+    FAILED
 }

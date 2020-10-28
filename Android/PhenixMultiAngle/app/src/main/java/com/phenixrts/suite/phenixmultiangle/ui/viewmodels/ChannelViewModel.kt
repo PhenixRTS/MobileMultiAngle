@@ -11,13 +11,13 @@ import com.phenixrts.suite.phenixclosedcaption.PhenixClosedCaptionView
 import com.phenixrts.suite.phenixmultiangle.common.DEFAULT_HIGHLIGHT
 import com.phenixrts.suite.phenixmultiangle.common.enums.Highlight
 import com.phenixrts.suite.phenixmultiangle.common.enums.ReplayState
+import com.phenixrts.suite.phenixmultiangle.common.isTrue
 import com.phenixrts.suite.phenixmultiangle.common.launchMain
-import com.phenixrts.suite.phenixmultiangle.common.toDateString
 import com.phenixrts.suite.phenixmultiangle.models.Channel
 import com.phenixrts.suite.phenixmultiangle.repository.ChannelExpressRepository
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import timber.log.Timber
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 private const val REPLAY_BUTTON_CLICK_DELAY = 1000 * 2L
@@ -29,27 +29,29 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
             Timber.d("Channel list changed $channelList")
             channels.value = channelList
             channelList?.forEach { channel ->
-                channel.joinChannel(channelExpressRepository.timeShiftStartTime)
+                channel.selectedHighlight = selectedHighlight
+                channel.joinChannel()
+                launchMain {
+                    channel.onTimeShiftState.asFlow().collect {
+                        Timber.d("TIme shift state changed: $it")
+                        updateRePlayState()
+                    }
+                }
             }
             onChannelsJoined.value = true
             Timber.d("Channel list joined $channelList")
         }
     }
 
-    private val timeShiftObserver = Observer<Boolean> {
-        updateRePlayState()
-    }
-
-    private val playbackHeadObserver = Observer<Date> { head ->
+    private val playbackHeadObserver = Observer<Long> { head ->
         headTimeStamp.value = head
     }
 
     val channels = MutableLiveData<List<Channel>>()
-    val headTimeStamp = MutableLiveData<Date>()
-    val onReplayButtonState = MutableLiveData<ReplayState>().apply { value = ReplayState.LIVE }
-    val onReplayButtonVisible = MutableLiveData<Boolean>().apply { value = false }
-    val isReplayButtonClickable = MutableLiveData<Boolean>().apply { value = true }
+    val headTimeStamp = MutableLiveData<Long>()
+    val onReplayState = MutableLiveData<ReplayState>().apply { value = ReplayState.STARTING }
     val onChannelsJoined = MutableLiveData<Boolean>()
+    val onReplayButtonClickable = MutableLiveData<Boolean>().apply { value = true }
     var selectedHighlight = DEFAULT_HIGHLIGHT
 
     init {
@@ -62,57 +64,57 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
     }
 
     private fun updateRePlayState() = launchMain {
-        channels.value?.find { it.isMainRendered.value == true }?.let { member ->
-            onReplayButtonState.value = if (member.isReplaying) ReplayState.REPLAYING else ReplayState.LIVE
-            onReplayButtonVisible.value = member.onTimeShiftReady.value
+        val rePlayState = channels.value?.find {
+            it.isMainRendered.value == true
+        }?.onTimeShiftState?.value ?: ReplayState.STARTING
+        if (onReplayState.value != rePlayState) {
+            onReplayState.value = rePlayState
         }
     }
 
-    private fun startLooping(highlight: Highlight) {
+    private fun startLooping(highlight: Highlight) = launchMain {
         selectedHighlight = highlight
-        isReplayButtonClickable.value = false
-        onReplayButtonState.value = ReplayState.REPLAYING
-        channels.value?.find { it.isMainRendered.value == true }?.let { member ->
-            launchMain {
-                member.startVideoReplay(highlight)
-                delay(REPLAY_BUTTON_CLICK_DELAY)
-                isReplayButtonClickable.value = true
-            }
+        onReplayButtonClickable.value = false
+        onReplayState.value = ReplayState.REPLAYING
+        channels.value?.forEach { member ->
+            member.startVideoReplay(highlight)
         }
+        Timber.d("Video replay started")
+        delay(REPLAY_BUTTON_CLICK_DELAY)
+        onReplayButtonClickable.value = true
     }
 
-    private fun endLooping() {
-        isReplayButtonClickable.value = false
-        onReplayButtonState.value = ReplayState.LIVE
-        channels.value?.find { it.isMainRendered.value == true }?.let { member ->
-            launchMain {
-                member.endVideoReplay()
-                delay(REPLAY_BUTTON_CLICK_DELAY)
-                isReplayButtonClickable.value = true
-            }
+    private fun endLooping() = launchMain {
+        onReplayButtonClickable.value = false
+        channels.value?.forEach { member ->
+            member.endVideoReplay()
         }
+        Timber.d("Video replay ended")
+        delay(REPLAY_BUTTON_CLICK_DELAY)
+        onReplayButtonClickable.value = true
     }
 
     fun updateActiveChannel(surfaceView: SurfaceView, closedCaptionView: PhenixClosedCaptionView, channel: Channel) = launchMain {
         val channels = channels.value?.toMutableList() ?: mutableListOf()
-        channels.filter { it.isMainRendered.value == true && it.channelAlias != channel.channelAlias }.forEach { channel ->
+        channels.forEach { channel ->
+            channel.onPlaybackHead.removeObserver(playbackHeadObserver)
             channel.isMainRendered.value = false
             channel.setMainSurface(null)
             channel.muteAudio()
-            channel.onTimeShiftReady.removeObserver(timeShiftObserver)
-            channel.onPlaybackHead.removeObserver(playbackHeadObserver)
         }
-        channels.find { it.channelAlias == channel.channelAlias }?.apply {
-            isMainRendered.value = true
-            setMainSurface(surfaceView)
-            unmuteAudio()
-            if (onTimeShiftReady.value == false) {
-                createTimeShift(selectedHighlight)
-                onTimeShiftReady.observeForever(timeShiftObserver)
+        channels.find { it.channelAlias == channel.channelAlias }?.let { channel ->
+            channel.isMainRendered.value = true
+            channel.setMainSurface(surfaceView)
+            channel.unmuteAudio()
+            launchMain {
+                channel.onPlaybackHead.observeForever(playbackHeadObserver)
             }
-            onPlaybackHead.observeForever(playbackHeadObserver)
-            roomService?.let { service ->
+            channel.roomService?.let { service ->
                 closedCaptionView.subscribe(service, channelExpressRepository.getMimeTypes())
+            }
+            if (channel.onTimeShiftState.value == ReplayState.FAILED) {
+                channel.selectedHighlight = selectedHighlight
+                channel.createTimeShift()
             }
         }
         Timber.d("Updated active channel: $channel")
@@ -120,35 +122,38 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
     }
 
     fun switchReplayState(highlight: Highlight) {
-        if (isReplayButtonClickable.value == true) {
-            if (onReplayButtonState.value == ReplayState.LIVE) {
-                startLooping(highlight)
-            } else {
-                endLooping()
+        if (onReplayButtonClickable.isTrue()) {
+            when (onReplayState.value) {
+                ReplayState.FAILED -> createTimeShift(highlight)
+                ReplayState.READY -> startLooping(highlight)
+                else -> endLooping()
             }
         }
     }
 
-    fun createTimeShift(highlight: Highlight) {
+    fun createTimeShift(highlight: Highlight) = launchMain {
         Timber.d("Recreating time shift for: $highlight")
         selectedHighlight = highlight
-        channelExpressRepository.timeShiftStartTime = Date(channelExpressRepository.channelJoinTime.time - selectedHighlight.minutesAgo)
-        channels.value?.firstOrNull { it.isMainRendered.value == true }?.createTimeShift(channelExpressRepository.timeShiftStartTime)
+        channels.value?.forEach { channel ->
+            channel.selectedHighlight = selectedHighlight
+            channel.createTimeShift()
+        }
     }
 
     fun getTimestampForProgress(progress: Long)
-            = Date(channelExpressRepository.timeShiftStartTime.time + TimeUnit.SECONDS.toMillis(progress)).toDateString()
+            = channels.value?.find { it.isMainRendered.value == true }?.getTimestampForProgress(progress) ?: ""
 
-    fun getProgressFromTimestamp(timeStamp: Date): Int
-            = TimeUnit.MILLISECONDS.toSeconds(timeStamp.time - channelExpressRepository.timeShiftStartTime.time).toInt()
+    fun getProgressFromTimestamp(timeStamp: Long): Int = TimeUnit.MILLISECONDS.toSeconds(timeStamp).toInt()
 
     fun playFromHere(progress: Long) {
-        channels.value?.firstOrNull {
-            it.isMainRendered.value == true
-        }?.playFromHere(Date(channelExpressRepository.timeShiftStartTime.time + TimeUnit.SECONDS.toMillis(progress)))
+        channels.value?.forEach {channel ->
+            channel.playFromHere(TimeUnit.SECONDS.toMillis(progress))
+        }
     }
 
     fun pausePlayback() {
-        channels.value?.firstOrNull { it.isMainRendered.value == true }?.pausePlayback()
+        channels.value?.forEach { channel ->
+            channel.pausePlayback()
+        }
     }
 }

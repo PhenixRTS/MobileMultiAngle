@@ -50,8 +50,8 @@ class MainActivity : FragmentActivity() {
         val rotation = resources.configuration.orientation
         val spanCount = if (rotation == Configuration.ORIENTATION_PORTRAIT) SPAN_COUNT_PORTRAIT else SPAN_COUNT_LANDSCAPE
         val isFullScreen = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        main_stream_holder.setVisible(true)
-        main_stream_list.setVisible(!isFullScreen)
+        main_stream_holder.changeVisibility(true)
+        main_stream_list.changeVisibility(!isFullScreen)
         main_stream_list.layoutManager = GridLayoutManager(this, spanCount)
         main_stream_list.setHasFixedSize(true)
         main_stream_list.adapter = adapter
@@ -104,33 +104,58 @@ class MainActivity : FragmentActivity() {
         viewModel.headTimeStamp.observe(this, { head ->
             stream_head_progress.progress = viewModel.getProgressFromTimestamp(head)
         })
-        viewModel.onReplayButtonVisible.observe(this, { visible ->
-            replay_holder.setVisible(visible)
-            stream_head_holder.setVisible(viewModel.onReplayButtonState.value == ReplayState.REPLAYING)
+        viewModel.onReplayButtonClickable.observe(this, { clickable ->
+            updateReplayButton(clickable)
+            replay_button.isEnabled = clickable
         })
-        viewModel.onReplayButtonState.observe(this, { state ->
-            spinner_highlights_holder.setVisible(state == ReplayState.LIVE)
-            if (state == ReplayState.LIVE) {
-                replay_button_icon.setImageResource(R.drawable.ic_replay_30)
-                replay_button_title.setText(R.string.button_replay)
-                stream_head_holder.setVisible(false)
-                closed_caption_view.defaultConfiguration.isButtonVisible = true
-            } else {
-                replay_button_icon.setImageResource(R.drawable.ic_play)
-                replay_button_title.setText(R.string.button_go_live)
-                stream_head_holder.setVisible(true)
-                val loopLength = viewModel.selectedHighlight.loopLength
-                Timber.d("Stream head ready: $loopLength ${TimeUnit.MILLISECONDS.toSeconds(loopLength).toInt()}")
-                stream_head_progress.max = TimeUnit.MILLISECONDS.toSeconds(loopLength).toInt()
-                closed_caption_view.defaultConfiguration.isButtonVisible = false
+        viewModel.onReplayState.observe(this, { state ->
+            updateReplayButton(viewModel.onReplayButtonClickable.isTrue())
+            when (state ?: ReplayState.STARTING) {
+                ReplayState.READY -> {
+                    spinner_highlights_holder.changeVisibility(true)
+                    replay_button_icon.setImageResource(R.drawable.ic_replay)
+                    replay_button_title.setText(R.string.button_replay)
+                    replay_button.isEnabled = true
+                    stream_head_holder.changeVisibility(false)
+                    closed_caption_view.defaultConfiguration.isButtonVisible = true
+                }
+                ReplayState.REPLAYING -> {
+                    spinner_highlights_holder.changeVisibility(false)
+                    replay_button_icon.setImageResource(R.drawable.ic_play)
+                    replay_button_title.setText(R.string.button_go_live)
+                    replay_button.isEnabled = true
+                    stream_head_holder.changeVisibility(true)
+                    closed_caption_view.defaultConfiguration.isButtonVisible = false
+                    // Update seek bar MAX value
+                    val loopLength = viewModel.selectedHighlight.loopLength
+                    stream_head_progress.max = TimeUnit.MILLISECONDS.toSeconds(loopLength).toInt()
+                }
+                ReplayState.FAILED -> {
+                    spinner_highlights_holder.changeVisibility(false)
+                    replay_button_icon.setImageResource(R.drawable.ic_replay_warning)
+                    replay_button_title.setText(R.string.button_replay_failed)
+                    replay_button.isEnabled = true
+                    stream_head_holder.changeVisibility(false)
+                    closed_caption_view.defaultConfiguration.isButtonVisible = true
+                }
+                ReplayState.STARTING -> {
+                    spinner_highlights_holder.changeVisibility(false)
+                    replay_button_icon.setImageResource(R.drawable.ic_replay_starting)
+                    replay_button_title.setText(R.string.button_replay_starting)
+                    replay_button.isEnabled = false
+                    stream_head_holder.changeVisibility(false)
+                    closed_caption_view.defaultConfiguration.isButtonVisible = true
+                }
             }
             closed_caption_view.refresh()
         })
-        viewModel.isReplayButtonClickable.observe(this, { isClickable ->
-            replay_button.setBackgroundResource(
-                if (isClickable) R.drawable.bg_replay_button else R.drawable.bg_replay_button_disabled
-            )
-        })
         Timber.d("Initializing Main Activity: $rotation")
+    }
+
+    private fun updateReplayButton(clickable: Boolean) {
+        val drawable = if (clickable) {
+            (viewModel.onReplayState.value ?: ReplayState.STARTING).getReplayButtonDrawable()
+        } else R.drawable.bg_replay_button_disabled
+        replay_button.setBackgroundResource(drawable)
     }
 }

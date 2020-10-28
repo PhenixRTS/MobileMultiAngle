@@ -9,7 +9,7 @@ import com.phenixrts.suite.phenixmultiangle.R
 import java.util.concurrent.TimeUnit
 
 enum class Highlight(val minutesAgo: Long, val loopLength: Long, @StringRes val title: Int) {
-    FAR(TimeUnit.SECONDS.toMillis(40), TimeUnit.SECONDS.toMillis(30), R.string.highlight_far),
+    FAR(TimeUnit.SECONDS.toMillis(60), TimeUnit.SECONDS.toMillis(40), R.string.highlight_far),
     NEAR(TimeUnit.SECONDS.toMillis(30), TimeUnit.SECONDS.toMillis(20), R.string.highlight_near),
-    CLOSE(TimeUnit.SECONDS.toMillis(20), TimeUnit.SECONDS.toMillis(10), R.string.highlight_close)
+    CLOSE(TimeUnit.SECONDS.toMillis(10), TimeUnit.SECONDS.toMillis(10), R.string.highlight_close)
 }

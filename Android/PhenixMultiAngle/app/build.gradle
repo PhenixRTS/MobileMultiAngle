@@ -23,6 +23,7 @@ android {
         buildConfigField "String", "PCAST_URL", "\"\""
         buildConfigField "String", "CHANNEL_ALIASES", "\"multiAngle.1,multiAngle.2,multiAngle.3,multiAngle.4,multiAngle.5\""
         buildConfigField "String", "MIME_TYPES", "\"application/Phenix-CC\""
+        buildConfigField "String", "SDK_DEBUG_LEVEL", "\"info\""
     }
 
     buildTypes {

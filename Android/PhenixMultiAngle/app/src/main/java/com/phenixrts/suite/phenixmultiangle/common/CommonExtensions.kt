@@ -11,9 +11,11 @@ import android.widget.AdapterView
 import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
 import com.google.android.material.snackbar.Snackbar
 import com.phenixrts.suite.phenixmultiangle.R
 import com.phenixrts.suite.phenixmultiangle.common.enums.ExpressError
+import com.phenixrts.suite.phenixmultiangle.common.enums.ReplayState
 import com.phenixrts.suite.phenixmultiangle.models.Channel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -51,11 +53,20 @@ fun AppCompatActivity.showErrorDialog(error: ExpressError) {
         .show()
 }
 
-fun View.setVisible(condition: Boolean) {
+fun View.changeVisibility(condition: Boolean) {
     val newVisibility = if (condition) View.VISIBLE else View.GONE
     if (visibility != newVisibility) {
         visibility = newVisibility
     }
+}
+
+fun MutableLiveData<Boolean>.isTrue() = value == true
+
+fun ReplayState.getReplayButtonDrawable(): Int = when(this) {
+    ReplayState.STARTING -> R.drawable.bg_replay_button_disabled
+    ReplayState.READY -> R.drawable.bg_replay_button
+    ReplayState.REPLAYING -> R.drawable.bg_replay_button
+    ReplayState.FAILED -> R.drawable.bg_replay_button_failed
 }
 
 fun Date.toDateString(): String = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(this)

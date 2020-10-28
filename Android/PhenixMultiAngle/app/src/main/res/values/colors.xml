@@ -20,4 +20,6 @@
     <color name="colorRePlayAccent">#558000</color>
     <color name="colorRePlayDisabled">#858585</color>
     <color name="colorRePlayDisabledAccent">#6E6E6E</color>
+    <color name="colorRePlayWarning">#ff1744</color>
+    <color name="colorRePlayWarninigAccent">#c4001d</color>
 </resources>
