@@ -5,6 +5,8 @@
 package com.phenixrts.suite.phenixmultiangle.models
 
 import android.graphics.Bitmap
+import android.os.Handler
+import android.os.Looper
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.lifecycle.MutableLiveData
@@ -32,6 +34,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 
 private const val TIME_SHIFT_RETRY_DELAY = 1000 * 10L
+private const val TIME_SHIFT_START_WAIT_TIME = 1000 * 20L
 
 data class Channel(
     private val channelExpress: ChannelExpress,
@@ -61,6 +64,13 @@ data class Channel(
                 }
             }
         })
+    }
+
+    private val timeoutHandler = Handler(Looper.getMainLooper())
+    private val timeoutRunnable = Runnable {
+        launchMain {
+            updateTimeShiftState(ReplayState.FAILED)
+        }
     }
 
     val onTimeShiftState = MutableLiveData<ReplayState>().apply { value = ReplayState.STARTING }
@@ -99,18 +109,27 @@ data class Channel(
         }
     }
 
+    private fun updateTimeShiftState(state: ReplayState) {
+        if (state == ReplayState.STARTING) {
+            timeoutHandler.postDelayed(timeoutRunnable, TIME_SHIFT_START_WAIT_TIME)
+        } else {
+            timeoutHandler.removeCallbacks(timeoutRunnable)
+        }
+        if (onTimeShiftState.value != state) {
+            Timber.d("Time shift state changed: $state for: ${this@Channel.asString()}")
+            onTimeShiftState.value = state
+        }
+    }
+
     private fun subscribeToTimeShiftReadyForPlaybackObservable() {
-        onTimeShiftState.value = ReplayState.STARTING
+        updateTimeShiftState(ReplayState.STARTING)
         Timber.d("Subscribing to time shift observables: ${this@Channel.asString()}")
         timeShift?.observableReadyForPlaybackStatus?.subscribe { isReady ->
             if (onTimeShiftState.value == ReplayState.REPLAYING) return@subscribe
             launchMain {
                 val state = if (isReady) ReplayState.READY else ReplayState.STARTING
                 if (isReady) timeShiftCreateRetryCount = 0
-                if (onTimeShiftState.value != state) {
-                    Timber.d("Time shift ready: $isReady, ${this@Channel.asString()}")
-                    onTimeShiftState.value = state
-                }
+                updateTimeShiftState(state)
             }
         }?.run { timeShiftDisposables.add(this) }
         timeShift?.observablePlaybackHead?.subscribe { head ->
@@ -125,13 +144,13 @@ data class Channel(
             launchMain {
                 Timber.d("Time shift failure: $status, retryCount: $timeShiftCreateRetryCount")
                 releaseTimeShift()
-                if (timeShiftCreateRetryCount < selectedHighlight.minutesAgo / TIME_SHIFT_RETRY_DELAY) {
+                if (timeShiftCreateRetryCount < selectedHighlight.secondsAgo / TIME_SHIFT_RETRY_DELAY) {
                     timeShiftCreateRetryCount++
                     delay(TIME_SHIFT_RETRY_DELAY)
                     createTimeShift()
                 } else {
                     timeShiftCreateRetryCount = 0
-                    onTimeShiftState.value = ReplayState.FAILED
+                    updateTimeShiftState(ReplayState.FAILED)
                 }
             }
         }?.run { timeShiftDisposables.add(this) }
@@ -256,7 +275,7 @@ data class Channel(
         Timber.d("Looping time shift: ${asString()}")
         timeShift?.loop(highlight.loopLength)
         if (onTimeShiftState.value == ReplayState.READY) {
-            onTimeShiftState.value = ReplayState.REPLAYING
+            updateTimeShiftState(ReplayState.REPLAYING)
         }
     }
 
@@ -264,7 +283,7 @@ data class Channel(
         Timber.d("Stopping time shift: ${asString()}")
         timeShift?.stop()
         if (onTimeShiftState.value == ReplayState.REPLAYING) {
-            onTimeShiftState.value = ReplayState.READY
+            updateTimeShiftState(ReplayState.READY)
         }
     }
 
@@ -274,13 +293,13 @@ data class Channel(
             return@launchMain
         }
         if (renderer?.isSeekable == false) {
-            onTimeShiftState.value = ReplayState.FAILED
+            updateTimeShiftState(ReplayState.FAILED)
             return@launchMain
         }
-        onTimeShiftState.value = ReplayState.STARTING
+        updateTimeShiftState(ReplayState.STARTING)
         releaseTimeShift()
         val utcTime = System.currentTimeMillis()
-        val offset = utcTime - selectedHighlight.minutesAgo
+        val offset = utcTime - selectedHighlight.secondsAgo
         Timber.d("UTC time: $utcTime, offset: $offset")
         timeShift = renderer?.seek(Date(offset))
         Timber.d("Time shift created: ${timeShift?.startTime?.time} : $selectedHighlight, offset: $offset, for: ${asString()}")

@@ -131,7 +131,7 @@ class MainActivity : FragmentActivity() {
                     stream_head_progress.max = TimeUnit.MILLISECONDS.toSeconds(loopLength).toInt()
                 }
                 ReplayState.FAILED -> {
-                    spinner_highlights_holder.changeVisibility(false)
+                    spinner_highlights_holder.changeVisibility(true)
                     replay_button_icon.setImageResource(R.drawable.ic_replay_warning)
                     replay_button_title.setText(R.string.button_replay_failed)
                     replay_button.isEnabled = true

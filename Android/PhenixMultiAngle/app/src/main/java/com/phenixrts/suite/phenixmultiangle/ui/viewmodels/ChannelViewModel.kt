@@ -33,7 +33,6 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
                 channel.joinChannel()
                 launchMain {
                     channel.onTimeShiftState.asFlow().collect {
-                        Timber.d("TIme shift state changed: $it")
                         updateRePlayState()
                     }
                 }
