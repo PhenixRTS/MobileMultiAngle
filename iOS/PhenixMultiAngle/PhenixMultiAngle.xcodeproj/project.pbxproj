@@ -12,6 +12,7 @@
 		B51141C324FD0CDE007584A1 /* CVPixelBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51141C224FD0CDE007584A1 /* CVPixelBuffer+Extension.swift */; };
 		B51E2D7A24F63FB3000D4A69 /* ChannelJoinObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51E2D7924F63FB3000D4A69 /* ChannelJoinObserver.swift */; };
 		B51E2D7E24F642A6000D4A69 /* ChannelStreamObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51E2D7D24F642A6000D4A69 /* ChannelStreamObserver.swift */; };
+		B53DEC6A253886E9003C6DCC /* PhenixBandwidthLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53DEC69253886E9003C6DCC /* PhenixBandwidthLimit.swift */; };
 		B543FCB42502232600960F88 /* TimeShiftReplayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B543FCB32502232600960F88 /* TimeShiftReplayConfiguration.swift */; };
 		B58273C42508FF6600CC9EF9 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58273C32508FF6600CC9EF9 /* Throttler.swift */; };
 		B58273C62508FFA000CC9EF9 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58273C52508FFA000CC9EF9 /* Debouncer.swift */; };
@@ -94,6 +95,7 @@
 		B51141C224FD0CDE007584A1 /* CVPixelBuffer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Extension.swift"; sourceTree = "<group>"; };
 		B51E2D7924F63FB3000D4A69 /* ChannelJoinObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelJoinObserver.swift; sourceTree = "<group>"; };
 		B51E2D7D24F642A6000D4A69 /* ChannelStreamObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelStreamObserver.swift; sourceTree = "<group>"; };
+		B53DEC69253886E9003C6DCC /* PhenixBandwidthLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixBandwidthLimit.swift; sourceTree = "<group>"; };
 		B543FCB32502232600960F88 /* TimeShiftReplayConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeShiftReplayConfiguration.swift; sourceTree = "<group>"; };
 		B58273C32508FF6600CC9EF9 /* Throttler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
 		B58273C52508FFA000CC9EF9 /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 		B59132AD24E3D7E200A5B7D1 /* PhenixCore */ = {
 			isa = PBXGroup;
 			children = (
+				B53DEC69253886E9003C6DCC /* PhenixBandwidthLimit.swift */,
 				B59132BE24E3DE1C00A5B7D1 /* PhenixConfiguration.swift */,
 				B59132C024E3DE1D00A5B7D1 /* PhenixManager.swift */,
 				B5E3841024F54F76006077DF /* PhenixOptionBuilder.swift */,
@@ -628,6 +631,7 @@
 				B51E2D7E24F642A6000D4A69 /* ChannelStreamObserver.swift in Sources */,
 				B5F225B824F56ABE00404673 /* VideoLayer.swift in Sources */,
 				B58273C62508FFA000CC9EF9 /* Debouncer.swift in Sources */,
+				B53DEC6A253886E9003C6DCC /* PhenixBandwidthLimit.swift in Sources */,
 				B59132C724E3DE1D00A5B7D1 /* PhenixManager.swift in Sources */,
 				B5A6CF6524FFC8ED00F23941 /* ChannelTimeShiftObserver.swift in Sources */,
 			);

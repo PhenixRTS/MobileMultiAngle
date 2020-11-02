@@ -89,9 +89,9 @@ public class ChannelTimeShiftWorker {
         timeShift.stop()
     }
 
-    func startBandwidthLimitation() {
-        os_log(.debug, log: .timeShift, "Start limiting bandwidth, (%{PRIVATE}s)", channel.description)
-        bandwidthLimitationDisposable = timeShift.limitBandwidth(PhenixConfiguration.channelBandwidthLimitation)
+    func limitBandwidth(at bandwidth: PhenixBandwidthLimit) {
+        os_log(.debug, log: .timeShift, "Start limiting bandwidth at %{PUBLIC}d, (%{PRIVATE}s)", bandwidth.rawValue, channel.description)
+        bandwidthLimitationDisposable = timeShift.limitBandwidth(bandwidth.rawValue)
     }
 
     func stopBandwidthLimitation() {

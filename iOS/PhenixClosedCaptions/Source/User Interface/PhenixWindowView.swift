@@ -77,12 +77,11 @@ private extension PhenixWindowView {
 
         NSLayoutConstraint.activate([widthConstraint, heightConstraint])
 
-        widthConstraint.isActive = configuration.wordWrap == false
         heightConstraint.isActive = configuration.wordWrap == false
     }
 
     func updateFrameConstraints() {
-        let size = calculatePossibleFrameSize(forCharacterCountInLine: configuration.widthInCharacters, lineCount: configuration.heightInTextLines, font: PhenixTextView.font)
+        let size = calculateFrameSize(forCharacterCountInLine: configuration.widthInCharacters, lineCount: configuration.heightInTextLines, font: PhenixTextView.font)
 
         widthConstraint.constant = size.width
         heightConstraint.constant = size.height + CGFloat(configuration.heightInTextLines) // Add additional heightInTextLines count because UILabels and other text representation views add small amount of inset inside the text view.
@@ -147,16 +146,17 @@ private extension PhenixWindowView {
 }
 
 fileprivate extension UIView {
-    /// Calculate potential frame size by providing character count for one line and line count in total
+    /// Calculate frame size by providing character count for one line and total line count
     /// - Parameters:
-    ///   - characters: Count for characters in one line
+    ///   - characterCount: Count for characters in one line
     ///   - lineCount: Count for lines
     ///   - font: Provided font for the potential string
     /// - Returns: Size of the frame which can contain the string in provided character and line count
-    func calculatePossibleFrameSize(forCharacterCountInLine characters: Int, lineCount: Int, font: UIFont) -> CGSize {
+    func calculateFrameSize(forCharacterCountInLine characterCount: Int, lineCount: Int, font: UIFont) -> CGSize {
         let attributes: [NSAttributedString.Key : Any] = [.font: font]
-        let string = String(repeating: "W", count: characters) as NSString
-        let size = string.boundingRect(with: CGSize(width: .max, height: .max), options: [.usesLineFragmentOrigin], attributes: attributes, context: nil).size
+        let string = String(repeating: "W", count: characterCount) as NSString
+        let containerRect = CGSize(width: .max, height: .max)
+        let size = string.boundingRect(with: containerRect, options: [.usesLineFragmentOrigin], attributes: attributes, context: nil).size
         return CGSize(width: ceil(size.width), height: ceil(size.height) * CGFloat(lineCount))
     }
 }

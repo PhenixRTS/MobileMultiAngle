@@ -19,6 +19,7 @@ class MultiStreamViewController: UIViewController, Storyboarded {
     var phenixManager: PhenixChannelJoining!
     var channels: [Channel] = []
     var ccChannel: Channel?
+    var device: UIDevice = .current
 
     private var timeShiftReplayConfigurations: [TimeShiftReplayConfiguration] = [.far, .near, .close]
     private var collectionViewManager: MultiStreamPreviewCollectionViewManager!
@@ -55,11 +56,6 @@ class MultiStreamViewController: UIViewController, Storyboarded {
         }
     }
 
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        multiStreamView.invalidateLayout()
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -72,6 +68,9 @@ class MultiStreamViewController: UIViewController, Storyboarded {
         }
         collectionViewManager.itemSelectionHandler = { [weak self] selectedIndexPath in
             self?.select(channelAt: selectedIndexPath)
+        }
+        collectionViewManager.limitBandwidth = { [weak self] channel in
+            self?.limitBandwidth(channel)
         }
 
         multiStreamView.delegate = self
@@ -88,6 +87,12 @@ class MultiStreamViewController: UIViewController, Storyboarded {
         super.viewDidAppear(animated)
 
         updateChannelSelection()
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        multiStreamView.invalidateLayout()
+        channels.forEach(limitBandwidth)
     }
 }
 
@@ -111,6 +116,7 @@ private extension MultiStreamViewController {
         selectedChannelIndexPath = indexPath
 
         channel.addPrimaryLayer(to: multiStreamView.previewLayer)
+        limitBandwidth(channel)
     }
 
     /// Sets selected layer on the currently selected channel or the first channel in the channel list
@@ -216,6 +222,22 @@ private extension MultiStreamViewController {
             present(ac, animated: true)
         }
     }
+
+    func limitBandwidth(_ channel: Channel) {
+        if device.orientation.isLandscape {
+            if channel == selectedChannel {
+                channel.stopBandwidthLimitation()
+            } else {
+                channel.limitBandwidth(at: .offscreen)
+            }
+        } else {
+            if channel == selectedChannel {
+                channel.limitBandwidth(at: .hero)
+            } else {
+                channel.limitBandwidth(at: .thumbnail)
+            }
+        }
+    }
 }
 
 extension MultiStreamViewController: ChannelStreamObserver {
@@ -227,9 +249,9 @@ extension MultiStreamViewController: ChannelStreamObserver {
 
             self.updateReplayState()
 
-            // If channel state changed to playing, we need to limit its bandwidth if that isn't the Hero channel (selected channel)
-            if state == .playing && channel != self.selectedChannel {
-                channel.startBandwidthLimitation()
+            // If channel state changed to playing we can start limiting the bandwidth
+            if state == .playing {
+                self.limitBandwidth(channel)
             }
         }
     }

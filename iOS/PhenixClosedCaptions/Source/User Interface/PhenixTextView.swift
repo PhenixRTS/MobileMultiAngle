@@ -83,8 +83,8 @@ private extension PhenixTextView {
     func setInnerElementConstraints() {
         let constraints: [NSLayoutConstraint] = [
             captionLabel.topAnchor.constraint(equalTo: topAnchor),
-            captionLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor),
-            captionLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor),
+            captionLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            captionLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             captionLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ]
 

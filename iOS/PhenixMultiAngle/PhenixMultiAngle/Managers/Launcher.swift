@@ -8,7 +8,8 @@ import UIKit
 
 /// Have all instructions how to initiate application dependencies and the main coordinator
 class Launcher {
-    private let url = PhenixConfiguration.backend
+    private let backend = PhenixConfiguration.backend
+    private let pcast = PhenixConfiguration.pcast
     private weak var window: UIWindow?
 
     init(window: UIWindow) {
@@ -40,7 +41,7 @@ class Launcher {
             // Configure necessary object instances
             os_log(.debug, log: .launcher, "Configure Phenix instance")
 
-            let manager = PhenixManager(backend: self.url)
+            let manager = PhenixManager(backend: self.backend, pcast: self.pcast)
             manager.start { [weak nc] description in
                 // Unrecoverable Error Completion
                 let reason = description ?? "N/A"

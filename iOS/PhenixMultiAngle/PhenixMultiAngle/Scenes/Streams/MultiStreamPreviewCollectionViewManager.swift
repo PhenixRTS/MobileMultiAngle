@@ -24,6 +24,7 @@ class MultiStreamPreviewCollectionViewManager: NSObject {
     var channels: [Channel] = []
     var isMemberIndexPathSelected: ((IndexPath) -> Bool)?
     var itemSelectionHandler: ((IndexPath) -> Void)?
+    var limitBandwidth: ((Channel) -> Void)?
 
     deinit {
         selectionLayerObservation = nil
@@ -63,7 +64,6 @@ extension MultiStreamPreviewCollectionViewManager: UICollectionViewDataSource {
 
             channel.addSecondaryLayer(to: cell.contentView.layer)
             channel.setAudio(enabled: true)
-            channel.stopBandwidthLimitation()
 
             // Save the secondary preview layer inside the preview array
             secondaryPreviewLayers.insert(channel.secondaryPreviewLayer)
@@ -72,7 +72,7 @@ extension MultiStreamPreviewCollectionViewManager: UICollectionViewDataSource {
         } else {
             channel.addPrimaryLayer(to: cell.contentView.layer)
             channel.setAudio(enabled: false)
-            channel.startBandwidthLimitation()
+            limitBandwidth?(channel)
         }
 
         switch (channel.joinState, channel.streamState) {

@@ -9,26 +9,32 @@ import PhenixSdk
 public final class PhenixManager {
     public typealias UnrecoverableErrorHandler = (_ description: String?) -> Void
 
-    /// Backend URL used by Phenix SDK to communicate
-    internal let backend: URL
     internal let privateQueue: DispatchQueue
 
     internal private(set) var channelExpress: PhenixChannelExpress!
 
+    /// Backend URL used by Phenix SDK to communicate
+    public let backend: URL
+    public let pcast: URL?
+
     /// Initializer for Phenix manager
-    /// - Parameter backend: Backend URL for Phenix SDK
-    public convenience init(backend: URL) {
+    /// - Parameters:
+    ///   - backend: Backend URL for Phenix SDK
+    ///   - pcast: PCast URL forn Phenix SDK
+    public convenience init(backend: URL, pcast: URL?) {
         let privateQueue = DispatchQueue(label: "com.phenixrts.suite.multiangle.core.PhenixManager")
-        self.init(backend: backend, privateQueue: privateQueue)
+        self.init(backend: backend, pcast: pcast, privateQueue: privateQueue)
     }
 
     /// Initializer for internal tests
     /// - Parameters:
     ///   - backend: Backend URL for Phenix SDK
+    ///   - pcast: PCast URL forn Phenix SDK
     ///   - privateQueue: Private queue used for making manager thread safe and possible to run on background threads
-    internal init(backend: URL, privateQueue: DispatchQueue) {
+    internal init(backend: URL, pcast: URL?, privateQueue: DispatchQueue) {
         self.privateQueue = privateQueue
         self.backend = backend
+        self.pcast = pcast
     }
 
     /// Creates necessary instances of PhenixSdk which provides connection and media streaming possibilities
@@ -50,7 +56,7 @@ public final class PhenixManager {
 
 private extension PhenixManager {
     func setupChannelExpress(backend: URL, _ unrecoverableErrorCompletion: @escaping UnrecoverableErrorHandler, completion: @escaping () -> Void) {
-        let pcastExpressOptions = PhenixOptionBuilder.createPCastExpressOptions(backend: backend, unrecoverableErrorCallback: unrecoverableErrorCompletion)
+        let pcastExpressOptions = PhenixOptionBuilder.createPCastExpressOptions(backend: backend, pcast: pcast, unrecoverableErrorCallback: unrecoverableErrorCompletion)
         let roomExpressOptions = PhenixOptionBuilder.createRoomExpressOptions(with: pcastExpressOptions)
         let channelExpressOptions = PhenixOptionBuilder.createChannelExpressOptions(with: roomExpressOptions)
 

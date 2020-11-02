@@ -160,18 +160,19 @@ public class Channel {
         timeShiftWorker?.movePlaybackHead(by: time)
     }
 
-    public func startBandwidthLimitation() {
-        os_log(.debug, log: .channel, "Start limiting bandwidth, (%{PRIVATE}s)", self.description)
+    public func limitBandwidth(at bandwidth: PhenixBandwidthLimit) {
+        os_log(.debug, log: .channel, "Start limiting bandwidth at %{PUBLIC}d, (%{PRIVATE}s)", bandwidth.rawValue, self.description)
 
         guard let subscriber = subscriber else {
             os_log(.debug, log: .channel, "Subscriber is not available for bandwidth limitation, (%{PRIVATE}s)", self.description)
             return
         }
 
+        bandwidthLimitationDisposables.removeAll()
         subscriber.getVideoTracks()?.forEach { stream in
-            stream.limitBandwidth(PhenixConfiguration.channelBandwidthLimitation).append(to: &bandwidthLimitationDisposables)
+            stream.limitBandwidth(bandwidth.rawValue).append(to: &bandwidthLimitationDisposables)
         }
-        timeShiftWorker?.startBandwidthLimitation()
+        timeShiftWorker?.limitBandwidth(at: bandwidth)
     }
 
     public func stopBandwidthLimitation() {
@@ -206,6 +207,7 @@ private extension Channel {
         setAudio(enabled: savedAudioState == .unmute ? true : false)
         renderer?.setFrameReadyCallback(videoTrack, didReceiveVideoFrame)
         renderer?.setLastVideoFrameRenderedReceivedCallback(didReceiveLastVideoFrame)
+        renderer?.setVideoDisplayDimensionsChangedCallback(didReceiveVideoDisplayDimensionsChange)
     }
 
     func createTimeShift(withInitialTime dateTime: Date, replayConfiguration: TimeShiftReplayConfiguration) {
@@ -269,6 +271,14 @@ internal extension Channel {
                 secondaryPreviewLayer.enqueue(frame)
             }
         }
+    }
+
+    func didReceiveVideoDisplayDimensionsChange(_ renderer: PhenixRenderer?, _ dimensions: UnsafePointer<PhenixDimensions>?) {
+        guard let dimensions = dimensions?.pointee else {
+            return
+        }
+
+        os_log(.debug, log: .channel, "Frame dimensions changed - width: %{PRIVATE}d,\theight: %{PRIVATE}d, (%{PRIVATE}s)", dimensions.width, dimensions.height, description)
     }
 }
 
