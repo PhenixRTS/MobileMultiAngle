@@ -62,6 +62,10 @@ fun View.changeVisibility(condition: Boolean) {
 
 fun MutableLiveData<Boolean>.isTrue() = value == true
 
+fun MutableLiveData<Unit>.call() {
+    value = Unit
+}
+
 fun ReplayState.getReplayButtonDrawable(): Int = when(this) {
     ReplayState.STARTING -> R.drawable.bg_replay_button_disabled
     ReplayState.READY -> R.drawable.bg_replay_button

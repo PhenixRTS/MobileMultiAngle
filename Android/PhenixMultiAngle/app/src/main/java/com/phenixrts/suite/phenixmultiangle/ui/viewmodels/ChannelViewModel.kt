@@ -9,6 +9,7 @@ import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.phenixrts.suite.phenixclosedcaption.PhenixClosedCaptionView
 import com.phenixrts.suite.phenixmultiangle.common.DEFAULT_HIGHLIGHT
+import com.phenixrts.suite.phenixmultiangle.common.call
 import com.phenixrts.suite.phenixmultiangle.common.enums.Highlight
 import com.phenixrts.suite.phenixmultiangle.common.enums.ReplayState
 import com.phenixrts.suite.phenixmultiangle.common.isTrue
@@ -36,8 +37,13 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
                         updateRePlayState()
                     }
                 }
+                launchMain {
+                    channel.onTimeShiftLoading.asFlow().collect {
+                        updateLoadingState()
+                    }
+                }
             }
-            onChannelsJoined.value = true
+            onChannelsJoined.call()
             Timber.d("Channel list joined $channelList")
         }
     }
@@ -49,7 +55,8 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
     val channels = MutableLiveData<List<Channel>>()
     val headTimeStamp = MutableLiveData<Long>()
     val onReplayState = MutableLiveData<ReplayState>().apply { value = ReplayState.STARTING }
-    val onChannelsJoined = MutableLiveData<Boolean>()
+    val onReplayLoadingState = MutableLiveData<Boolean>().apply { value = false }
+    val onChannelsJoined = MutableLiveData<Unit>()
     val onReplayButtonClickable = MutableLiveData<Boolean>().apply { value = true }
     var selectedHighlight = DEFAULT_HIGHLIGHT
 
@@ -60,6 +67,15 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
     private fun observeChannels() = launchMain {
         Timber.d("Observing channels")
         channelExpressRepository.channels.observeForever(channelObserver)
+    }
+
+    private fun updateLoadingState() = launchMain {
+        val loadingState = channels.value?.find {
+            it.isMainRendered.value == true
+        }?.onTimeShiftLoading?.value == true
+        if (onReplayLoadingState.value != loadingState) {
+            onReplayLoadingState.value = loadingState
+        }
     }
 
     private fun updateRePlayState() = launchMain {
@@ -118,6 +134,7 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
         }
         Timber.d("Updated active channel: $channel")
         updateRePlayState()
+        updateLoadingState()
     }
 
     fun switchReplayState(highlight: Highlight) {

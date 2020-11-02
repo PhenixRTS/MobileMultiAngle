@@ -20,7 +20,7 @@
         android:clipChildren="true">
 
         <FrameLayout
-            android:id="@+id/item_surface_holder"
+            android:id="@+id/channel_surface_holder"
             android:layout_width="wrap_content"
             android:layout_height="150dp"
             android:background="@color/primaryDarkColor"
@@ -38,18 +38,18 @@
                 android:layout_gravity="center"/>
 
             <SurfaceView
-                android:id="@+id/item_stream_surface"
+                android:id="@+id/channel_stream_surface"
                 android:layout_width="match_parent"
                 android:layout_height="150dp" />
 
             <SurfaceView
-                android:id="@+id/item_bitmap_surface"
+                android:id="@+id/channel_bitmap_surface"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:visibility="gone"/>
 
             <TextView
-                android:id="@+id/item_gone"
+                android:id="@+id/channel_gone"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:textColor="@color/primaryTextColor"
@@ -59,6 +59,13 @@
                 android:gravity="center"
                 android:visibility="@{channel.onChannelJoined == StreamStatus.ONLINE ? View.GONE : View.VISIBLE}"
                 tools:visibility="visible" />
+
+            <ProgressBar
+                android:id="@+id/channel_time_shift_loading"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:visibility="@{channel.onTimeShiftLoading ? View.VISIBLE : View.GONE}"
+                android:layout_gravity="center" />
 
         </FrameLayout>
 

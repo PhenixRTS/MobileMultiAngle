@@ -30,17 +30,20 @@ class ChannelAdapter(
     override fun getItemCount() = data.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val roomMember = data[position]
-        holder.binding.channel = roomMember
-        roomMember.setThumbnailSurfaces(holder.binding.itemStreamSurface, holder.binding.itemBitmapSurface)
-        roomMember.isMainRendered.observeForever {
-            holder.binding.channel = roomMember
+        val channel = data[position]
+        holder.binding.channel = channel
+        channel.setThumbnailSurfaces(holder.binding.channelStreamSurface, holder.binding.channelBitmapSurface)
+        channel.isMainRendered.observeForever {
+            holder.binding.channel = channel
+        }
+        channel.onTimeShiftLoading.observeForever {
+            holder.binding.channel = channel
         }
     }
 
     inner class ViewHolder(val binding: RowChannelItemBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            binding.itemSurfaceHolder.setOnClickListener {
+            binding.channelSurfaceHolder.setOnClickListener {
                 data.getOrNull(adapterPosition)?.let { roomMember ->
                     onChannelClicked(roomMember)
                 }

@@ -74,6 +74,7 @@ data class Channel(
     }
 
     val onTimeShiftState = MutableLiveData<ReplayState>().apply { value = ReplayState.STARTING }
+    val onTimeShiftLoading = MutableLiveData<Boolean>().apply { value = false }
     val isMainRendered= MutableLiveData<Boolean>().apply { value = false }
     val onPlaybackHead = MutableLiveData<Long>().apply { value = 0 }
     val onChannelJoined = MutableLiveData<StreamStatus>()
@@ -146,6 +147,7 @@ data class Channel(
                 releaseTimeShift()
                 if (timeShiftCreateRetryCount < selectedHighlight.secondsAgo / TIME_SHIFT_RETRY_DELAY) {
                     timeShiftCreateRetryCount++
+                    updateTimeShiftState(ReplayState.STARTING)
                     delay(TIME_SHIFT_RETRY_DELAY)
                     createTimeShift()
                 } else {
@@ -306,15 +308,23 @@ data class Channel(
         subscribeToTimeShiftReadyForPlaybackObservable()
     }
 
-    fun playFromHere(offset: Long) {
+    fun playFromHere(offset: Long) = launchMain {
         timeShiftSeekDisposables.forEach { it.dispose() }
         timeShiftSeekDisposables.clear()
+        onTimeShiftState.value = ReplayState.STARTING
+        onTimeShiftLoading.value = true
         timeShift?.run {
             Timber.d("Seeking time shift: $offset")
             seek(offset, SeekOrigin.BEGINNING)?.subscribe { status ->
-                Timber.d("Time shift seek status: $status for $offset")
-                if (status == RequestStatus.OK) {
-                    play()
+                launchMain {
+                    Timber.d("Time shift seek status: $status for $offset")
+                    onTimeShiftLoading.value = false
+                    if (status == RequestStatus.OK) {
+                        play()
+                        onTimeShiftState.value = ReplayState.REPLAYING
+                    } else {
+                        onTimeShiftState.value = ReplayState.FAILED
+                    }
                 }
             }?.run { timeShiftSeekDisposables.add(this) }
         }

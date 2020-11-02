@@ -6,6 +6,7 @@ package com.phenixrts.suite.phenixmultiangle.ui
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import androidx.fragment.app.FragmentActivity
@@ -31,6 +32,9 @@ class MainActivity : FragmentActivity() {
     @Inject lateinit var channelExpress: ChannelExpressRepository
 
     private val viewModel: ChannelViewModel by lazyViewModel({ application as MultiAngleApp }, { ChannelViewModel(channelExpress) })
+    private val loadingBar by lazy {
+        LayoutInflater.from(this).inflate(R.layout.view_loading, main_stream_loading, false)
+    }
 
     private val adapter: ChannelAdapter by lazy {
         ChannelAdapter { roomMember ->
@@ -91,14 +95,15 @@ class MainActivity : FragmentActivity() {
             channels.forEach { channel ->
                 channel.isFullScreen = isFullScreen
             }
+            main_stream_loading.removeAllViews()
+            main_stream_loading.addView(loadingBar)
             adapter.data = channels
         })
-        viewModel.onChannelsJoined.observe(this, { ready ->
-            Timber.d("On all channels ready: $ready")
-            if (ready) {
-                viewModel.channels.value?.find { it.isMainRendered.value == true }?.let { channel ->
-                    viewModel.updateActiveChannel(main_stream_surface, closed_caption_view, channel)
-                }
+        viewModel.onChannelsJoined.observe(this, {
+            Timber.d("On all channels ready")
+            main_stream_loading.removeAllViews()
+            viewModel.channels.value?.find { it.isMainRendered.value == true }?.let { channel ->
+                viewModel.updateActiveChannel(main_stream_surface, closed_caption_view, channel)
             }
         })
         viewModel.headTimeStamp.observe(this, { head ->
@@ -148,6 +153,13 @@ class MainActivity : FragmentActivity() {
                 }
             }
             closed_caption_view.refresh()
+        })
+        viewModel.onReplayLoadingState.observe(this, { isLoading ->
+            Timber.d("Replay loading state changed: $isLoading")
+            main_stream_loading.removeAllViews()
+            if (isLoading) {
+                main_stream_loading.addView(loadingBar)
+            }
         })
         Timber.d("Initializing Main Activity: $rotation")
     }
