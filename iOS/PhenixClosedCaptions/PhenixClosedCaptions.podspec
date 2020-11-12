@@ -22,5 +22,5 @@ TODO: Add long description of the pod here.
   spec.source_files     = 'Source/*.swift', 'Source/Models/*.swift', 'Source/User Interface/*.swift', 'Source/Utils/*.swift'
 
   spec.xcconfig         = { "ENABLE_BITCODE" => "NO" }
-  spec.dependency 'PhenixSdk', '2020.1.61-beta'
+  spec.dependency 'PhenixSdk', '2020.1.64-beta'
 end

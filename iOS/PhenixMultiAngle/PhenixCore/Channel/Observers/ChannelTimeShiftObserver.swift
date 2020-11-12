@@ -5,7 +5,7 @@
 import Foundation
 
 public protocol ChannelTimeShiftObserver: AnyObject {
-    func channel(_ channel: Channel, didChange state: ChannelTimeShiftWorker.TimeShiftAvailability)
+    func channel(_ channel: Channel, didChange state: ChannelTimeShiftWorker.TimeShiftState)
     func channel(_ channel: Channel, didChangePlaybackHeadTo currentDate: Date, startDate: Date, endDate: Date)
 }
 
@@ -27,7 +27,7 @@ internal extension Channel {
         weak var observer: ChannelTimeShiftObserver?
     }
 
-    func channelTimeShiftStateDidChange(state: ChannelTimeShiftWorker.TimeShiftAvailability) {
+    func channelTimeShiftStateDidChange(state: ChannelTimeShiftWorker.TimeShiftState) {
         forEach { observer in
             observer.channel(self, didChange: state)
         }

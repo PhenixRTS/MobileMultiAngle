@@ -13,23 +13,88 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 13.0, *) {
             // All magic happens in SceneDelegate.swift
             return true
-        } else {
-            let window = UIWindow(frame: UIScreen.main.bounds)
-            self.window = window
+        }
 
-            let launcher = Launcher(window: window)
-            launcher.start { coordinator in
-                self.coordinator = coordinator
-            }
+        // Setup main window
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        self.window = window
 
-            return true
+        // Setup deeplink
+        let deeplink = makeDeeplinkIfNeeded(launchOptions)
+
+        // Setup launcher to initiate the application components
+        let launcher = Launcher(window: window, deeplink: deeplink)
+        launcher.start { coordinator in
+            self.coordinator = coordinator
+        }
+
+        return true
+    }
+
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        guard let deeplink = makeDeeplinkIfNeeded(userActivity) else {
+            return false
+        }
+
+        // If the coordinator does not exist, it means that he app hasn't started yet or is just now starting.
+        // Note: If app receives a URL at the app launch state, after the `application(_:didFinishLaunchingWithOptions:) -> Bool` finishes this method will be executed next, so both methods will try to use deeplink, but on app launch this method does not need to be executed.
+        guard let coordinator = coordinator else {
+            return false
+        }
+
+        if deeplink.backend != coordinator.phenixBackend {
+            prepareToExit(window)
+        }
+
+        if deeplink.uri != coordinator.phenixPcast {
+            prepareToExit(window)
+        }
+
+        if let channelAliases = deeplink.channelAliases, channelAliases != coordinator.channelAliases {
+            prepareToExit(window)
+        }
+
+        return true
+    }
+
+    func prepareToExit(_ window: UIWindow?) {
+        let alert = UIAlertController(
+            title: "Configuration has changed",
+            message: "Please start the app again to apply the changes",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Close app", style: .default) { _ in
+            fatalError("Configuration has changed. App needs to be restarted.")
+        })
+
+        if let nc = window?.rootViewController as? UINavigationController {
+            nc.present(alert, animated: true)
         }
     }
 
-    // MARK: UISceneSession Lifecycle
+    private func makeDeeplinkIfNeeded(_ launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> DeeplinkModel? {
+        if let options = launchOptions?[.userActivityDictionary] as? [AnyHashable: Any] {
+            if let userActivity = options[UIApplication.LaunchOptionsKey.userActivityKey] as? NSUserActivity {
+                return makeDeeplinkIfNeeded(userActivity)
+            }
+        }
 
-    @available(iOS 13.0, *)
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
-        UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        return nil
     }
+
+    private func makeDeeplinkIfNeeded(_ userActivity: NSUserActivity) -> DeeplinkModel? {
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+            if let url = userActivity.webpageURL {
+                let service = DeeplinkService<DeeplinkModel>(url: url)
+                let deeplink = service?.decode()
+                return deeplink
+            }
+        }
+
+        return nil
+    }
+}
+
+extension UIApplication.LaunchOptionsKey {
+    static let userActivityKey = "UIApplicationLaunchOptionsUserActivityKey"
 }

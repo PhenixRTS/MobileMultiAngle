@@ -63,7 +63,7 @@ extension MultiStreamPreviewCollectionViewManager: UICollectionViewDataSource {
             secondaryPreviewLayers.removeAll()
 
             channel.addSecondaryLayer(to: cell.contentView.layer)
-            channel.setAudio(enabled: true)
+            channel.media?.setAudio(enabled: true)
 
             // Save the secondary preview layer inside the preview array
             secondaryPreviewLayers.insert(channel.secondaryPreviewLayer)
@@ -71,7 +71,7 @@ extension MultiStreamPreviewCollectionViewManager: UICollectionViewDataSource {
             markCellSelected(cell)
         } else {
             channel.addPrimaryLayer(to: cell.contentView.layer)
-            channel.setAudio(enabled: false)
+            channel.media?.setAudio(enabled: false)
             limitBandwidth?(channel)
         }
 

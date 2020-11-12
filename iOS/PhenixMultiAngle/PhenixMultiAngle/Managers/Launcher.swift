@@ -8,12 +8,12 @@ import UIKit
 
 /// Have all instructions how to initiate application dependencies and the main coordinator
 class Launcher {
-    private let backend = PhenixConfiguration.backend
-    private let pcast = PhenixConfiguration.pcast
+    private let deeplink: DeeplinkModel?
     private weak var window: UIWindow?
 
-    init(window: UIWindow) {
+    init(window: UIWindow, deeplink: DeeplinkModel? = nil) {
         self.window = window
+        self.deeplink = deeplink
     }
 
     /// Starts all necessary application processes
@@ -41,13 +41,16 @@ class Launcher {
             // Configure necessary object instances
             os_log(.debug, log: .launcher, "Configure Phenix instance")
 
-            let manager = PhenixManager(backend: self.backend, pcast: self.pcast)
+            let backend = self.deeplink?.backend ?? PhenixConfiguration.backend
+            let pcast = self.deeplink?.uri
+
+            let manager = PhenixManager(backend: backend, pcast: pcast)
             manager.start { [weak nc] description in
                 // Unrecoverable Error Completion
                 let reason = description ?? "N/A"
                 let alert = UIAlertController(title: "Error", message: "Phenix SDK reached unrecoverable error: (\(reason))", preferredStyle: .alert)
                 alert.addAction(
-                    UIAlertAction(title: "Close app", style: .default) { _ in
+                    UIAlertAction(title: "Close app", style: .destructive) { _ in
                         fatalError("Unrecoverable error: \(String(describing: description))")
                     }
                 )
@@ -60,8 +63,10 @@ class Launcher {
             os_log(.debug, log: .launcher, "Create Dependency container")
             let container = DependencyContainer(phenixManager: manager)
 
-            os_log(.debug, log: .launcher, "Start main coodinator")
-            let coordinator = MainCoordinator(navigationController: nc, dependencyContainer: container)
+            os_log(.debug, log: .launcher, "Start main coordinator")
+            os_log(.debug, log: .launcher, "Deeplink model: %{private}s", String(describing: self.deeplink))
+            let channelAliases = self.deeplink?.channelAliases ?? PhenixConfiguration.channelAliases
+            let coordinator = MainCoordinator(navigationController: nc, dependencyContainer: container, channelAliases: channelAliases)
 
             DispatchQueue.main.async {
                 coordinator.start()

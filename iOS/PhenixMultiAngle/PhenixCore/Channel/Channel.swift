@@ -7,62 +7,43 @@ import os.log
 import PhenixClosedCaptions
 import PhenixSdk
 
-public class Channel {
-    public enum JoinState {
-        case notJoined
-        case pending
-        case joined
-        case failure
-    }
+internal protocol ChannelRepresentation: AnyObject {
+    var alias: String { get }
+}
 
-    public enum StreamState {
-        case playing
-        case noStreamPlaying
-        case failure
-    }
-
-    enum AudioState {
-        case none
-        case mute
-        case unmute
-    }
-
-    private var isSecondaryLayerFlushed = true
-
-    public let alias: String
-    public internal(set) var joinState: JoinState = .notJoined {
-        didSet {
-            channelJoinStateDidChange(state: joinState)
-        }
-    }
-    public internal(set) var streamState: StreamState = .noStreamPlaying {
-        didSet {
-            channelStreamStateDidChange(state: streamState)
-        }
-    }
-
-    private var bandwidthLimitationDisposables: [PhenixDisposable] = []
+public class Channel: ChannelRepresentation {
+    private var replayOptions: ChannelReplayController.Options?
 
     internal var renderer: PhenixRenderer?
     internal var subscriber: PhenixExpressSubscriber?
     internal var roomService: PhenixRoomService?
-    /// Helps to remember preferred audio state if it is provided before the renderer is created.
-    internal var savedAudioState: AudioState = .none
+    internal var joinObservations = [ObjectIdentifier: JoinObservation]()
+    internal var streamObservations = [ObjectIdentifier: StreamObservation]()
+    internal var timeShiftObservations = [ObjectIdentifier: TimeShiftObservation]()
 
-    // MARK: - TimeShift
-
-    internal var timeShiftWorker: ChannelTimeShiftWorker?
-    public var timeShiftState: ChannelTimeShiftWorker.TimeShiftAvailability {
-        timeShiftWorker?.state ?? .notReady
+    public let alias: String
+    public private(set) var joinState: JoinState = .notJoined {
+        didSet { channelJoinStateDidChange(state: joinState) }
     }
-    public var timeShiftStartTime: Date
-    public var timeShiftReplayConfiguration: TimeShiftReplayConfiguration
+    public private(set) var streamState: StreamState = .noStreamPlaying {
+        didSet { channelStreamStateDidChange(state: streamState) }
+    }
+    public private(set) var replay: ChannelReplayController?
+    public private(set) var media: ChannelMediaController?
 
-    // MARK: - ClosedCaptions
+    // MARK: - Video preview layers
 
-    private var closedCaptionsService: PhenixClosedCaptionsService?
+    /// Renders the main video on provided layer (hero view)
+    public private(set) var primaryPreviewLayer: VideoLayer
+
+    /// Renders the frame-ready output on provided layer (thumbnail view)
+    public private(set) var secondaryPreviewLayer: VideoLayer
+
+    // MARK: - ClosedCaptions section
+
     /// A Boolean value indicating whether the Closed Captions service should be initialized after a successful Channel joining.
     private var provideClosedCaptions: Bool
+    private var closedCaptionsService: PhenixClosedCaptionsService?
     private weak var closedCaptionsView: PhenixClosedCaptionsView?
     public var isClosedCaptionsEnabled: Bool {
         get { closedCaptionsService?.isEnabled ?? false }
@@ -70,29 +51,13 @@ public class Channel {
     }
     public weak var closedCaptionsServiceDelegate: PhenixClosedCaptionsServiceDelegate?
 
-    // MARK: - Observers
-
-    internal var joinObservations = [ObjectIdentifier: JoinObservation]()
-    internal var streamObservations = [ObjectIdentifier: StreamObservation]()
-    internal var timeShiftObservations = [ObjectIdentifier: TimeShiftObservation]()
-
-    // MARK: - Video preview layers
-
-    /// Renders the main video on provided layer
-    public private(set) var primaryPreviewLayer: VideoLayer
-    /// Renders the frame-ready output on provided layer
-    public private(set) var secondaryPreviewLayer: VideoLayer
-
     // MARK: - Initialization
 
-    public init(alias: String, timeShiftStartDateTime date: Date, replayConfiguration: TimeShiftReplayConfiguration, closedCaptionsEnabled: Bool) {
+    public init(alias: String, closedCaptionsEnabled: Bool) {
         self.alias = alias
-        self.timeShiftStartTime = date
-        self.timeShiftReplayConfiguration = replayConfiguration
         self.provideClosedCaptions = closedCaptionsEnabled
 
         self.primaryPreviewLayer = VideoLayer()
-
         self.secondaryPreviewLayer = VideoLayer()
         self.secondaryPreviewLayer.videoGravity = .resizeAspectFill
     }
@@ -110,92 +75,50 @@ public class Channel {
     /// Method automatically sets the destination size to the preview layer and creates a KVO observer for size changes.
     /// - Parameter layer: Destination layer provided by the app
     public func addSecondaryLayer(to layer: CALayer) {
-        renderer?.requestLastVideoFrameRendered()
+        media?.requestLastVideoFrame()
         secondaryPreviewLayer.add(to: layer)
     }
 
-    /// Change channel audio state
-    /// - Parameter enabled: True means that audio will be unmuted, false - muted
-    public func setAudio(enabled: Bool) {
-        guard let renderer = renderer else {
-            os_log(.debug, log: .channel, "Cannot change audio, renderer is not available, (%{PRIVATE}s)", self.description)
-            savedAudioState = enabled == true ? .unmute : .mute
-            return
-        }
-
-        if enabled {
-            os_log(.debug, log: .channel, "Unmute channel audio, (%{PRIVATE}s)", self.description)
-            renderer.unmuteAudio()
-        } else {
-            os_log(.debug, log: .channel, "Mute channel audio, (%{PRIVATE}s)", self.description)
-            renderer.muteAudio()
-        }
-
-        savedAudioState = .none
-    }
-
-    public func startReplay() {
-        timeShiftWorker?.startReplay()
-    }
-
-    public func stopReplay() {
-        timeShiftWorker?.dispose()
-        startTimeShift(with: timeShiftReplayConfiguration, from: timeShiftStartTime)
-    }
-
-    public func startObservingPlaybackHead() {
-        timeShiftWorker?.subscribeForPlaybackHeadEvents()
-    }
-
-    public func stopObservingPlaybackHead() {
-        timeShiftWorker?.unsubscribeForPlaybackHeadEvents()
-    }
-
-    public func startTimeShift(with replayConfiguration: TimeShiftReplayConfiguration, from startTime: Date) {
-        createTimeShift(withInitialTime: startTime, replayConfiguration: replayConfiguration)
-        timeShiftWorker?.subscribeForStatusEvents()
-    }
-
-    public func movePlaybackHead(by time: TimeInterval) {
-        timeShiftWorker?.movePlaybackHead(by: time)
+    public func setReplay(toStartAt date: Date, with configuration: ReplayConfiguration) {
+        replayOptions = ChannelReplayController.Options(configuration: configuration, startDate: date)
+        setupReplayController()
     }
 
     public func limitBandwidth(at bandwidth: PhenixBandwidthLimit) {
-        os_log(.debug, log: .channel, "Start limiting bandwidth at %{PUBLIC}d, (%{PRIVATE}s)", bandwidth.rawValue, self.description)
-
-        guard let subscriber = subscriber else {
-            os_log(.debug, log: .channel, "Subscriber is not available for bandwidth limitation, (%{PRIVATE}s)", self.description)
-            return
-        }
-
-        bandwidthLimitationDisposables.removeAll()
-        subscriber.getVideoTracks()?.forEach { stream in
-            stream.limitBandwidth(bandwidth.rawValue).append(to: &bandwidthLimitationDisposables)
-        }
-        timeShiftWorker?.limitBandwidth(at: bandwidth)
+        os_log(.debug, log: .channel, "Start limiting bandwidth at %{PUBLIC}d, (%{PRIVATE}s)", bandwidth.rawValue, description)
+        media?.limitBandwidth(at: bandwidth)
+        replay?.limitBandwidth(at: bandwidth)
     }
 
-    public func stopBandwidthLimitation() {
-        os_log(.debug, log: .channel, "Stop limiting bandwidth, (%{PRIVATE}s)", self.description)
-        bandwidthLimitationDisposables.removeAll()
-        timeShiftWorker?.stopBandwidthLimitation()
+    public func removeBandwidthLimitation() {
+        os_log(.debug, log: .channel, "Remove bandwidth limitation, (%{PRIVATE}s)", description)
+        media?.removeBandwidthLimitation()
+        replay?.removeBandwidthLimitation()
     }
 
     public func setClosedCaptionsView(_ view: PhenixClosedCaptionsView) {
         closedCaptionsView = view
     }
+}
 
-    deinit {
-        resetTimeShift()
+public extension Channel {
+    enum JoinState {
+        case notJoined
+        case pending
+        case joined
+        case failure
+    }
+
+    enum StreamState {
+        case playing
+        case noStreamPlaying
+        case failure
     }
 }
 
 // MARK: - Private methods
 private extension Channel {
-    /// Starts audio and video rendering
-    ///
-    /// Video rendering is started on primary preview layer and also on the second preview layer will be provided video if it will be added to the UI hierarchy.
-    func startRendering() {
+    func setupMediaController() {
         guard let subscriber = subscriber else {
             return
         }
@@ -204,81 +127,28 @@ private extension Channel {
             return
         }
 
-        setAudio(enabled: savedAudioState == .unmute ? true : false)
-        renderer?.setFrameReadyCallback(videoTrack, didReceiveVideoFrame)
-        renderer?.setLastVideoFrameRenderedReceivedCallback(didReceiveLastVideoFrame)
-        renderer?.setVideoDisplayDimensionsChangedCallback(didReceiveVideoDisplayDimensionsChange)
-    }
-
-    func createTimeShift(withInitialTime dateTime: Date, replayConfiguration: TimeShiftReplayConfiguration) {
-        os_log(.debug, log: .channel, "Create new TimeShift instance with start date: %{PRIVATE}s, (%{PRIVATE}s)", dateTime.description, self.description)
-
-        resetTimeShift()
-        timeShiftStartTime = dateTime
-        timeShiftReplayConfiguration = replayConfiguration
-        timeShiftWorker = ChannelTimeShiftWorker(channel: self, initialDateTime: dateTime, configuration: replayConfiguration)
-    }
-
-    func resetTimeShift() {
-        os_log(.debug, log: .channel, "Reset existing TimeShift, (%{PRIVATE}s)", self.description)
-        timeShiftWorker?.dispose()
-        timeShiftWorker = nil
-    }
-}
-
-// MARK: - Observable callback methods
-internal extension Channel {
-    func didReceiveVideoFrame(_ frameNotification: PhenixFrameNotification?) {
-        guard streamState == .playing else {
+        guard let renderer = renderer else {
             return
         }
 
-        // If layer is not added to the view hierarchy, there is no need to render the media on it.
-        guard secondaryPreviewLayer.superlayer != nil else {
-            if isSecondaryLayerFlushed == false {
-                secondaryPreviewLayer.flushAndRemoveImage()
-                isSecondaryLayerFlushed = true
-            }
-            return
-        }
-
-        isSecondaryLayerFlushed = false
-
-        frameNotification?.read { [weak self] sampleBuffer in
-            guard let self = self else {
-                return
-            }
-
-            guard let sampleBuffer = sampleBuffer else {
-                return
-            }
-
-            self.modify(sampleBuffer)
-
-            if self.secondaryPreviewLayer.isReadyForMoreMediaData {
-                self.secondaryPreviewLayer.enqueue(sampleBuffer)
-            }
-        }
+        media = ChannelMediaController(subscriber: subscriber, renderer: renderer, secondaryPreviewLayer: secondaryPreviewLayer, channelRepresentation: self)
+        media?.setAudio(enabled: false)
+        media?.subscribe(videoTrack)
     }
 
-    func didReceiveLastVideoFrame(_ renderer: PhenixRenderer?, _ nativeVideoFrame: CVPixelBuffer?) {
-        guard let nativeVideoFrame = nativeVideoFrame else {
+    func setupReplayController() {
+        guard let renderer = renderer else {
             return
         }
 
-        if secondaryPreviewLayer.isReadyForMoreMediaData {
-            if let frame = nativeVideoFrame.createSampleBufferFrame() {
-                secondaryPreviewLayer.enqueue(frame)
-            }
-        }
-    }
-
-    func didReceiveVideoDisplayDimensionsChange(_ renderer: PhenixRenderer?, _ dimensions: UnsafePointer<PhenixDimensions>?) {
-        guard let dimensions = dimensions?.pointee else {
+        guard let options = replayOptions else {
+            assertionFailure("Options must be provided")
             return
         }
 
-        os_log(.debug, log: .channel, "Frame dimensions changed - width: %{PRIVATE}d,\theight: %{PRIVATE}d, (%{PRIVATE}s)", dimensions.width, dimensions.height, description)
+        replay = ChannelReplayController(renderer: renderer, options: options, channelRepresentation: self)
+        replay?.delegate = self
+        replay?.subscribe()
     }
 }
 
@@ -290,60 +160,59 @@ internal extension Channel {
 
         switch status {
         case .ok:
+            joinState = .joined
+
             if provideClosedCaptions, let service = roomService {
                 closedCaptionsService = makeClosedCationsService(with: service)
             }
 
-            joinState = .joined
         default:
             streamState = .noStreamPlaying
             joinState = .failure
+
+            subscriber = nil
+            renderer = nil
         }
     }
 
     func subscriberHandler(status: PhenixRequestStatus, subscriber: PhenixExpressSubscriber?, renderer: PhenixRenderer?) {
-        os_log(.debug, log: .channel, "Stream state did change with state %{PUBLIC}d, (%{PRIVATE}s)", status.rawValue, self.description)
+        os_log(.debug, log: .channel, "Stream state did change with state %{PUBLIC}d, (%{PRIVATE}s)", status.rawValue, description)
         self.renderer = renderer
         self.subscriber = subscriber
 
         switch status {
         case .ok:
-            startRendering()
-            startTimeShift(with: timeShiftReplayConfiguration, from: timeShiftStartTime)
+            setupMediaController()
+            setupReplayController()
 
             streamState = .playing
+
         case .noStreamPlaying:
             streamState = .noStreamPlaying
+
         default:
             streamState = .failure
         }
     }
 }
 
-// MARK: - Closed Captions
+extension Channel: ReplayDelegate {
+    func replayDidChangeState(_ state: ChannelTimeShiftWorker.TimeShiftState) {
+        channelTimeShiftStateDidChange(state: state)
+    }
 
+    func replayDidChangePlaybackHead(startDate: Date, currentDate: Date, endDate: Date) {
+        channelTimeShiftPlaybackHeadDidChange(startDate: startDate, currentDate: currentDate, endDate: endDate)
+    }
+}
+
+// MARK: - Closed Captions
 private extension Channel {
     func makeClosedCationsService(with roomService: PhenixRoomService) -> PhenixClosedCaptionsService {
         let service = PhenixClosedCaptionsService(roomService: roomService)
         service.setContainerView(closedCaptionsView)
         service.delegate = closedCaptionsServiceDelegate
         return service
-    }
-
-    func modify(_ sampleBuffer: CMSampleBuffer) {
-        if let attachmentArray = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: true) {
-            let count = CFArrayGetCount(attachmentArray)
-            for index in 0..<count {
-                if let unsafeRawPointer = CFArrayGetValueAtIndex(attachmentArray, index) {
-                    let attachments = unsafeBitCast(unsafeRawPointer, to: CFMutableDictionary.self)
-                    // Need to set the sample buffer to display frame immediately and ignore whatever timestamps are included.
-                    // Without this, iOS 14 will not render the frames.
-                    CFDictionarySetValue(attachments,
-                                         unsafeBitCast(kCMSampleAttachmentKey_DisplayImmediately, to: UnsafeRawPointer.self),
-                                         unsafeBitCast(kCFBooleanTrue, to: UnsafeRawPointer.self))
-                }
-            }
-        }
     }
 }
 
@@ -355,7 +224,7 @@ extension Channel: CustomStringConvertible {
                  join state: \(joinState),
                  stream: \(streamState),
                  audio muted: \(String(describing: renderer?.isAudioMuted)),
-                 time shift state: \(String(describing: timeShiftWorker?.state))
+                 replay state: \(String(describing: replay?.state))
         """
     }
 }

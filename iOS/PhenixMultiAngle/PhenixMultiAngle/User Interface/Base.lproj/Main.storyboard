@@ -112,7 +112,7 @@
                                 <rect key="frame" x="20" y="798" width="374" height="44"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xmc-pR-g67">
-                                        <rect key="frame" x="0.0" y="0.0" width="91.5" height="44"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="35" height="44"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="VCX-9I-8g5"/>
@@ -123,28 +123,52 @@
                                             <action selector="replayTimeButtonTapped:" destination="8bC-Xf-vdC" eventType="touchUpInside" id="QMH-bl-0EJ"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QZh-YJ-riU">
-                                        <rect key="frame" x="141.5" y="0.0" width="91" height="44"/>
-                                        <color key="backgroundColor" systemColor="systemGreenColor"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="44" id="pBW-ng-7u0"/>
-                                        </constraints>
-                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <state key="normal" title="GO  LIVE"/>
-                                        <connections>
-                                            <action selector="goLiveButtonTapped:" destination="8bC-Xf-vdC" eventType="touchUpInside" id="T1f-Xq-WrX"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WRa-XB-4RP">
-                                        <rect key="frame" x="282.5" y="0.0" width="91.5" height="44"/>
+                                        <rect key="frame" x="85" y="0.0" width="34.5" height="44"/>
                                         <color key="backgroundColor" systemColor="systemGreenColor"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="TPY-Uv-wJT"/>
                                         </constraints>
-                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <state key="normal" title="REPLAY"/>
                                         <connections>
                                             <action selector="replayButtonTapped:" destination="8bC-Xf-vdC" eventType="touchUpInside" id="dE5-l4-FW1"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QZh-YJ-riU">
+                                        <rect key="frame" x="169.5" y="0.0" width="35" height="44"/>
+                                        <color key="backgroundColor" systemColor="systemGreenColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="pBW-ng-7u0"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="GO LIVE"/>
+                                        <connections>
+                                            <action selector="goLiveButtonTapped:" destination="8bC-Xf-vdC" eventType="touchUpInside" id="T1f-Xq-WrX"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ec7-YF-Dv6">
+                                        <rect key="frame" x="254.5" y="0.0" width="34.5" height="44"/>
+                                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="3sc-gE-N35"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="STARTING"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fYt-60-l0l">
+                                        <rect key="frame" x="339" y="0.0" width="35" height="44"/>
+                                        <color key="backgroundColor" systemColor="systemRedColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="mpH-bR-0eC"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="REPLAY FAILED"/>
+                                        <connections>
+                                            <action selector="replayFailedButtonTapped:" destination="8bC-Xf-vdC" eventType="touchUpInside" id="D2X-di-V9N"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -186,27 +210,27 @@
                                 <exclude reference="JMA-58-eYO"/>
                             </mask>
                             <mask key="constraints">
-                                <exclude reference="6nK-ee-WvU"/>
-                                <exclude reference="99a-sg-ALF"/>
-                                <exclude reference="L3K-vT-hLb"/>
-                                <exclude reference="Zas-0r-uEP"/>
                                 <exclude reference="8bi-DX-4H7"/>
                                 <exclude reference="RhN-ba-4yv"/>
                                 <exclude reference="aFH-3d-CkU"/>
                                 <exclude reference="fu7-Ff-mCK"/>
                                 <exclude reference="hZ0-jm-5Vh"/>
-                                <exclude reference="tYR-sq-Qnh"/>
                                 <exclude reference="knG-E0-3K5"/>
+                                <exclude reference="tYR-sq-Qnh"/>
                                 <exclude reference="rdA-HJ-Hap"/>
                                 <exclude reference="5uW-cG-EJF"/>
+                                <exclude reference="6nK-ee-WvU"/>
+                                <exclude reference="99a-sg-ALF"/>
+                                <exclude reference="L3K-vT-hLb"/>
+                                <exclude reference="Zas-0r-uEP"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
                             <mask key="constraints">
                                 <include reference="aFH-3d-CkU"/>
                                 <include reference="hZ0-jm-5Vh"/>
-                                <include reference="tYR-sq-Qnh"/>
                                 <include reference="knG-E0-3K5"/>
+                                <include reference="tYR-sq-Qnh"/>
                                 <include reference="5uW-cG-EJF"/>
                             </mask>
                         </variation>
@@ -215,24 +239,26 @@
                                 <include reference="JMA-58-eYO"/>
                             </mask>
                             <mask key="constraints">
-                                <include reference="6nK-ee-WvU"/>
-                                <include reference="99a-sg-ALF"/>
-                                <include reference="L3K-vT-hLb"/>
-                                <include reference="Zas-0r-uEP"/>
                                 <include reference="8bi-DX-4H7"/>
                                 <include reference="RhN-ba-4yv"/>
                                 <include reference="fu7-Ff-mCK"/>
                                 <include reference="rdA-HJ-Hap"/>
+                                <include reference="6nK-ee-WvU"/>
+                                <include reference="99a-sg-ALF"/>
+                                <include reference="L3K-vT-hLb"/>
+                                <include reference="Zas-0r-uEP"/>
                             </mask>
                         </variation>
                         <connections>
                             <outlet property="closedCaptionsButton" destination="CHm-3x-aiF" id="Mxi-IL-9pK"/>
                             <outlet property="closedCaptionsView" destination="Iuu-yf-ePK" id="vee-Wc-MYR"/>
+                            <outlet property="fetchingReplayButton" destination="ec7-YF-Dv6" id="LXs-gI-Amr"/>
                             <outlet property="goLiveButton" destination="QZh-YJ-riU" id="Cvq-7N-lMH"/>
                             <outlet property="primaryPreview" destination="Cpg-FC-1eR" id="cKW-mR-HO4"/>
                             <outlet property="replayButton" destination="WRa-XB-4RP" id="mQq-xB-NFd"/>
                             <outlet property="replayConfigurationButton" destination="Xmc-pR-g67" id="RHk-Mr-O8v"/>
                             <outlet property="replayControls" destination="LBC-54-GMC" id="65G-21-d0H"/>
+                            <outlet property="replayFailedButton" destination="fYt-60-l0l" id="iJN-a2-te4"/>
                             <outlet property="secondaryPreviewCollectionView" destination="JMA-58-eYO" id="w1r-LY-cYz"/>
                             <outlet property="slider" destination="YKC-6E-ueD" id="Z5B-zf-oXS"/>
                             <outlet property="timerLabel" destination="G7M-sn-iYd" id="IZK-CT-3af"/>
@@ -303,6 +329,9 @@
         </systemColor>
         <systemColor name="systemGreenColor">
             <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemRedColor">
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

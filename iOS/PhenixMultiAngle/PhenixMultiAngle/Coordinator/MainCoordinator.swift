@@ -10,31 +10,33 @@ class MainCoordinator: Coordinator {
     let navigationController: UINavigationController
     private(set) var childCoordinators = [Coordinator]()
     private let dependencyContainer: DependencyContainer
+    private(set) var channelAliases: [String]
 
     private var phenixManager: PhenixManager { dependencyContainer.phenixManager }
 
-    init(navigationController: UINavigationController, dependencyContainer: DependencyContainer) {
+    var phenixBackend: URL { phenixManager.backend }
+    var phenixPcast: URL? { phenixManager.pcast }
+
+    init(navigationController: UINavigationController, dependencyContainer: DependencyContainer, channelAliases: [String]) {
         self.navigationController = navigationController
         self.dependencyContainer = dependencyContainer
+        self.channelAliases = channelAliases
     }
 
     func start() {
         os_log(.debug, log: .coordinator, "Main coordinator started")
-
-        // Get default channel aliases
-        let channelAliases = PhenixConfiguration.channelAliases
-
-        let date = Date()
+        
         var channels: [Channel] = []
 
         // Initiate default
         let vc = MultiStreamViewController.instantiate()
+        vc.replayConfiguration = .far
 
         // Convert aliases into channel models
         for (index, alias) in channelAliases.enumerated() {
             let ccEnabled = index == 0 ? true : false
             // Enable closed captions only for the first channel in the list
-            let channel = Channel(alias: alias, timeShiftStartDateTime: date, replayConfiguration: .far, closedCaptionsEnabled: ccEnabled)
+            let channel = Channel(alias: alias, closedCaptionsEnabled: ccEnabled)
 
             if ccEnabled {
                 vc.ccChannel = channel

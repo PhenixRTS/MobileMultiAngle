@@ -11,3 +11,9 @@ public struct PhenixBandwidthLimit: RawRepresentable {
         self.rawValue = rawValue
     }
 }
+
+extension PhenixBandwidthLimit: CustomStringConvertible {
+    public var description: String {
+        "PhenixBandwidthLimit(\(rawValue))"
+    }
+}

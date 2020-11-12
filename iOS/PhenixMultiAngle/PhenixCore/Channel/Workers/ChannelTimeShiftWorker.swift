@@ -6,71 +6,69 @@ import Foundation
 import os.log
 import PhenixSdk
 
-public class ChannelTimeShiftWorker {
-    public enum TimeShiftAvailability {
-        case notReady
-        case ready
-        case failure
-    }
+protocol TimeShiftDelegate: AnyObject {
+    func timeShiftDidFail()
+    func timeShiftDidChangePlaybackHead(startDate: Date, currentDate: Date, endDate: Date)
+    func timeShiftDidChangeState(_ state: ChannelTimeShiftWorker.TimeShiftState)
+}
 
-    private let channel: Channel
-    private let timeShift: PhenixTimeShift
+public class ChannelTimeShiftWorker {
+    private let renderer: PhenixRenderer
     private let duration: TimeInterval
     private let throttler: Throttler
     private let debouncer: Debouncer
     private let startDate: Date
     private let endDate: Date
 
+    private var timeShift: PhenixTimeShift
     private var disposables = [PhenixDisposable]()
     private var bandwidthLimitationDisposable: PhenixDisposable?
     private var playbackHeadDisposable: PhenixDisposable?
     private var seekDisposable: PhenixDisposable?
 
-    private(set) var state: TimeShiftAvailability = .notReady {
+    private(set) var state: TimeShiftState = .starting {
         didSet {
-            os_log(.debug, log: .timeShift, "TimeShift state did change to %{PRIVATE}s, (%{PRIVATE}s)", String(describing: state), channel.description)
-            channel.channelTimeShiftStateDidChange(state: state)
+            if oldValue != state {
+                os_log(.debug, log: .timeShift, "TimeShift state did change to %{PRIVATE}s", String(describing: state), channelDescription)
+                delegate?.timeShiftDidChangeState(state)
+            }
         }
     }
 
-    init?(channel: Channel, initialDateTime: Date, configuration: TimeShiftReplayConfiguration) {
-        guard let renderer = channel.renderer else {
-            assertionFailure("Channel must have renderer initialized")
-            return nil
-        }
+    internal weak var channelRepresentation: ChannelRepresentation?
+    internal weak var delegate: TimeShiftDelegate?
 
+    init(renderer: PhenixRenderer, initialDateTime: Date, configuration: ReplayConfiguration, calendar: Calendar = .current) throws {
         guard renderer.isSeekable else {
-            os_log(.debug, log: .timeShift, "Channel is not seekable, do not create TimeShift worker, (%{PRIVATE}s)", channel.description)
-            return nil
+            os_log(.debug, log: .timeShift, "Renderer is not seek-able, do not create TimeShift worker")
+            throw TimeShiftError.rendererNotSeekable
         }
-
-        let calendar = Calendar.current
 
         guard let modifiedStartTime = calendar.date(byAdding: configuration.playbackStartPoint, to: initialDateTime) else {
-            assertionFailure("Incorrect modified start time, \(configuration.playbackStartPoint), \(initialDateTime)")
-            return nil
+            fatalError("Fatal error, Incorrect modified start time, \(configuration.playbackStartPoint), \(initialDateTime)")
         }
 
         // swiftlint:disable line_length
-        os_log(.debug, log: .timeShift, "Create TimeShift worker with duration: %{PRIVATE}s, startPoint: %{PRIVATE}s, initial start time: %{PRIVATE}s modified start time: %{PRIVATE}s, (%{PRIVATE}s)", configuration.playbackDuration.description, configuration.playbackStartPoint.description, initialDateTime.description, modifiedStartTime.description, channel.description)
+        os_log(.debug, log: .timeShift, "Create TimeShift worker with duration: %{PRIVATE}s, startPoint: %{PRIVATE}s, initial start time: %{PRIVATE}s modified start time: %{PRIVATE}s", configuration.playbackDuration.description, configuration.playbackStartPoint.description, initialDateTime.description, modifiedStartTime.description)
 
-        self.channel = channel
+        self.renderer = renderer
         self.duration = configuration.playbackDuration
-        self.timeShift = renderer.seek(modifiedStartTime)
         self.throttler = Throttler(delay: 0.5)
         self.debouncer = Debouncer(delay: 0.5)
         self.startDate = modifiedStartTime
         self.endDate = modifiedStartTime.addingTimeInterval(configuration.playbackDuration)
+
+        self.timeShift = renderer.seek(modifiedStartTime)
     }
 
     func subscribeForStatusEvents() {
-        os_log(.debug, log: .timeShift, "Subscribe for TimeShift status events, (%{PRIVATE}s)", channel.description)
+        os_log(.debug, log: .timeShift, "Subscribe for TimeShift status events, (%{PRIVATE}s)", channelDescription)
         timeShift.getObservableReadyForPlaybackStatus()?.subscribe(timeShiftReadyForPlaybackStatusDidChange)?.append(to: &disposables)
         timeShift.getObservableFailure()?.subscribe(timeShiftFailureDidChange)?.append(to: &disposables)
     }
 
     func subscribeForPlaybackHeadEvents() {
-        os_log(.debug, log: .timeShift, "Subscribe for TimeShift playback head change events, (%{PRIVATE}s)", channel.description)
+        os_log(.debug, log: .timeShift, "Subscribe for TimeShift playback head change events, (%{PRIVATE}s)", channelDescription)
         playbackHeadDisposable = timeShift.getObservablePlaybackHead()?.subscribe(timeShiftPlaybackHeadDidChange)
     }
 
@@ -80,22 +78,24 @@ public class ChannelTimeShiftWorker {
     }
 
     func startReplay() {
-        os_log(.debug, log: .timeShift, "Start replay, (%{PRIVATE}s)", channel.description)
+        os_log(.debug, log: .timeShift, "Start replay, (%{PRIVATE}s)", channelDescription)
+        state = .playing
         timeShift.loop(duration)
     }
 
     func stopReplay() {
-        os_log(.debug, log: .timeShift, "Stop replay, (%{PRIVATE}s)", channel.description)
+        os_log(.debug, log: .timeShift, "Stop replay, (%{PRIVATE}s)", channelDescription)
+        state = .readyToPlay
         timeShift.stop()
     }
 
     func limitBandwidth(at bandwidth: PhenixBandwidthLimit) {
-        os_log(.debug, log: .timeShift, "Start limiting bandwidth at %{PUBLIC}d, (%{PRIVATE}s)", bandwidth.rawValue, channel.description)
+        os_log(.debug, log: .timeShift, "Start limiting bandwidth at %{PUBLIC}d, (%{PRIVATE}s)", bandwidth.rawValue, channelDescription)
         bandwidthLimitationDisposable = timeShift.limitBandwidth(bandwidth.rawValue)
     }
 
     func stopBandwidthLimitation() {
-        os_log(.debug, log: .timeShift, "Stop limiting bandwidth, (%{PRIVATE}s)", channel.description)
+        os_log(.debug, log: .timeShift, "Stop limiting bandwidth, (%{PRIVATE}s)", channelDescription)
         bandwidthLimitationDisposable = nil
     }
 
@@ -104,21 +104,14 @@ public class ChannelTimeShiftWorker {
         timeShift.pause()
         seekDisposable = nil
 
-        // Calculate the specific time to with we need to move the TimeShift
-        let date = startDate.addingTimeInterval(time)
-
-        // Validate calculated time
-        assert(date >= startDate)
-        assert(date <= endDate)
-
         debouncer.run { [weak self] in
             guard let self = self else {
                 return
             }
 
-            os_log(.debug, log: .timeShift, "Move playback head by %{PRIVATE}d, (%{PRIVATE}s)", time, self.channel.description)
-
-            self.seekDisposable = self.timeShift.seek(date)?.subscribe(self.timeShiftSeekRelativeTimeDidChange)
+            os_log(.debug, log: .timeShift, "Move playback head to %{PRIVATE}s in timeline, (%{PRIVATE}s)", time.description, self.channelDescription)
+            self.state = .loadingPlayback
+            self.seekDisposable = self.timeShift.seek(time, .beginning)?.subscribe(self.timeShiftSeekRelativeTimeDidChange)
         }
     }
 
@@ -130,21 +123,43 @@ public class ChannelTimeShiftWorker {
     }
 }
 
+public extension ChannelTimeShiftWorker {
+    enum TimeShiftError: Error {
+        case rendererNotSeekable
+    }
+
+    enum TimeShiftState {
+        case starting
+        case readyToPlay
+        case loadingPlayback
+        case playing
+        case failure
+    }
+}
+
 private extension ChannelTimeShiftWorker {
+    var channelDescription: String { channelRepresentation?.alias ?? "-" }
+
     func timeShiftReadyForPlaybackStatusDidChange(_ changes: PhenixObservableChange<NSNumber>?) {
         guard let value = changes?.value else { return }
         let isAvailable = Bool(truncating: value)
 
-        os_log(.debug, log: .timeShift, "TimeShift playback status changed: %{PRIVATE}s, (%{PRIVATE}s)", String(describing: isAvailable), channel.description)
-
         switch (isAvailable, state) {
-        case (true, .notReady):
-            state = .ready
-        case (false, .ready):
-            state = .notReady
+        case (true, .starting):
+            state = .readyToPlay
+
+        case (true, .playing),
+             (_, .loadingPlayback):
+            state = .playing
+
+        case (false, .readyToPlay):
+            state = .starting
+
         default:
-            state = .failure
+            state = .starting
         }
+
+        os_log(.debug, log: .timeShift, "TimeShift playback status changed, isAvailable: %{PRIVATE}s, new state: %{PRIVATE}s, (%{PRIVATE}s)", String(describing: isAvailable), String(describing: state), channelDescription)
     }
 
     func timeShiftPlaybackHeadDidChange(_ changes: PhenixObservableChange<NSDate>?) {
@@ -153,31 +168,39 @@ private extension ChannelTimeShiftWorker {
                 return
             }
 
-            os_log(.debug, log: .timeShift, "TimeShift playback head callback with date: %{PRIVATE}s , (%{PRIVATE}s)", date.description, self.channel.description)
-            self.channel.channelTimeShiftPlaybackHeadDidChange(startDate: self.startDate, currentDate: date, endDate: self.endDate)
+            os_log(.debug, log: .timeShift, "TimeShift playback head callback with date: %{PRIVATE}s, (%{PRIVATE}s)", date.description, channelDescription)
+
+            state = .playing
+            delegate?.timeShiftDidChangePlaybackHead(startDate: startDate, currentDate: date, endDate: endDate)
         }
     }
 
     func timeShiftFailureDidChange(_ changes: PhenixObservableChange<PhenixRequestStatusObject>?) {
-        guard let value = changes?.value else { return }
-
-        os_log(.debug, log: .timeShift, "TimeShift failure callback, status: %{PRIVATE}d, (%{PRIVATE}s)", value.status.rawValue, channel.description)
-
-        if value.status != .ok {
-            state = .failure
+        guard let value = changes?.value else {
+            return
         }
+
+        os_log(.debug, log: .timeShift, "TimeShift failure callback, status: %{PRIVATE}d, (%{PRIVATE}s)", value.status.rawValue, channelDescription)
+
+        guard value.status != .ok else {
+            return
+        }
+
+        delegate?.timeShiftDidFail()
     }
 
     func timeShiftSeekRelativeTimeDidChange(_ changes: PhenixObservableChange<PhenixRequestStatusObject>?) {
-        guard let value = changes?.value else { return }
+        guard let value = changes?.value else {
+            return
+        }
 
-        os_log(.debug, log: .timeShift, "TimeShift seek relative time callback, status: %{PRIVATE}d, (%{PRIVATE}s)", value.status.rawValue, channel.description)
+        os_log(.debug, log: .timeShift, "TimeShift seek relative time callback, status: %{PRIVATE}d, (%{PRIVATE}s)", value.status.rawValue, channelDescription)
 
         switch value.status {
         case .ok:
             timeShift.play()
         default:
-            state = .failure
+            delegate?.timeShiftDidFail()
         }
     }
 }

@@ -20,8 +20,9 @@ class MultiStreamViewController: UIViewController, Storyboarded {
     var channels: [Channel] = []
     var ccChannel: Channel?
     var device: UIDevice = .current
+    var replayConfiguration: ReplayConfiguration!
 
-    private var timeShiftReplayConfigurations: [TimeShiftReplayConfiguration] = [.far, .near, .close]
+    private var timeShiftReplayConfigurations: [ReplayConfiguration] = [.far, .near, .close]
     private var collectionViewManager: MultiStreamPreviewCollectionViewManager!
     private var selectedChannelIndexPath: IndexPath? {
         didSet {
@@ -31,14 +32,15 @@ class MultiStreamViewController: UIViewController, Storyboarded {
     }
     private var selectedChannel: Channel? {
         didSet {
-            oldValue?.stopObservingPlaybackHead()
+            oldValue?.replay?.stopObservingPlaybackHead()
+
+            updateReplayState()
+
             if replayState == .active {
-                selectedChannel?.startObservingPlaybackHead()
+                selectedChannel?.replay?.startObservingPlaybackHead()
             }
         }
     }
-    private var alertController: UIAlertController?
-    private var playbackHeadDidMove: Bool = false
     private(set) var replayState: ReplayState = .notReady {
         didSet {
             os_log(.debug, log: .ui, "Change replay mode to: %{PRIVATE}s", replayState.rawValue)
@@ -51,9 +53,7 @@ class MultiStreamViewController: UIViewController, Storyboarded {
     }
 
     var isClosedCaptionsEnabled: Bool = true {
-        didSet {
-            ccChannel?.isClosedCaptionsEnabled = isClosedCaptionsEnabled
-        }
+        didSet { ccChannel?.isClosedCaptionsEnabled = isClosedCaptionsEnabled }
     }
 
     override func viewDidLoad() {
@@ -75,12 +75,14 @@ class MultiStreamViewController: UIViewController, Storyboarded {
 
         multiStreamView.delegate = self
         multiStreamView.configureUIElements()
-        multiStreamView.setReplayConfigurationButtonTitle(TimeShiftReplayConfiguration.far.title)
+        multiStreamView.setReplayConfigurationButtonTitle(ReplayConfiguration.far.title)
         multiStreamView.configurePreviewCollectionView(with: collectionViewManager)
 
         for channel in channels {
             join(channel)
         }
+
+        configurePlayback(with: replayConfiguration)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -128,34 +130,28 @@ private extension MultiStreamViewController {
         }
     }
 
-    func configurePlayback(with replayConfiguration: TimeShiftReplayConfiguration) {
+    func configurePlayback(with replayConfiguration: ReplayConfiguration) {
         os_log(.debug, log: .ui, "Change replay configuration to %{PRIVATE}s", replayConfiguration.title)
-        let initialDate = Date()
+        let date = Date()
+
         for channel in channels {
-            channel.startTimeShift(with: replayConfiguration, from: initialDate)
+            channel.setReplay(toStartAt: date, with: replayConfiguration)
         }
 
         updateReplayState()
     }
 
     func replayStreams() {
-        for channel in channels where channel.timeShiftState == .ready {
-            channel.startReplay()
-        }
+        channels.forEachReplay(withState: .readyToPlay) { $0.startReplay() }
 
-        if let channel = selectedChannel {
-            channel.startObservingPlaybackHead()
-        }
-
+        selectedChannel?.replay?.startObservingPlaybackHead()
         replayState = .active
     }
 
     func stopReplayingStreams() {
-        for channel in channels where channel.timeShiftState == .ready {
-            channel.stopReplay()
-        }
+        channels.forEachReplay(withState: .loadingPlayback) { $0.stopReplay() }
+        channels.forEachReplay(withState: .playing) { $0.stopReplay() }
 
-        playbackHeadDidMove = false
         updateReplayState()
     }
 
@@ -166,8 +162,9 @@ private extension MultiStreamViewController {
                 guard let self = self else {
                     return
                 }
-
+                
                 self.multiStreamView.setReplayConfigurationButtonTitle(configuration.title)
+                self.replayConfiguration = configuration
                 self.configurePlayback(with: configuration)
             })
         }
@@ -176,57 +173,46 @@ private extension MultiStreamViewController {
     }
 
     func updateReplayState() {
-        // Filter out channels, which are currently streaming
-        let channels = self.channels.filter { $0.streamState == .playing }
-
-        guard channels.isEmpty == false else {
+        guard let channel = selectedChannel else {
             replayState = .notReady
-            playbackHeadDidMove = false
             return
         }
 
-        // Filter out failed channels, and check if all the rest of the channels are ready for replay
-        let timeShiftChannels = channels.filter { $0.timeShiftState != .failure }
-
-        guard timeShiftChannels.isEmpty == false else {
-            replayState = .failure
-            playbackHeadDidMove = false
+        guard channel.streamState == .playing else {
+            // Need to wait for the channel stream to begin playing, before we can enable the replay mode.
+            replayState = .notReady
             return
         }
 
-        // Check if all available channel TimeShift is ready to replay
-        let isTimeShiftReady = timeShiftChannels.allSatisfy { $0.timeShiftState == .ready }
+        guard let state = channel.replay?.state else {
+            if channel.streamState == .playing {
+                // Replay controller does not exist and stream is already playing, so we can mark the replay state as a "failure".
+                replayState = .failure
+            } else {
+                // Stream is not playing so we still need to wait for the TimeShift.
+                replayState = .notReady
+            }
+            return
+        }
 
-        switch (isTimeShiftReady, playbackHeadDidMove) {
-        case (true, true):
-            replayState = .active
-            playbackHeadDidMove = false
-        case (true, false):
+        switch state {
+        case .starting:
+            replayState = .notReady
+        case .readyToPlay:
             replayState = .ready
-        case (false, true):
+        case .loadingPlayback:
             replayState = .waitingForPlayback
-        case (false, false):
-            replayState = .notReady
-        }
-    }
-
-    func showAlert(withMessage message: String) {
-        if let ac = self.alertController {
-            ac.message = message
-        } else {
-            let ac = UIAlertController(title: "Channels failed to provide TimeShift", message: message, preferredStyle: .alert)
-            alertController = ac
-            ac.addAction(UIAlertAction(title: "OK", style: .cancel) { [weak self] _ in
-                self?.alertController = nil
-            })
-            present(ac, animated: true)
+        case .playing:
+            replayState = .active
+        case .failure:
+            replayState = .failure
         }
     }
 
     func limitBandwidth(_ channel: Channel) {
         if device.orientation.isLandscape {
             if channel == selectedChannel {
-                channel.stopBandwidthLimitation()
+                channel.removeBandwidthLimitation()
             } else {
                 channel.limitBandwidth(at: .offscreen)
             }
@@ -240,6 +226,7 @@ private extension MultiStreamViewController {
     }
 }
 
+// MARK: - ChannelStreamObserver
 extension MultiStreamViewController: ChannelStreamObserver {
     func channel(_ channel: Channel, didChange state: Channel.StreamState) {
         DispatchQueue.main.async { [weak self] in
@@ -247,36 +234,29 @@ extension MultiStreamViewController: ChannelStreamObserver {
                 return
             }
 
-            self.updateReplayState()
-
             // If channel state changed to playing we can start limiting the bandwidth
             if state == .playing {
                 self.limitBandwidth(channel)
+            }
+
+            if channel == self.selectedChannel {
+                channel.media?.setAudio(enabled: true)
+                self.updateReplayState()
             }
         }
     }
 }
 
+// MARK: - ChannelTimeShiftObserver
 extension MultiStreamViewController: ChannelTimeShiftObserver {
-    func channel(_ channel: Channel, didChange state: ChannelTimeShiftWorker.TimeShiftAvailability) {
+    func channel(_ channel: Channel, didChange state: ChannelTimeShiftWorker.TimeShiftState) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else {
                 return
             }
 
-            if state == .failure {
-                // Collect all of the failed channel aliases
-                let failedChannels = self.channels
-                    .filter { $0.timeShiftState == .failure }
-                    .map { $0.alias }
-                    .joined(separator: ", ")
-
-                self.showAlert(withMessage: failedChannels)
-
-                if self.replayState == .active {
-                    self.stopReplayingStreams()
-                    return
-                }
+            guard channel == self.selectedChannel else {
+                return
             }
 
             self.updateReplayState()
@@ -290,6 +270,7 @@ extension MultiStreamViewController: ChannelTimeShiftObserver {
     }
 }
 
+// MARK: - MultiStreamViewDelegate
 extension MultiStreamViewController: MultiStreamViewDelegate {
     func replayModeDidChange(_ inReplayMode: Bool) {
         if inReplayMode {
@@ -304,17 +285,30 @@ extension MultiStreamViewController: MultiStreamViewDelegate {
     }
 
     func replayTimeSliderDidMove(_ time: TimeInterval) {
-        playbackHeadDidMove = true
-        for channel in channels where channel.timeShiftState == .ready {
-            channel.movePlaybackHead(by: time)
-        }
+        channels.forEachReplay(withState: .playing) { $0.movePlaybackHead(by: time) }
+    }
+
+    func restartReplayConfiguration() {
+        configurePlayback(with: replayConfiguration)
     }
 }
 
+// MARK: - PhenixClosedCaptionsServiceDelegate
 extension MultiStreamViewController: PhenixClosedCaptionsServiceDelegate {
     public func closedCaptionsService(_ service: PhenixClosedCaptionsService, didReceive message: PhenixClosedCaptionsMessage) {
         DispatchQueue.main.async {
             os_log(.debug, log: .ui, "Did receive closed captions: %{PRIVATE}s", String(reflecting: message))
+        }
+    }
+}
+
+// MARK: - Helpers
+extension Sequence where Element == Channel {
+    func forEachReplay(withState state: ChannelTimeShiftWorker.TimeShiftState, do handle: (ChannelReplayController) -> Void) {
+        let replays = compactMap { $0.replay }
+
+        for replay in replays where replay.state == state {
+            handle(replay)
         }
     }
 }

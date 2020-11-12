@@ -122,6 +122,7 @@ extension MultiStreamPreviewCollectionViewCell: ChannelJoinObserver {
             guard let self = self else {
                 return
             }
+
             switch state {
             case .joined:
                 if channel.streamState == .noStreamPlaying {

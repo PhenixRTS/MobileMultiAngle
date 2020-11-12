@@ -12,7 +12,7 @@ final class Throttler {
         self.delay = delay
     }
 
-    func run(block: @escaping () -> Void) {
+    func run(block: () -> Void) {
         // Check if the last execution date exists, if not, this is the first time when the code gets executed.
         guard let lastExecutionDate = lastExecutionDate else {
             self.lastExecutionDate = Date()

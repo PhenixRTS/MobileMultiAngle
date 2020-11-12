@@ -11,6 +11,7 @@ protocol MultiStreamViewDelegate: AnyObject {
     func replayModeDidChange(_ inReplayMode: Bool)
     func replayConfigurationButtonTapped()
     func replayTimeSliderDidMove(_ time: TimeInterval)
+    func restartReplayConfiguration()
 }
 
 class MultiStreamView: UIView {
@@ -23,6 +24,8 @@ class MultiStreamView: UIView {
     @IBOutlet private var replayButton: UIButton!
     @IBOutlet private var replayConfigurationButton: UIButton!
     @IBOutlet private var goLiveButton: UIButton!
+    @IBOutlet private var fetchingReplayButton: UIButton!
+    @IBOutlet private var replayFailedButton: UIButton!
     @IBOutlet private var slider: UISlider!
     @IBOutlet private var timerLabel: UILabel!
     @IBOutlet private var replaySliderViewContainers: [UIView]!
@@ -49,9 +52,13 @@ class MultiStreamView: UIView {
     }
 
     func configureUIElements() {
-        replayButton.layer.cornerRadius = 10
-        goLiveButton.layer.cornerRadius = 10
-        replayConfigurationButton.layer.cornerRadius = 10
+        let buttons: [UIButton] = [replayButton, goLiveButton, replayConfigurationButton, replayFailedButton, fetchingReplayButton]
+
+        buttons.forEach { button in
+            button.layer.cornerRadius = 10
+            button.layer.borderWidth = 1
+            button.layer.borderColor = UIColor.black.withAlphaComponent(0.25).cgColor
+        }
         slider.isExclusiveTouch = true
 
         timerLabel.text = ""
@@ -114,13 +121,19 @@ class MultiStreamView: UIView {
         delegate?.replayTimeSliderDidMove(TimeInterval(sender.value))
     }
 
-    @IBAction func closedCaptionsButtonTapped(_ sender: Any) {
+    @IBAction
+    private func closedCaptionsButtonTapped(_ sender: Any) {
         delegate?.isClosedCaptionsEnabled.toggle()
         if delegate?.isClosedCaptionsEnabled == true {
             closedCaptionsButton.setImage(UIImage(named: "cc_enabled"), for: .normal)
         } else {
             closedCaptionsButton.setImage(UIImage(named: "cc_disabled"), for: .normal)
         }
+    }
+
+    @IBAction
+    private func replayFailedButtonTapped(_ sender: UIButton) {
+        delegate?.restartReplayConfiguration()
     }
 }
 
@@ -130,22 +143,25 @@ private extension MultiStreamView {
 
         closedCaptionsButton.isHidden = inReplayMode
         closedCaptionsView.isHidden = inReplayMode
-        replayButton.isHidden = inReplayMode
+
+        replayButton.isHidden = state != .ready
+        replayConfigurationButton.isHidden = state != .ready && state != .failure
         goLiveButton.isHidden = !inReplayMode
-        replayConfigurationButton.isHidden = inReplayMode
+
+        fetchingReplayButton.isHidden = state != .notReady
+        replayFailedButton.isHidden = state != .failure
+
         replaySliderViewContainers.forEach { $0.isHidden = !inReplayMode }
     }
 
     func setControlInteraction(forReplay state: ReplayState) {
         let isReplayButtonEnabled = state == .ready
         replayButton.isEnabled = isReplayButtonEnabled
-        replayButton.backgroundColor = isReplayButtonEnabled ? UIColor.green : UIColor.white
-        replayButton.alpha = isReplayButtonEnabled ? 1 : 0.5
+        replayButton.backgroundColor = isReplayButtonEnabled ? UIColor.green : UIColor.gray
 
         let isGoLiveButtonEnabled = state == .active
         goLiveButton.isEnabled = isGoLiveButtonEnabled
-        goLiveButton.backgroundColor = isGoLiveButtonEnabled ? UIColor.green : UIColor.white
-        goLiveButton.alpha = isGoLiveButtonEnabled ? 1 : 0.5
+        goLiveButton.backgroundColor = isGoLiveButtonEnabled ? UIColor.green : UIColor.gray
 
         let isReplayConfigurationButtonEnabled = state == .ready || state == .failure
         replayConfigurationButton.isEnabled = isReplayConfigurationButtonEnabled

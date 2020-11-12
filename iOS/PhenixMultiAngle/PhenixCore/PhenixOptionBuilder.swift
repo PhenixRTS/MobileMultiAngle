@@ -43,6 +43,7 @@ enum PhenixOptionBuilder {
     static func createJoinRoomOptions(withAlias alias: String) -> PhenixJoinRoomOptions {
         PhenixRoomExpressFactory.createJoinRoomOptionsBuilder()
             .withRoomAlias(alias)
+            .withCapabilities(["real-time", "time-shift"])
             .buildJoinRoomOptions()
     }
 

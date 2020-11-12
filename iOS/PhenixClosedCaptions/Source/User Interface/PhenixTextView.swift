@@ -13,7 +13,7 @@ internal final class PhenixTextView: UIView {
         if #available(iOS 13.0, *) {
             return UIFont.monospacedSystemFont(ofSize: 14, weight: .regular)
         } else {
-            return .preferredFont(forTextStyle: .caption1)
+            return .preferredFont(forTextStyle: .footnote)
         }
     }()
 
@@ -92,7 +92,23 @@ private extension PhenixTextView {
     }
 
     func setAttributedText(_ text: String) {
-        captionLabel.attributedText = NSAttributedString(string: text, attributes: captionAttributes)
+        if #available(iOS 13.0, *) {
+            captionLabel.attributedText = NSAttributedString(string: text, attributes: captionAttributes)
+        } else {
+            var attributedText = NSMutableAttributedString(string: text)
+            
+            // iOS 12 is displaying empty lines with a background color.
+            // Empty lines must have clear background color.
+            text.enumerateSubstrings(in: text.startIndex..<text.endIndex, options: .byLines) {
+                substring, substringRange, _, _ in
+                // Check if the line is not empty and only then provide formating for it.
+                if substring?.isEmpty == false {
+                    attributedText.addAttributes(self.captionAttributes, range: NSRange(substringRange, in: text))
+                }
+            }
+
+            captionLabel.attributedText = attributedText
+        }
     }
 }
 
