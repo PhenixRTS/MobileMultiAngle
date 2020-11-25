@@ -6,8 +6,8 @@ import os.log
 import PhenixSdk
 
 public class ChannelMediaController {
-    private weak var renderer: PhenixRenderer?
-    private weak var subscriber: PhenixExpressSubscriber?
+    private weak var renderer: PhenixRenderer!
+    private weak var subscriber: PhenixExpressSubscriber!
     private weak var secondaryPreviewLayer: VideoLayer!
     private var isSecondaryLayerFlushed = true
     private var bandwidthLimitationDisposables: [PhenixDisposable]
@@ -27,10 +27,10 @@ public class ChannelMediaController {
     public func setAudio(enabled: Bool) {
         if enabled {
             os_log(.debug, log: .mediaController, "Unmute audio, (%{PRIVATE}s)", channelDescription)
-            renderer?.unmuteAudio()
+            renderer.unmuteAudio()
         } else {
             os_log(.debug, log: .mediaController, "Mute audio, (%{PRIVATE}s)", channelDescription)
-            renderer?.muteAudio()
+            renderer.muteAudio()
         }
     }
 
@@ -39,10 +39,6 @@ public class ChannelMediaController {
 
         bandwidthLimitationDisposables.removeAll()
 
-        guard let subscriber = subscriber else {
-            os_log(.debug, log: .mediaController, "Subscriber is not available, (%{PRIVATE}s)", channelDescription)
-            return
-        }
         subscriber.getVideoTracks()?.forEach { stream in
             stream.limitBandwidth(bandwidth.rawValue).append(to: &bandwidthLimitationDisposables)
         }
@@ -54,17 +50,24 @@ public class ChannelMediaController {
     }
 }
 
+// MARK: - CustomStringConvertible
+extension ChannelMediaController: CustomStringConvertible {
+    public var description: String {
+        "Media, audio muted: \(renderer.isAudioMuted)"
+    }
+}
+
 // MARK: - Internal methods
 internal extension ChannelMediaController {
     func subscribe(_ videoTrack: PhenixMediaStreamTrack) {
         os_log(.debug, log: .mediaController, "Subscribe to video, (%{PRIVATE}s)", channelDescription)
-        renderer?.setFrameReadyCallback(videoTrack, didReceiveVideoFrame)
-        renderer?.setLastVideoFrameRenderedReceivedCallback(didReceiveLastVideoFrame)
-        renderer?.setVideoDisplayDimensionsChangedCallback(didReceiveVideoDisplayDimensionsChange)
+        renderer.setFrameReadyCallback(videoTrack, didReceiveVideoFrame)
+        renderer.setLastVideoFrameRenderedReceivedCallback(didReceiveLastVideoFrame)
+        renderer.setVideoDisplayDimensionsChangedCallback(didReceiveVideoDisplayDimensionsChange)
     }
 
     func requestLastVideoFrame() {
-        renderer?.requestLastVideoFrameRendered()
+        renderer.requestLastVideoFrameRendered()
     }
 }
 
@@ -137,6 +140,6 @@ private extension ChannelMediaController {
             return
         }
 
-        os_log(.debug, log: .mediaController, "Frame dimensions changed - width: %{PRIVATE}d,\theight: %{PRIVATE}d, (%{PRIVATE}s)", dimensions.width, dimensions.height, channelDescription)
+        os_log(.debug, log: .mediaController, "Frame dimensions changed - width: %{PRIVATE}d, height: %{PRIVATE}d, (%{PRIVATE}s)", dimensions.width, dimensions.height, channelDescription)
     }
 }

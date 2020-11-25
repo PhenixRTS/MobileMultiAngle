@@ -6,7 +6,7 @@ import os.log
 import PhenixSdk
 
 internal protocol ReplayDelegate: AnyObject {
-    func replayDidChangeState(_ state: ChannelTimeShiftWorker.TimeShiftState)
+    func replayDidChangeState(_ state: ChannelReplayController.State)
     func replayDidChangePlaybackHead(startDate: Date, currentDate: Date, endDate: Date)
 }
 
@@ -15,7 +15,7 @@ public class ChannelReplayController {
     private static let timeout: TimeInterval = 20
 
     private weak var renderer: PhenixRenderer!
-    private var worker: ChannelTimeShiftWorker?
+    private var worker: TimeShiftWorker?
     private var options: Options
     private var maxRetryCount: Int
     private var retries: Int
@@ -26,7 +26,7 @@ public class ChannelReplayController {
     internal weak var channelRepresentation: ChannelRepresentation?
     internal weak var delegate: ReplayDelegate?
 
-    public var state: ChannelTimeShiftWorker.TimeShiftState = .starting {
+    public var state: State = .loading {
         didSet { stateDidChange(state) }
     }
 
@@ -85,8 +85,32 @@ public class ChannelReplayController {
     }
 
     deinit {
+        delayedTimeShiftSetupWorkItem?.cancel()
+        delayedTimeShiftSetupWorkItem = nil
+
+        stateChangeTimeoutWorkItem?.cancel()
+        stateChangeTimeoutWorkItem = nil
+
         worker?.dispose()
         worker = nil
+    }
+}
+
+public extension ChannelReplayController {
+    enum State {
+        case loading
+        case readyToPlay
+        case playing
+        case seeking
+        case ended
+        case failure
+    }
+}
+
+// MARK: - CustomStringConvertible
+extension ChannelReplayController: CustomStringConvertible {
+    public var description: String {
+        "Replay, timeshift: \(worker != nil ? "exists" : "-"), state: \(state), options: \(options)"
     }
 }
 
@@ -109,19 +133,17 @@ private extension ChannelReplayController {
     func setupTimeShift() {
         os_log(.debug, log: .replayController, "Setup TimeShift worker, (%{PRIVATE}s)", channelDescription)
         do {
-            state = .starting
+            state = .loading
 
             // Always before creating a new TimeShift worker, previous worker must call `dispose` method.
             worker?.dispose()
 
             os_log(.debug, log: .replayController, "TimeShift worker options: %{PRIVATE}s, (%{PRIVATE}s)", options.description, channelDescription)
 
-            let worker = try ChannelTimeShiftWorker(renderer: renderer, initialDateTime: options.startDate, configuration: options.configuration)
+            let worker = try TimeShiftWorker(renderer: renderer, initialDateTime: options.startDate, configuration: options.configuration)
             self.worker = worker
             worker.channelRepresentation = channelRepresentation
             worker.delegate = self
-
-            state = worker.state
 
             if isSubscribed {
                 // If app was already subscribed for the TimeShift previously, we need to automatically re-subscribe if TimeShift worker gets re-created.
@@ -137,7 +159,6 @@ private extension ChannelReplayController {
         os_log(.debug, log: .replayController, "Process TimeShift failure, (%{PRIVATE}s)", channelDescription)
         guard retries < maxRetryCount else {
             os_log(.debug, log: .replayController, "Max retries (%{PRIVATE}d) exceeded, (%{PRIVATE}s)", retries, channelDescription)
-            state = .failure
             return
         }
 
@@ -147,7 +168,7 @@ private extension ChannelReplayController {
         }
 
         retries += 1
-        state = .starting
+        state = .loading
 
         let workItem = DispatchWorkItem { [weak self] in
             guard let self = self else {
@@ -166,19 +187,19 @@ private extension ChannelReplayController {
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.retryDelay, execute: workItem)
     }
 
-    func stateDidChange(_ state: ChannelTimeShiftWorker.TimeShiftState) {
+    func stateDidChange(_ state: State) {
         os_log(.debug, log: .replayController, "TimeShift state did change to %{PRIVATE}s, (%{PRIVATE}s)", String(describing: state), channelDescription)
         // Reset timeout counter
         resetConnectionTimeoutCountdown()
 
-        if state != .starting && state != .failure {
-            // Only reset the retry counter when the app is ready to play replay.
-            resetRetryCount()
-        }
-
-        if state == .starting {
+        switch state {
+        case .loading:
             // In case, if the state `.starting` does not change to different state in specific amount of time, consider that the TimeShift has reached timeout and set the state to `.failure`.
             startConnectionTimeoutCountdown()
+        case .seeking, .readyToPlay, .playing, .ended:
+            resetRetryCount()
+        case .failure:
+            processTimeShiftFailure()
         }
 
         delegate?.replayDidChangeState(state)
@@ -187,12 +208,7 @@ private extension ChannelReplayController {
     func startConnectionTimeoutCountdown() {
         os_log(.debug, log: .replayController, "Start connection timer countdown, (%{PRIVATE}s)", channelDescription)
         let workItem = DispatchWorkItem { [weak self] in
-            guard let self = self else {
-                return
-            }
-
-            os_log(.debug, log: .replayController, "Set connection state to failure because of timeout, (%{PRIVATE}s)", self.channelDescription)
-            self.state = .failure
+            self?.connectionTimeoutReached()
         }
 
         stateChangeTimeoutWorkItem = workItem
@@ -205,6 +221,13 @@ private extension ChannelReplayController {
         stateChangeTimeoutWorkItem = nil
     }
 
+    func connectionTimeoutReached() {
+        os_log(.debug, log: .replayController, "Connection timeout reached, (%{PRIVATE}s)", channelDescription)
+        retries = maxRetryCount
+        stateChangeTimeoutWorkItem = nil
+        worker?.stopReplay(forceFailure: true)
+    }
+
     func resetRetryCount() {
         os_log(.debug, log: .replayController, "Reset retry count, (%{PRIVATE}s)", channelDescription)
         retries = 0
@@ -213,15 +236,24 @@ private extension ChannelReplayController {
 
 // MARK: - TimeShiftDelegate
 extension ChannelReplayController: TimeShiftDelegate {
-    func timeShiftDidFail() {
-        processTimeShiftFailure()
-    }
-
     func timeShiftDidChangePlaybackHead(startDate: Date, currentDate: Date, endDate: Date) {
         delegate?.replayDidChangePlaybackHead(startDate: startDate, currentDate: currentDate, endDate: endDate)
     }
 
-    func timeShiftDidChangeState(_ state: ChannelTimeShiftWorker.TimeShiftState) {
-        self.state = state
+    func timeShiftDidChangeState(_ state: TimeShiftWorker.State) {
+        switch state {
+        case .starting:
+            self.state = .loading
+        case .readyToPlay:
+            self.state = .readyToPlay
+        case .playing:
+            self.state = .playing
+        case .seeking:
+            self.state = .seeking
+        case .ended:
+            self.state = .ended
+        case .failure:
+            self.state = .failure
+        }
     }
 }

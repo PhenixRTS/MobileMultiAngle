@@ -7,9 +7,9 @@ import PhenixSdk
 
 // swiftlint:disable force_unwrapping
 public enum PhenixConfiguration {
-    public static var backend = URL(string: "https://demo.phenixrts.com/pcast")!
-    public static var pcast: URL?
-    public static var channelAliases: [String] = ["CC_Rider", "multiAngle.1", "multiAngle.2", "multiAngle.3", "multiAngle.4", "multiAngle.5"]
+    public static var backend = URL(string: "https://demo-stg.phenixrts.com/pcast")!
+    public static var pcast: URL? = URL(string: "https://pcast-stg.phenixrts.com")
+    public static var channelAliases: [String] = ["MultiAngle.2_720p60", "MultiAngle.3_720p60", "MultiAngle.4_720p60", "MultiAngle.5_720p60"]
 }
 
 public extension PhenixBandwidthLimit {

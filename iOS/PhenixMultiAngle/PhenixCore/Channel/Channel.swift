@@ -87,13 +87,11 @@ public class Channel: ChannelRepresentation {
     public func limitBandwidth(at bandwidth: PhenixBandwidthLimit) {
         os_log(.debug, log: .channel, "Start limiting bandwidth at %{PUBLIC}d, (%{PRIVATE}s)", bandwidth.rawValue, description)
         media?.limitBandwidth(at: bandwidth)
-        replay?.limitBandwidth(at: bandwidth)
     }
 
     public func removeBandwidthLimitation() {
         os_log(.debug, log: .channel, "Remove bandwidth limitation, (%{PRIVATE}s)", description)
         media?.removeBandwidthLimitation()
-        replay?.removeBandwidthLimitation()
     }
 
     public func setClosedCaptionsView(_ view: PhenixClosedCaptionsView) {
@@ -113,6 +111,13 @@ public extension Channel {
         case playing
         case noStreamPlaying
         case failure
+    }
+}
+
+// MARK: - CustomStringConvertible
+extension Channel: CustomStringConvertible {
+    public var description: String {
+        "Channel, alias: \(alias), join state: \(joinState), stream: \(streamState), media: \(media?.description ?? "-"),  replay: \(replay?.description ?? "-")"
     }
 }
 
@@ -187,6 +192,8 @@ internal extension Channel {
 
             streamState = .playing
 
+            os_log(.debug, log: .channel, "Channel set up finished, (%{PRIVATE}s)", description)
+
         case .noStreamPlaying:
             streamState = .noStreamPlaying
 
@@ -196,8 +203,9 @@ internal extension Channel {
     }
 }
 
+// MARK: - ReplayDelegate
 extension Channel: ReplayDelegate {
-    func replayDidChangeState(_ state: ChannelTimeShiftWorker.TimeShiftState) {
+    func replayDidChangeState(_ state: ChannelReplayController.State) {
         channelTimeShiftStateDidChange(state: state)
     }
 
@@ -213,19 +221,6 @@ private extension Channel {
         service.setContainerView(closedCaptionsView)
         service.delegate = closedCaptionsServiceDelegate
         return service
-    }
-}
-
-// MARK: - CustomStringConvertible
-extension Channel: CustomStringConvertible {
-    public var description: String {
-        """
-        Channel, alias: \(alias),
-                 join state: \(joinState),
-                 stream: \(streamState),
-                 audio muted: \(String(describing: renderer?.isAudioMuted)),
-                 replay state: \(String(describing: replay?.state))
-        """
     }
 }
 

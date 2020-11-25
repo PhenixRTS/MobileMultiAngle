@@ -12,7 +12,7 @@ public struct ReplayConfiguration {
 }
 
 public extension ReplayConfiguration {
-    static let far = ReplayConfiguration(id: 1, title: "FAR", playbackDuration: 40, playbackStartPoint: DateComponents(second: -60))
-    static let near = ReplayConfiguration(id: 2, title: "NEAR", playbackDuration: 20, playbackStartPoint: DateComponents(second: -30))
-    static let close = ReplayConfiguration(id: 3, title: "CLOSE", playbackDuration: 10, playbackStartPoint: DateComponents(second: -10))
+    static let far = ReplayConfiguration(id: 1, title: "FAR", playbackDuration: 40, playbackStartPoint: DateComponents(second: -120))
+    static let near = ReplayConfiguration(id: 2, title: "NEAR", playbackDuration: 30, playbackStartPoint: DateComponents(second: -60))
+    static let close = ReplayConfiguration(id: 3, title: "CLOSE", playbackDuration: 20, playbackStartPoint: DateComponents(second: -30))
 }

@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.windowScene = windowScene
         self.window = window
 
-        // Setup deeplink, if provided
+        // Setup deeplink
         let deeplink = makeDeeplinkIfNeeded(connectionOptions)
 
         // Setup launcher to initiate the application components

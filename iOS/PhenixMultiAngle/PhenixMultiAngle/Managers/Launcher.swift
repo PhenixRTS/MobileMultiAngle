@@ -42,7 +42,7 @@ class Launcher {
             os_log(.debug, log: .launcher, "Configure Phenix instance")
 
             let backend = self.deeplink?.backend ?? PhenixConfiguration.backend
-            let pcast = self.deeplink?.uri
+            let pcast = self.deeplink?.uri ?? PhenixConfiguration.pcast
 
             let manager = PhenixManager(backend: backend, pcast: pcast)
             manager.start { [weak nc] description in

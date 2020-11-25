@@ -149,7 +149,7 @@ private extension MultiStreamViewController {
     }
 
     func stopReplayingStreams() {
-        channels.forEachReplay(withState: .loadingPlayback) { $0.stopReplay() }
+        channels.forEachReplay(withState: .seeking) { $0.stopReplay() }
         channels.forEachReplay(withState: .playing) { $0.stopReplay() }
 
         updateReplayState()
@@ -162,7 +162,7 @@ private extension MultiStreamViewController {
                 guard let self = self else {
                     return
                 }
-                
+
                 self.multiStreamView.setReplayConfigurationButtonTitle(configuration.title)
                 self.replayConfiguration = configuration
                 self.configurePlayback(with: configuration)
@@ -196,11 +196,12 @@ private extension MultiStreamViewController {
         }
 
         switch state {
-        case .starting:
+        case .loading,
+             .ended:
             replayState = .notReady
         case .readyToPlay:
             replayState = .ready
-        case .loadingPlayback:
+        case .seeking:
             replayState = .waitingForPlayback
         case .playing:
             replayState = .active
@@ -249,7 +250,7 @@ extension MultiStreamViewController: ChannelStreamObserver {
 
 // MARK: - ChannelTimeShiftObserver
 extension MultiStreamViewController: ChannelTimeShiftObserver {
-    func channel(_ channel: Channel, didChange state: ChannelTimeShiftWorker.TimeShiftState) {
+    func channel(_ channel: Channel, didChange state: ChannelReplayController.State) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else {
                 return
@@ -304,7 +305,7 @@ extension MultiStreamViewController: PhenixClosedCaptionsServiceDelegate {
 
 // MARK: - Helpers
 extension Sequence where Element == Channel {
-    func forEachReplay(withState state: ChannelTimeShiftWorker.TimeShiftState, do handle: (ChannelReplayController) -> Void) {
+    func forEachReplay(withState state: ChannelReplayController.State, do handle: (ChannelReplayController) -> Void) {
         let replays = compactMap { $0.replay }
 
         for replay in replays where replay.state == state {

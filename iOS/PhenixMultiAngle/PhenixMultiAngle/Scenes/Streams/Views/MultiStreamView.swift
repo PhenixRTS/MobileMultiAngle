@@ -41,6 +41,8 @@ class MultiStreamView: UIView {
         return formatter
     }()
 
+    private var userControlsSlider: Bool = false
+
     weak var delegate: MultiStreamViewDelegate?
 
     var previewLayer: CALayer {
@@ -59,7 +61,9 @@ class MultiStreamView: UIView {
             button.layer.borderWidth = 1
             button.layer.borderColor = UIColor.black.withAlphaComponent(0.25).cgColor
         }
+        
         slider.isExclusiveTouch = true
+        slider.addTarget(self, action: #selector(sliderValueChanged(_:event:)), for: .valueChanged)
 
         timerLabel.text = ""
 
@@ -117,11 +121,6 @@ class MultiStreamView: UIView {
     }
 
     @IBAction
-    private func sliderDidMove(_ sender: UISlider) {
-        delegate?.replayTimeSliderDidMove(TimeInterval(sender.value))
-    }
-
-    @IBAction
     private func closedCaptionsButtonTapped(_ sender: Any) {
         delegate?.isClosedCaptionsEnabled.toggle()
         if delegate?.isClosedCaptionsEnabled == true {
@@ -134,6 +133,21 @@ class MultiStreamView: UIView {
     @IBAction
     private func replayFailedButtonTapped(_ sender: UIButton) {
         delegate?.restartReplayConfiguration()
+    }
+
+    @objc
+    private func sliderValueChanged(_ slider: UISlider, event: UIEvent) {
+        if let touchEvent = event.allTouches?.first {
+            switch touchEvent.phase {
+            case .began:
+                userControlsSlider = true
+            case .ended:
+                userControlsSlider = false
+                delegate?.replayTimeSliderDidMove(TimeInterval(slider.value))
+            default:
+                break
+            }
+        }
     }
 }
 
@@ -169,6 +183,7 @@ private extension MultiStreamView {
     }
 
     func setSliderPosition(startDate: Date, currentDate: Date, endDate: Date) {
+        guard userControlsSlider == false else { return }
         let max = endDate.timeIntervalSinceReferenceDate - startDate.timeIntervalSinceReferenceDate
         let current = currentDate.timeIntervalSinceReferenceDate - startDate.timeIntervalSinceReferenceDate
         slider.minimumValue = 0
