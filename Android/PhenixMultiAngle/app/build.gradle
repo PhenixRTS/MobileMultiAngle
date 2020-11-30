@@ -4,13 +4,12 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: "kotlin-kapt"
 apply plugin: 'kotlinx-serialization'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.1"
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "com.phenixrts.suite.phenixmultiangle"
@@ -33,6 +32,7 @@ android {
         }
     }
     buildFeatures {
+        viewBinding = true
         dataBinding = true
     }
     compileOptions {

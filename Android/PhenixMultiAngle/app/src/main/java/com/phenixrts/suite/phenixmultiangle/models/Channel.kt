@@ -156,8 +156,6 @@ data class Channel(
                 }
             }
         }?.run { timeShiftDisposables.add(this) }
-        Timber.d("Limiting time shift bandwidth to: ${Bandwidth.LD.value}")
-        timeShift?.limitBandwidth(Bandwidth.LD.value)?.run { timeShiftDisposables.add(this) }
     }
 
     private fun updateSurfaces() {
@@ -276,6 +274,7 @@ data class Channel(
         if (renderer?.isSeekable == false) return@launchMain
         Timber.d("Looping time shift: ${asString()}")
         timeShift?.loop(highlight.loopLength)
+        onTimeShiftLoading.value = false
         if (onTimeShiftState.value == ReplayState.READY) {
             updateTimeShiftState(ReplayState.REPLAYING)
         }
@@ -284,6 +283,7 @@ data class Channel(
     fun endVideoReplay() = launchMain {
         Timber.d("Stopping time shift: ${asString()}")
         timeShift?.stop()
+        onTimeShiftLoading.value = false
         if (onTimeShiftState.value == ReplayState.REPLAYING) {
             updateTimeShiftState(ReplayState.READY)
         }

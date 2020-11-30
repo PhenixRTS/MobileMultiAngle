@@ -15,8 +15,8 @@ import com.phenixrts.suite.phenixmultiangle.R
 import com.phenixrts.suite.phenixmultiangle.cache.PreferenceProvider
 import com.phenixrts.suite.phenixmultiangle.common.*
 import com.phenixrts.suite.phenixmultiangle.common.enums.ExpressError
+import com.phenixrts.suite.phenixmultiangle.databinding.ActivitySplashBinding
 import com.phenixrts.suite.phenixmultiangle.repository.ChannelExpressRepository
-import kotlinx.android.synthetic.main.activity_splash.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -29,17 +29,19 @@ class SplashActivity : AppCompatActivity() {
     @Inject
     lateinit var preferenceProvider: PreferenceProvider
 
+    private lateinit var binding: ActivitySplashBinding
     private val timeoutHandler = Handler(Looper.getMainLooper())
     private val timeoutRunnable = Runnable {
         launchMain {
-            splash_root.showSnackBar(getString(R.string.err_network_problems))
+            binding.root.showSnackBar(getString(R.string.err_network_problems))
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MultiAngleApp.component.inject(this)
-        setContentView(R.layout.activity_splash)
+        binding = ActivitySplashBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         channelExpressRepository.onChannelExpressError.observe(this, { error ->
             Timber.d("Room express failed")
             showErrorDialog(error)
