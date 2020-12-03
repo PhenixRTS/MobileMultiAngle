@@ -58,7 +58,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.2.1'
 
     // Phenix
-    implementation "com.phenixrts.android:phenix-sdk-android:2020.1.71"
+    implementation "com.phenixrts.android:phenix-sdk-android:2020.1.73"
 
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'

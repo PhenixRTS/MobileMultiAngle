@@ -4,6 +4,7 @@
 
 package com.phenixrts.suite.phenixmultiangle.common.enums
 
+@Suppress("unused")
 enum class Bandwidth(val value: Long) {
     ULD(1000 * 80),
     VLD(1000 * 350),
