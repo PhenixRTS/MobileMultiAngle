@@ -8,12 +8,9 @@ import android.view.SurfaceView
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.phenixrts.suite.phenixclosedcaption.PhenixClosedCaptionView
-import com.phenixrts.suite.phenixmultiangle.common.DEFAULT_HIGHLIGHT
-import com.phenixrts.suite.phenixmultiangle.common.call
+import com.phenixrts.suite.phenixmultiangle.common.*
 import com.phenixrts.suite.phenixmultiangle.common.enums.Highlight
 import com.phenixrts.suite.phenixmultiangle.common.enums.ReplayState
-import com.phenixrts.suite.phenixmultiangle.common.isTrue
-import com.phenixrts.suite.phenixmultiangle.common.launchMain
 import com.phenixrts.suite.phenixmultiangle.models.Channel
 import com.phenixrts.suite.phenixmultiangle.repository.ChannelExpressRepository
 import kotlinx.coroutines.delay
@@ -52,6 +49,12 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
         headTimeStamp.value = head
     }
 
+    private val replayReadyObserver = Observer<Consumable<Boolean>> { consumable ->
+        if (consumable.consume() != null) {
+            startReplayWhenAllReady()
+        }
+    }
+
     val channels = MutableLiveData<List<Channel>>()
     val headTimeStamp = MutableLiveData<Long>()
     val onReplayState = MutableLiveData<ReplayState>().apply { value = ReplayState.STARTING }
@@ -84,6 +87,16 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
         }?.onTimeShiftState?.value ?: ReplayState.STARTING
         if (onReplayState.value != rePlayState) {
             onReplayState.value = rePlayState
+        }
+    }
+
+    private fun startReplayWhenAllReady() {
+        if (channels.value?.count { it.onReplayReady.consumedValue == false } == 0) {
+            Timber.d("All channel replays are ready")
+            channels.value?.forEach { channel ->
+                channel.onReplayReady.removeObserver(replayReadyObserver)
+                channel.startReplay()
+            }
         }
     }
 
@@ -162,7 +175,8 @@ class ChannelViewModel(private val channelExpressRepository: ChannelExpressRepos
     fun getProgressFromTimestamp(timeStamp: Long): Int = TimeUnit.MILLISECONDS.toSeconds(timeStamp).toInt()
 
     fun playFromHere(progress: Long) {
-        channels.value?.forEach {channel ->
+        channels.value?.forEach { channel ->
+            channel.onReplayReady.observeForever(replayReadyObserver)
             channel.playFromHere(TimeUnit.SECONDS.toMillis(progress))
         }
     }

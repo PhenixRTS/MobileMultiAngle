@@ -78,6 +78,7 @@ data class Channel(
     val isMainRendered= MutableLiveData<Boolean>().apply { value = false }
     val onPlaybackHead = MutableLiveData<Long>().apply { value = 0 }
     val onChannelJoined = MutableLiveData<StreamStatus>()
+    val onReplayReady = ConsumableLiveData<Boolean>()
     var roomService: RoomService? = null
     var selectedHighlight = Highlight.FAR
     var isFullScreen = false
@@ -311,7 +312,8 @@ data class Channel(
     fun playFromHere(offset: Long) = launchMain {
         timeShiftSeekDisposables.forEach { it.dispose() }
         timeShiftSeekDisposables.clear()
-        onTimeShiftState.value = ReplayState.STARTING
+        updateTimeShiftState(ReplayState.STARTING)
+        onReplayReady.postConsumable(false)
         onTimeShiftLoading.value = true
         timeShift?.run {
             Timber.d("Seeking time shift: $offset")
@@ -320,13 +322,20 @@ data class Channel(
                     Timber.d("Time shift seek status: $status for $offset")
                     onTimeShiftLoading.value = false
                     if (status == RequestStatus.OK) {
-                        play()
-                        onTimeShiftState.value = ReplayState.REPLAYING
+                        onReplayReady.postConsumable(true)
                     } else {
-                        onTimeShiftState.value = ReplayState.FAILED
+                        updateTimeShiftState(ReplayState.FAILED)
                     }
                 }
             }?.run { timeShiftSeekDisposables.add(this) }
+        }
+    }
+
+    fun startReplay() {
+        timeShift?.run {
+            Timber.d("Playing time shift")
+            play()
+            updateTimeShiftState(ReplayState.REPLAYING)
         }
     }
 
