@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+//  Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
 //
 
 import os.log
@@ -30,7 +30,6 @@ class MainCoordinator: Coordinator {
 
         // Initiate default
         let vc = MultiStreamViewController.instantiate()
-        vc.replayConfiguration = .far
 
         // Convert aliases into channel models
         for (index, alias) in channelAliases.enumerated() {

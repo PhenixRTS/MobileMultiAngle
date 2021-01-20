@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+//  Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
 //
 
 import PhenixClosedCaptions
@@ -15,7 +15,7 @@ protocol MultiStreamViewDelegate: AnyObject {
 }
 
 class MultiStreamView: UIView {
-    typealias ReplayState = MultiStreamViewController.ReplayState
+    typealias State = MultiStreamReplayController.State
 
     @IBOutlet private var primaryPreview: UIView!
     @IBOutlet private var primaryPreviewOverlayView: UIView!
@@ -67,7 +67,7 @@ class MultiStreamView: UIView {
 
         timerLabel.text = ""
 
-        replay(state: .notReady)
+        replay(state: .loading)
     }
 
     func configurePreviewCollectionView(with manager: MultiStreamPreviewCollectionViewManager) {
@@ -100,7 +100,7 @@ class MultiStreamView: UIView {
         setSliderPosition(startDate: startDate, currentDate: currentDate, endDate: endDate)
     }
 
-    func replay(state: ReplayState) {
+    func replay(state: State) {
         setControlVisibility(forReplay: state)
         setControlInteraction(forReplay: state)
     }
@@ -152,32 +152,32 @@ class MultiStreamView: UIView {
 }
 
 private extension MultiStreamView {
-    func setControlVisibility(forReplay state: ReplayState) {
-        let inReplayMode = state == .active || state == .waitingForPlayback
+    func setControlVisibility(forReplay state: State) {
+        let inReplayMode = state == .playing || state == .seeking
 
         closedCaptionsButton.isHidden = inReplayMode
         closedCaptionsView.isHidden = inReplayMode
 
-        replayButton.isHidden = state != .ready
-        replayConfigurationButton.isHidden = state != .ready && state != .failure
+        replayButton.isHidden = state != .readyToPlay
+        replayConfigurationButton.isHidden = state != .readyToPlay && state != .failure
         goLiveButton.isHidden = !inReplayMode
 
-        fetchingReplayButton.isHidden = state != .notReady
+        fetchingReplayButton.isHidden = state != .loading
         replayFailedButton.isHidden = state != .failure
 
         replaySliderViewContainers.forEach { $0.isHidden = !inReplayMode }
     }
 
-    func setControlInteraction(forReplay state: ReplayState) {
-        let isReplayButtonEnabled = state == .ready
+    func setControlInteraction(forReplay state: State) {
+        let isReplayButtonEnabled = state == .readyToPlay
         replayButton.isEnabled = isReplayButtonEnabled
         replayButton.backgroundColor = isReplayButtonEnabled ? UIColor.green : UIColor.gray
 
-        let isGoLiveButtonEnabled = state == .active
+        let isGoLiveButtonEnabled = state == .playing
         goLiveButton.isEnabled = isGoLiveButtonEnabled
         goLiveButton.backgroundColor = isGoLiveButtonEnabled ? UIColor.green : UIColor.gray
 
-        let isReplayConfigurationButtonEnabled = state == .ready || state == .failure
+        let isReplayConfigurationButtonEnabled = state == .readyToPlay || state == .failure
         replayConfigurationButton.isEnabled = isReplayConfigurationButtonEnabled
         replayConfigurationButton.alpha = isReplayConfigurationButtonEnabled ? 1 : 0.5
     }

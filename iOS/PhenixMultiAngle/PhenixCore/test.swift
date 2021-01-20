@@ -3,7 +3,3 @@
 //
 
 import Foundation
-
-public protocol DeeplinkModelProvider {
-    init?(components: URLComponents)
-}

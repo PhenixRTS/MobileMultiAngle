@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+//  Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
 //
 
 import Foundation
@@ -151,8 +151,7 @@ private extension Channel {
             return
         }
 
-        replay = ChannelReplayController(renderer: renderer, options: options, channelRepresentation: self)
-        replay?.delegate = self
+        replay = ChannelReplayController(renderer: renderer, options: options, delegate: self, channelRepresentation: self)
         replay?.subscribe()
     }
 }

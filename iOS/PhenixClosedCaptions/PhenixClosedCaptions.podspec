@@ -9,7 +9,7 @@ TODO: Add long description of the pod here.
                        DESC
   spec.homepage         = 'https://github.com/PhenixRTS/MobileMultiAnglePrivate'
   spec.license          = { :type => "Proprietary", :text => <<-LICENSE
-                          Copyright 2020 Phenix Real Time Solutions, Inc.
+                          Copyright 2021 Phenix Real Time Solutions, Inc.
                           Confidential and Proprietary. All rights reserved.
                           By using this code you agree to the Phenix Terms of Service found online here:
                           http://phenixrts.com/terms-of-service.html
@@ -22,5 +22,5 @@ TODO: Add long description of the pod here.
   spec.source_files     = 'Source/*.swift', 'Source/Models/*.swift', 'Source/User Interface/*.swift', 'Source/Utils/*.swift'
 
   spec.xcconfig         = { "ENABLE_BITCODE" => "NO" }
-  spec.dependency 'PhenixSdk', '2020.1.73-beta'
+  spec.dependency 'PhenixSdk', '2021.0.0-beta'
 end

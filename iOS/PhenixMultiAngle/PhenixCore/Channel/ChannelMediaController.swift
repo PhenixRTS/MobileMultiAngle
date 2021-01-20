@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+//  Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
 //
 
 import os.log
@@ -7,7 +7,7 @@ import PhenixSdk
 
 public class ChannelMediaController {
     private weak var renderer: PhenixRenderer!
-    private weak var subscriber: PhenixExpressSubscriber!
+    private weak var subscriber: PhenixExpressSubscriber?
     private weak var secondaryPreviewLayer: VideoLayer!
     private var isSecondaryLayerFlushed = true
     private var bandwidthLimitationDisposables: [PhenixDisposable]
@@ -36,6 +36,11 @@ public class ChannelMediaController {
 
     public func limitBandwidth(at bandwidth: PhenixBandwidthLimit) {
         os_log(.debug, log: .mediaController, "Limit bandwidth at %{PRIVATE}s, (%{PRIVATE}s)", bandwidth.description, channelDescription)
+
+        guard let subscriber = subscriber else {
+            os_log(.debug, log: .mediaController, "Subscriber don't exist, (%{PRIVATE}s)", bandwidth.description, channelDescription)
+            return
+        }
 
         bandwidthLimitationDisposables.removeAll()
 

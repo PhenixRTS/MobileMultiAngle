@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+//  Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
 //
 
 import os.log
@@ -30,12 +30,13 @@ public class ChannelReplayController {
         didSet { stateDidChange(state) }
     }
 
-    init(renderer: PhenixRenderer, options: Options, channelRepresentation: ChannelRepresentation? = nil) {
+    init(renderer: PhenixRenderer, options: Options, delegate: ReplayDelegate?, channelRepresentation: ChannelRepresentation? = nil) {
         self.renderer = renderer
         self.options = options
         self.maxRetryCount = Int(options.configuration.playbackDuration / Self.retryDelay)
         self.retries = 0
         self.isSubscribed = false
+        self.delegate = delegate
         self.channelRepresentation = channelRepresentation
 
         self.setupTimeShift()
@@ -57,6 +58,11 @@ public class ChannelReplayController {
         // To stop TimeShift, dispose instance of it and create new one.
         resetRetryCount()
         setupTimeShift()
+    }
+
+    public func continueReplay() {
+        os_log(.debug, log: .replayController, "Continue replay, (%{PRIVATE}s)", channelDescription)
+        worker?.continueReplay()
     }
 
     public func startObservingPlaybackHead() {
@@ -193,10 +199,10 @@ private extension ChannelReplayController {
         resetConnectionTimeoutCountdown()
 
         switch state {
-        case .loading:
+        case .loading, .seeking:
             // In case, if the state `.starting` does not change to different state in specific amount of time, consider that the TimeShift has reached timeout and set the state to `.failure`.
             startConnectionTimeoutCountdown()
-        case .seeking, .readyToPlay, .playing, .ended:
+        case .readyToPlay, .playing, .ended:
             resetRetryCount()
         case .failure:
             processTimeShiftFailure()

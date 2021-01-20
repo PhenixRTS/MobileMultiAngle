@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+//  Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
 //
 
 import Foundation
@@ -105,6 +105,16 @@ internal class TimeShiftWorker {
         debouncer.invalidate()
     }
 
+    func continueReplay() {
+        guard state == .readyToPlay else {
+            os_log(.debug, log: .timeShift, "TimeShift is not ready, can't start - %{PRIVATE}s, (%{PRIVATE}s)", String(describing: state), channelDescription)
+            return
+        }
+
+        os_log(.debug, log: .timeShift, "Continue replay, (%{PRIVATE}s)", channelDescription)
+        timeShift.play()
+    }
+
     func limitBandwidth(at bandwidth: PhenixBandwidthLimit) {
         os_log(.debug, log: .timeShift, "Start limiting bandwidth at %{PUBLIC}d, (%{PRIVATE}s)", bandwidth.rawValue, channelDescription)
         bandwidthLimitationDisposable = timeShift.limitBandwidth(bandwidth.rawValue)
@@ -119,8 +129,8 @@ internal class TimeShiftWorker {
         // Pause and remove any of previous seek disposables
         self.state = .seeking
 
-        timeShift.pause()
         seekDisposable = nil
+        timeShift.pause()
 
         debouncer.run { [weak self] in
             guard let self = self else { return }
@@ -226,8 +236,7 @@ private extension TimeShiftWorker {
 
         switch value.status {
         case .ok:
-            state = .playing
-            timeShift.play()
+            state = .readyToPlay
 
         default:
             state = .failure(forced: false)

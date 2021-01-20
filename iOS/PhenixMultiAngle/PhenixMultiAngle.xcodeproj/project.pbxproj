@@ -14,6 +14,7 @@
 		B51E2D7E24F642A6000D4A69 /* ChannelStreamObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51E2D7D24F642A6000D4A69 /* ChannelStreamObserver.swift */; };
 		B53DEC6A253886E9003C6DCC /* PhenixBandwidthLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53DEC69253886E9003C6DCC /* PhenixBandwidthLimit.swift */; };
 		B543FCB42502232600960F88 /* ReplayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B543FCB32502232600960F88 /* ReplayConfiguration.swift */; };
+		B54B98F62577B1570013EBA2 /* MultiStreamReplayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54B98F52577B1570013EBA2 /* MultiStreamReplayController.swift */; };
 		B57BC89B254967B500E6BC20 /* ChannelMediaController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57BC89A254967B500E6BC20 /* ChannelMediaController.swift */; };
 		B57BC89D254967D200E6BC20 /* ChannelReplayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57BC89C254967D200E6BC20 /* ChannelReplayController.swift */; };
 		B58273C42508FF6600CC9EF9 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58273C32508FF6600CC9EF9 /* Throttler.swift */; };
@@ -102,6 +103,7 @@
 		B51E2D7D24F642A6000D4A69 /* ChannelStreamObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelStreamObserver.swift; sourceTree = "<group>"; };
 		B53DEC69253886E9003C6DCC /* PhenixBandwidthLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixBandwidthLimit.swift; sourceTree = "<group>"; };
 		B543FCB32502232600960F88 /* ReplayConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayConfiguration.swift; sourceTree = "<group>"; };
+		B54B98F52577B1570013EBA2 /* MultiStreamReplayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamReplayController.swift; sourceTree = "<group>"; };
 		B57BC89A254967B500E6BC20 /* ChannelMediaController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelMediaController.swift; sourceTree = "<group>"; };
 		B57BC89C254967D200E6BC20 /* ChannelReplayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelReplayController.swift; sourceTree = "<group>"; };
 		B58273C32508FF6600CC9EF9 /* Throttler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
@@ -385,6 +387,7 @@
 			isa = PBXGroup;
 			children = (
 				B5F00B1D24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift */,
+				B54B98F52577B1570013EBA2 /* MultiStreamReplayController.swift */,
 				B5F00B1824E55FAD00540FCE /* MultiStreamViewController.swift */,
 				B5F00B1A24E55FD300540FCE /* Views */,
 			);
@@ -626,6 +629,7 @@
 				B591328E24E3D58600A5B7D1 /* AppDelegate.swift in Sources */,
 				B5F00B1E24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift in Sources */,
 				B59132FA24E3F60B00A5B7D1 /* MainCoordinator.swift in Sources */,
+				B54B98F62577B1570013EBA2 /* MultiStreamReplayController.swift in Sources */,
 				B591329024E3D58600A5B7D1 /* SceneDelegate.swift in Sources */,
 				B59132EA24E3F43D00A5B7D1 /* Launcher.swift in Sources */,
 				B5F00B1C24E5600200540FCE /* MultiStreamView.swift in Sources */,
