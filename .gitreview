@@ -1,0 +1,6 @@
+[gerrit]
+host=gerrit.phenixrts.com
+port=29418
+project=MobileMultiAngle
+defaultbranch=master
+defaultrebase=0
