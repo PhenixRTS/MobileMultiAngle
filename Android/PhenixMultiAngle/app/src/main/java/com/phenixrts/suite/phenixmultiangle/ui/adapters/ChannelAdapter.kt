@@ -32,7 +32,7 @@ class ChannelAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val channel = data[position]
         holder.binding.channel = channel
-        channel.setThumbnailSurfaces(holder.binding.channelStreamSurface, holder.binding.channelBitmapSurface)
+        channel.setThumbnailSurfaces(holder.binding.channelStreamSurface, holder.binding.channelBitmapImage)
         channel.isMainRendered.observeForever {
             holder.binding.channel = channel
         }

@@ -7,8 +7,8 @@ package com.phenixrts.suite.phenixmultiangle.models
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
-import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.widget.ImageView
 import androidx.lifecycle.MutableLiveData
 import com.phenixrts.common.Disposable
 import com.phenixrts.common.RequestStatus
@@ -42,7 +42,7 @@ data class Channel(
 ) {
     private val videoRenderSurface = AndroidVideoRenderSurface()
     private var thumbnailSurface: SurfaceView? = null
-    private var bitmapSurface: SurfaceView? = null
+    private var thumbnailBitmap: ImageView? = null
     private var renderer: Renderer? = null
     private var expressSubscriber: ExpressSubscriber? = null
     private var timeShift: TimeShift? = null
@@ -50,11 +50,9 @@ data class Channel(
     private var bandwidthLimiter: Disposable? = null
     private var timeShiftDisposables = mutableListOf<Disposable>()
     private var timeShiftSeekDisposables = mutableListOf<Disposable>()
-    private var isBitmapSurfaceAvailable = false
     private var isFirstFrameDrawn = false
     private var timeShiftCreateRetryCount = 0
 
-    private var bitmapCallback: SurfaceHolder.Callback? = null
     private val frameCallback = Renderer.FrameReadyForProcessingCallback { frameNotification ->
         if (isMainRendered.value == false) return@FrameReadyForProcessingCallback
         frameNotification?.read(object : AndroidReadVideoFrameCallback() {
@@ -161,8 +159,8 @@ data class Channel(
 
     private fun updateSurfaces() {
         updateBandwidth()
-        thumbnailSurface?.changeVisibility(isMainRendered.value == false)
-        bitmapSurface?.changeVisibility(isMainRendered.value == true)
+        thumbnailSurface?.setVisible(isMainRendered.value == false)
+        thumbnailBitmap?.setVisible(isMainRendered.value == true)
     }
 
     private fun setVideoFrameCallback() {
@@ -176,10 +174,10 @@ data class Channel(
 
     private fun drawFrameBitmap(bitmap: Bitmap) {
         try {
-            launchIO {
-                if (isMainRendered.value == false || !isBitmapSurfaceAvailable) return@launchIO
+            launchMain {
+                if (isMainRendered.value == false || bitmap.isRecycled) return@launchMain
                 if (isFirstFrameDrawn) delay(THUMBNAIL_DRAW_DELAY)
-                bitmapSurface?.drawBitmap(bitmap)
+                thumbnailBitmap?.setImageBitmap(bitmap.copy(bitmap.config, bitmap.isMutable))
                 isFirstFrameDrawn = true
             }
         } catch (e: Exception) {
@@ -249,13 +247,9 @@ data class Channel(
         })
     }
 
-    fun setThumbnailSurfaces(thumbnailSurfaceView: SurfaceView, bitmapSurfaceView: SurfaceView) {
+    fun setThumbnailSurfaces(thumbnailSurfaceView: SurfaceView, thumbnailImageView: ImageView) {
         thumbnailSurface = thumbnailSurfaceView
-        bitmapSurface = bitmapSurfaceView
-        bitmapSurface?.holder?.removeCallback(bitmapCallback)
-        bitmapCallback = bitmapSurface?.setCallback { available ->
-            isBitmapSurfaceAvailable = available
-        }
+        thumbnailBitmap = thumbnailImageView
         if (isMainRendered.value == false) {
             videoRenderSurface.setSurfaceHolder(thumbnailSurfaceView.holder)
             updateSurfaces()

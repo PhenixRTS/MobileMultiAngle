@@ -56,8 +56,8 @@ class MainActivity : FragmentActivity() {
         val rotation = resources.configuration.orientation
         val spanCount = if (rotation == Configuration.ORIENTATION_PORTRAIT) SPAN_COUNT_PORTRAIT else SPAN_COUNT_LANDSCAPE
         val isFullScreen = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        mainStreamHolder.changeVisibility(true)
-        mainStreamList.changeVisibility(!isFullScreen)
+        mainStreamHolder.setVisible(true)
+        mainStreamList.setVisible(!isFullScreen)
         mainStreamList.layoutManager = GridLayoutManager(this@MainActivity, spanCount)
         mainStreamList.setHasFixedSize(true)
         mainStreamList.adapter = adapter
@@ -119,38 +119,38 @@ class MainActivity : FragmentActivity() {
             updateReplayButton(viewModel.onReplayButtonClickable.isTrue())
             when (state ?: ReplayState.STARTING) {
                 ReplayState.READY -> {
-                    spinnerHighlightsHolder.changeVisibility(true)
+                    spinnerHighlightsHolder.setVisible(true)
                     replayButtonIcon.setImageResource(R.drawable.ic_replay)
                     replayButtonTitle.setText(R.string.button_replay)
                     replayButton.isEnabled = true
-                    streamHeadHolder.changeVisibility(false)
+                    streamHeadHolder.setVisible(false)
                     closedCaptionView.defaultConfiguration.isButtonVisible = true
                 }
                 ReplayState.REPLAYING -> {
-                    spinnerHighlightsHolder.changeVisibility(false)
+                    spinnerHighlightsHolder.setVisible(false)
                     replayButtonIcon.setImageResource(R.drawable.ic_play)
                     replayButtonTitle.setText(R.string.button_go_live)
                     replayButton.isEnabled = true
-                    streamHeadHolder.changeVisibility(true)
+                    streamHeadHolder.setVisible(true)
                     closedCaptionView.defaultConfiguration.isButtonVisible = false
                     // Update seek bar MAX value
                     val loopLength = viewModel.selectedHighlight.loopLength
                     streamHeadProgress.max = TimeUnit.MILLISECONDS.toSeconds(loopLength).toInt()
                 }
                 ReplayState.FAILED -> {
-                    spinnerHighlightsHolder.changeVisibility(true)
+                    spinnerHighlightsHolder.setVisible(true)
                     replayButtonIcon.setImageResource(R.drawable.ic_replay_warning)
                     replayButtonTitle.setText(R.string.button_replay_failed)
                     replayButton.isEnabled = true
-                    streamHeadHolder.changeVisibility(false)
+                    streamHeadHolder.setVisible(false)
                     closedCaptionView.defaultConfiguration.isButtonVisible = true
                 }
                 ReplayState.STARTING -> {
-                    spinnerHighlightsHolder.changeVisibility(false)
+                    spinnerHighlightsHolder.setVisible(false)
                     replayButtonIcon.setImageResource(R.drawable.ic_replay_starting)
                     replayButtonTitle.setText(R.string.button_replay_starting)
                     replayButton.isEnabled = false
-                    streamHeadHolder.changeVisibility(false)
+                    streamHeadHolder.setVisible(false)
                     closedCaptionView.defaultConfiguration.isButtonVisible = true
                 }
             }

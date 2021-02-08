@@ -15,13 +15,13 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipChildren="true">
 
         <FrameLayout
             android:id="@+id/channel_surface_holder"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="150dp"
             android:background="@color/primaryDarkColor"
             android:foreground="@{channel.isMainRendered ? @drawable/bg_surface_selected : @drawable/bg_surface}"
@@ -42,11 +42,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp" />
 
-            <SurfaceView
-                android:id="@+id/channel_bitmap_surface"
+            <ImageView
+                android:id="@+id/channel_bitmap_image"
+                android:scaleType="centerCrop"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
-                android:visibility="gone"/>
+                android:contentDescription="@null"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/channel_gone"

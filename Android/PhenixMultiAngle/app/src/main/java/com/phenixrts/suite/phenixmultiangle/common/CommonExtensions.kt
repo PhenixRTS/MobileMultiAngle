@@ -4,8 +4,6 @@
 
 package com.phenixrts.suite.phenixmultiangle.common
 
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
@@ -53,7 +51,7 @@ fun AppCompatActivity.showErrorDialog(error: ExpressError) {
         .show()
 }
 
-fun View.changeVisibility(condition: Boolean) {
+fun View.setVisible(condition: Boolean) {
     val newVisibility = if (condition) View.VISIBLE else View.GONE
     if (visibility != newVisibility) {
         visibility = newVisibility
@@ -89,22 +87,4 @@ fun Spinner.onSelectionChanged(callback: (Int) -> Unit) {
             }
         }
     }
-}
-
-fun SurfaceView.setCallback(onSurfaceAvailable: (Boolean) -> Unit): SurfaceHolder.Callback {
-    val callback = object : SurfaceHolder.Callback {
-        override fun surfaceCreated(p0: SurfaceHolder) {
-            onSurfaceAvailable(true)
-        }
-
-        override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
-            onSurfaceAvailable(true)
-        }
-
-        override fun surfaceDestroyed(p0: SurfaceHolder) {
-            onSurfaceAvailable(false)
-        }
-    }
-    holder.addCallback(callback)
-    return callback
 }
