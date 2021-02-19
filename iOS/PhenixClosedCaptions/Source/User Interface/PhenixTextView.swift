@@ -36,7 +36,7 @@ internal final class PhenixTextView: UIView {
     /// Displayed caption text
     internal var caption: String {
         get { captionLabel.attributedText?.string ?? "" }
-        set { setAttributedText(newValue ?? "") }
+        set { setAttributedText(newValue) }
     }
 
     internal override var backgroundColor: UIColor? {
@@ -95,13 +95,13 @@ private extension PhenixTextView {
         if #available(iOS 13.0, *) {
             captionLabel.attributedText = NSAttributedString(string: text, attributes: captionAttributes)
         } else {
-            var attributedText = NSMutableAttributedString(string: text)
-            
+            let attributedText = NSMutableAttributedString(string: text)
+
             // iOS 12 is displaying empty lines with a background color.
             // Empty lines must have clear background color.
             text.enumerateSubstrings(in: text.startIndex..<text.endIndex, options: .byLines) {
                 substring, substringRange, _, _ in
-                // Check if the line is not empty and only then provide formating for it.
+                // Check if the line is not empty and only then provide formatting for it.
                 if substring?.isEmpty == false {
                     attributedText.addAttributes(self.captionAttributes, range: NSRange(substringRange, in: text))
                 }

@@ -111,7 +111,7 @@ private extension PhenixWindowView {
 
         NSLayoutConstraint.activate([horizontal, vertical])
     }
-    
+
     func updateSuperviewPositionConstraints() {
         guard let superview = superview else {
             return
