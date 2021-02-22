@@ -7,6 +7,7 @@ inhibit_all_warnings!
 
 def phenix
   pod 'PhenixSdk', '2021.0.1-beta'
+  pod 'PhenixDeeplink', :path => '../PhenixDeeplink'
   pod 'PhenixClosedCaptions', :path => '../PhenixClosedCaptions'
 end
 

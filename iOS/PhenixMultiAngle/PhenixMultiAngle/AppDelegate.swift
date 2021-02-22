@@ -2,6 +2,7 @@
 //  Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
 //
 
+import PhenixDeeplink
 import UIKit
 
 @UIApplicationMain
@@ -9,18 +10,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     private(set) var coordinator: MainCoordinator?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        if #available(iOS 13.0, *) {
-            // All magic happens in SceneDelegate.swift
-            return true
+    /// Provide an alert with information and then terminate the application
+    ///
+    /// - Parameters:
+    ///   - title: Title for the alert
+    ///   - message: Message for the alert
+    ///   - file: The file name to print with `message`. The default is the file
+    ///   where `terminate(afterDisplayingAlertWithTitle:message:file:line:)` is called.
+    ///   - line: The line number to print along with `message`. The default is the line number where
+    ///   `terminate(afterDisplayingAlertWithTitle:message:file:line:)` is called.
+    static func terminate(afterDisplayingAlertWithTitle title: String, message: String, file: StaticString = #file, line: UInt = #line) {
+        guard let delegate = UIApplication.shared.delegate as? AppDelegate,
+              let window = delegate.window else {
+            fatalError(message)
         }
 
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Close app", style: .default) { _ in
+            fatalError(message, file: file, line: line)
+        })
+
+        window.rootViewController?.present(alert, animated: true)
+    }
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Setup main window
         let window = UIWindow(frame: UIScreen.main.bounds)
         self.window = window
 
         // Setup deeplink
-        let deeplink = makeDeeplinkIfNeeded(launchOptions)
+        let deeplink = PhenixDeeplinkService<PhenixDeeplinkModel>.makeDeeplink(launchOptions)
 
         // Setup launcher to initiate the application components
         let launcher = Launcher(window: window, deeplink: deeplink)
@@ -32,7 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        guard let deeplink = makeDeeplinkIfNeeded(userActivity) else {
+        guard let deeplink = PhenixDeeplinkService<PhenixDeeplinkModel>.makeDeeplink(userActivity) else {
             return false
         }
 
@@ -42,59 +61,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return false
         }
 
+        let terminate: () -> Void = {
+            Self.terminate(
+                afterDisplayingAlertWithTitle: "Configuration has changed.",
+                message: "Please start the app again to apply the changes."
+            )
+        }
+
         if deeplink.backend != coordinator.phenixBackend {
-            prepareToExit(window)
+            terminate()
+            return false
         }
 
         if deeplink.uri != coordinator.phenixPcast {
-            prepareToExit(window)
+            terminate()
+            return false
         }
 
         if let channelAliases = deeplink.channelAliases, channelAliases != coordinator.channelAliases {
-            prepareToExit(window)
+            terminate()
+            return false
         }
 
         return true
     }
-
-    func prepareToExit(_ window: UIWindow?) {
-        let alert = UIAlertController(
-            title: "Configuration has changed",
-            message: "Please start the app again to apply the changes",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "Close app", style: .default) { _ in
-            fatalError("Configuration has changed. App needs to be restarted.")
-        })
-
-        if let nc = window?.rootViewController as? UINavigationController {
-            nc.present(alert, animated: true)
-        }
-    }
-
-    private func makeDeeplinkIfNeeded(_ launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> DeeplinkModel? {
-        if let options = launchOptions?[.userActivityDictionary] as? [AnyHashable: Any] {
-            if let userActivity = options[UIApplication.LaunchOptionsKey.userActivityKey] as? NSUserActivity {
-                return makeDeeplinkIfNeeded(userActivity)
-            }
-        }
-
-        return nil
-    }
-
-    private func makeDeeplinkIfNeeded(_ userActivity: NSUserActivity) -> DeeplinkModel? {
-        if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
-            if let url = userActivity.webpageURL {
-                let service = DeeplinkService<DeeplinkModel>(url: url)
-                let deeplink = service?.decode()
-                return deeplink
-            }
-        }
-
-        return nil
-    }
-}
-
-extension UIApplication.LaunchOptionsKey {
-    static let userActivityKey = "UIApplicationLaunchOptionsUserActivityKey"
 }

@@ -2,14 +2,14 @@
 //  Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
 //
 
-import Foundation
+import PhenixDeeplink
 
-public struct DeeplinkModel: DeeplinkModelProvider {
+struct PhenixDeeplinkModel: PhenixDeeplinkModelProvider {
     var channelAliases: [String]?
     var uri: URL?
     var backend: URL?
 
-    public init?(components: URLComponents) {
+    init?(components: URLComponents) {
         if let string = components.queryItems?.first(where: { $0.name == "channelAliases" })?.value {
             self.channelAliases = string
                 .split(separator: ",")

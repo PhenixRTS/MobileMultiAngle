@@ -2,10 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>com.apple.developer.associated-domains</key>
-	<array>
-		<string>applinks:phenixrts.com</string>
-		<string>applinks:stg.phenixrts.com</string>
-	</array>
+	<key>FILEHEADER</key>
+	<string>
+//  Copyright ___YEAR___ ___ORGANIZATIONNAME___. Confidential and Proprietary. All rights reserved.
+//</string>
 </dict>
 </plist>
