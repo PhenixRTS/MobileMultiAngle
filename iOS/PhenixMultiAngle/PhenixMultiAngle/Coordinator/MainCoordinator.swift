@@ -8,16 +8,18 @@ import UIKit
 
 class MainCoordinator: Coordinator {
     let navigationController: UINavigationController
-    private(set) var childCoordinators = [Coordinator]()
     private let dependencyContainer: DependencyContainer
+    private(set) var childCoordinators = [Coordinator]()
     private(set) var channelAliases: [String]
 
     private var phenixManager: PhenixManager { dependencyContainer.phenixManager }
+    var configuration: PhenixConfiguration { phenixManager.configuration }
 
-    var phenixBackend: URL { phenixManager.backend }
-    var phenixPcast: URL? { phenixManager.pcast }
-
-    init(navigationController: UINavigationController, dependencyContainer: DependencyContainer, channelAliases: [String]) {
+    init(
+        navigationController: UINavigationController,
+        dependencyContainer: DependencyContainer,
+        channelAliases: [String]
+    ) {
         self.navigationController = navigationController
         self.dependencyContainer = dependencyContainer
         self.channelAliases = channelAliases

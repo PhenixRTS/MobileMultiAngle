@@ -12,6 +12,11 @@
 		B51141C324FD0CDE007584A1 /* CVPixelBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51141C224FD0CDE007584A1 /* CVPixelBuffer+Extension.swift */; };
 		B51E2D7A24F63FB3000D4A69 /* ChannelJoinObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51E2D7924F63FB3000D4A69 /* ChannelJoinObserver.swift */; };
 		B51E2D7E24F642A6000D4A69 /* ChannelStreamObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51E2D7D24F642A6000D4A69 /* ChannelStreamObserver.swift */; };
+		B534E42626CA970100E7C0BD /* StreamOptionsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B534E42126CA970100E7C0BD /* StreamOptionsFactory.swift */; };
+		B534E42826CA970100E7C0BD /* RoomOptionsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B534E42326CA970100E7C0BD /* RoomOptionsFactory.swift */; };
+		B534E42926CA970100E7C0BD /* PhenixConfigurationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B534E42426CA970100E7C0BD /* PhenixConfigurationFactory.swift */; };
+		B534E42A26CA970100E7C0BD /* ChannelOptionsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B534E42526CA970100E7C0BD /* ChannelOptionsFactory.swift */; };
+		B538F95826CBAC9900FAC059 /* PCastOptionsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B538F95726CBAC9900FAC059 /* PCastOptionsFactory.swift */; };
 		B53DEC6A253886E9003C6DCC /* PhenixBandwidthLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53DEC69253886E9003C6DCC /* PhenixBandwidthLimit.swift */; };
 		B540507225E3EAE8002E1421 /* PhenixDeeplinkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B540507125E3EAE8002E1421 /* PhenixDeeplinkModel.swift */; };
 		B543FCB42502232600960F88 /* ReplayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B543FCB32502232600960F88 /* ReplayConfiguration.swift */; };
@@ -44,7 +49,6 @@
 		B5A6CF6524FFC8ED00F23941 /* ChannelTimeShiftObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A6CF6424FFC8ED00F23941 /* ChannelTimeShiftObserver.swift */; };
 		B5B0BBE724EFBEC600A45C82 /* MultiStreamPreviewCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B0BBE624EFBEC600A45C82 /* MultiStreamPreviewCollectionViewCell.swift */; };
 		B5E18E542500E89600449E67 /* TimeShiftWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E18E532500E89600449E67 /* TimeShiftWorker.swift */; };
-		B5E3841124F54F76006077DF /* PhenixOptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E3841024F54F76006077DF /* PhenixOptionBuilder.swift */; };
 		B5F00B1924E55FAD00540FCE /* MultiStreamViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F00B1824E55FAD00540FCE /* MultiStreamViewController.swift */; };
 		B5F00B1C24E5600200540FCE /* MultiStreamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F00B1B24E5600200540FCE /* MultiStreamView.swift */; };
 		B5F00B1E24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F00B1D24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift */; };
@@ -98,6 +102,11 @@
 		B51141C224FD0CDE007584A1 /* CVPixelBuffer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Extension.swift"; sourceTree = "<group>"; };
 		B51E2D7924F63FB3000D4A69 /* ChannelJoinObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelJoinObserver.swift; sourceTree = "<group>"; };
 		B51E2D7D24F642A6000D4A69 /* ChannelStreamObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelStreamObserver.swift; sourceTree = "<group>"; };
+		B534E42126CA970100E7C0BD /* StreamOptionsFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamOptionsFactory.swift; sourceTree = "<group>"; };
+		B534E42326CA970100E7C0BD /* RoomOptionsFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomOptionsFactory.swift; sourceTree = "<group>"; };
+		B534E42426CA970100E7C0BD /* PhenixConfigurationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhenixConfigurationFactory.swift; sourceTree = "<group>"; };
+		B534E42526CA970100E7C0BD /* ChannelOptionsFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChannelOptionsFactory.swift; sourceTree = "<group>"; };
+		B538F95726CBAC9900FAC059 /* PCastOptionsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PCastOptionsFactory.swift; sourceTree = "<group>"; };
 		B53DEC69253886E9003C6DCC /* PhenixBandwidthLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixBandwidthLimit.swift; sourceTree = "<group>"; };
 		B540507125E3EAE8002E1421 /* PhenixDeeplinkModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixDeeplinkModel.swift; sourceTree = "<group>"; };
 		B543FCB32502232600960F88 /* ReplayConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayConfiguration.swift; sourceTree = "<group>"; };
@@ -133,7 +142,6 @@
 		B5AC268A2552D526003E2AEA /* Phenix MultiAngle.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Phenix MultiAngle.entitlements"; sourceTree = "<group>"; };
 		B5B0BBE624EFBEC600A45C82 /* MultiStreamPreviewCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamPreviewCollectionViewCell.swift; sourceTree = "<group>"; };
 		B5E18E532500E89600449E67 /* TimeShiftWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeShiftWorker.swift; sourceTree = "<group>"; };
-		B5E3841024F54F76006077DF /* PhenixOptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhenixOptionBuilder.swift; sourceTree = "<group>"; };
 		B5F00B1824E55FAD00540FCE /* MultiStreamViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamViewController.swift; sourceTree = "<group>"; };
 		B5F00B1B24E5600200540FCE /* MultiStreamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamView.swift; sourceTree = "<group>"; };
 		B5F00B1D24E566BF00540FCE /* MultiStreamPreviewCollectionViewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamPreviewCollectionViewManager.swift; sourceTree = "<group>"; };
@@ -182,6 +190,18 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		B534E42026CA96E200E7C0BD /* Factories */ = {
+			isa = PBXGroup;
+			children = (
+				B534E42426CA970100E7C0BD /* PhenixConfigurationFactory.swift */,
+				B538F95726CBAC9900FAC059 /* PCastOptionsFactory.swift */,
+				B534E42526CA970100E7C0BD /* ChannelOptionsFactory.swift */,
+				B534E42326CA970100E7C0BD /* RoomOptionsFactory.swift */,
+				B534E42126CA970100E7C0BD /* StreamOptionsFactory.swift */,
+			);
+			path = Factories;
+			sourceTree = "<group>";
+		};
 		B540507025E3EADB002E1421 /* Deeplink */ = {
 			isa = PBXGroup;
 			children = (
@@ -215,6 +235,7 @@
 			children = (
 				B5AC268A2552D526003E2AEA /* Phenix MultiAngle.entitlements */,
 				B591328D24E3D58600A5B7D1 /* AppDelegate.swift */,
+				B59132E924E3F43D00A5B7D1 /* Launcher.swift */,
 				B59132F624E3F5EB00A5B7D1 /* Coordinator */,
 				B540507025E3EADB002E1421 /* Deeplink */,
 				B59132A224E3D62700A5B7D1 /* Managers */,
@@ -239,7 +260,6 @@
 		B59132A224E3D62700A5B7D1 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
-				B59132E924E3F43D00A5B7D1 /* Launcher.swift */,
 				B59132F424E3F5A100A5B7D1 /* DependencyContainer.swift */,
 			);
 			path = Managers;
@@ -286,9 +306,9 @@
 				B53DEC69253886E9003C6DCC /* PhenixBandwidthLimit.swift */,
 				B59132BE24E3DE1C00A5B7D1 /* PhenixConfiguration.swift */,
 				B59132C024E3DE1D00A5B7D1 /* PhenixManager.swift */,
-				B5E3841024F54F76006077DF /* PhenixOptionBuilder.swift */,
 				B5F225B724F56ABE00404673 /* VideoLayer.swift */,
 				B59132C924E3DE4000A5B7D1 /* Channel */,
+				B534E42026CA96E200E7C0BD /* Factories */,
 				B59132D724E3DE4000A5B7D1 /* Protocols */,
 				B59132B924E3DDB200A5B7D1 /* Supporting Files */,
 				B59132D324E3DE4000A5B7D1 /* Utils */,
@@ -639,6 +659,8 @@
 				B59132DE24E3DE4000A5B7D1 /* Channel.swift in Sources */,
 				B51141C324FD0CDE007584A1 /* CVPixelBuffer+Extension.swift in Sources */,
 				B59132C524E3DE1D00A5B7D1 /* PhenixConfiguration.swift in Sources */,
+				B538F95826CBAC9900FAC059 /* PCastOptionsFactory.swift in Sources */,
+				B534E42626CA970100E7C0BD /* StreamOptionsFactory.swift in Sources */,
 				B50AE82E24F54681001DD9AA /* CATransaction+NoAnimations.swift in Sources */,
 				B58273C42508FF6600CC9EF9 /* Throttler.swift in Sources */,
 				B59132E824E3DE4000A5B7D1 /* PhenixChannelJoining.swift in Sources */,
@@ -646,8 +668,8 @@
 				B5E18E542500E89600449E67 /* TimeShiftWorker.swift in Sources */,
 				B59132E324E3DE4000A5B7D1 /* PhenixDisposables.swift in Sources */,
 				B51E2D7A24F63FB3000D4A69 /* ChannelJoinObserver.swift in Sources */,
+				B534E42A26CA970100E7C0BD /* ChannelOptionsFactory.swift in Sources */,
 				B59132E424E3DE4000A5B7D1 /* OSLog.swift in Sources */,
-				B5E3841124F54F76006077DF /* PhenixOptionBuilder.swift in Sources */,
 				B543FCB42502232600960F88 /* ReplayConfiguration.swift in Sources */,
 				B51E2D7E24F642A6000D4A69 /* ChannelStreamObserver.swift in Sources */,
 				B5F225B824F56ABE00404673 /* VideoLayer.swift in Sources */,
@@ -656,6 +678,8 @@
 				B53DEC6A253886E9003C6DCC /* PhenixBandwidthLimit.swift in Sources */,
 				B59132C724E3DE1D00A5B7D1 /* PhenixManager.swift in Sources */,
 				B5A6CF6524FFC8ED00F23941 /* ChannelTimeShiftObserver.swift in Sources */,
+				B534E42926CA970100E7C0BD /* PhenixConfigurationFactory.swift in Sources */,
+				B534E42826CA970100E7C0BD /* RoomOptionsFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2,13 +2,13 @@ PODS:
   - PhenixClosedCaptions (0.1.0):
     - PhenixSdk (~> 2021.0.0-beta)
   - PhenixDeeplink (0.1.0)
-  - PhenixSdk (2021.0.1-beta)
+  - PhenixSdk (2021.0.14-beta)
   - SwiftLint (0.42.0)
 
 DEPENDENCIES:
   - PhenixClosedCaptions (from `../PhenixClosedCaptions`)
   - PhenixDeeplink (from `../PhenixDeeplink`)
-  - PhenixSdk (= 2021.0.1-beta)
+  - PhenixSdk (= 2021.0.14-beta)
   - SwiftLint (~> 0.42.0)
 
 SPEC REPOS:
@@ -26,9 +26,9 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   PhenixClosedCaptions: 71568337f8f716213406a75461aa364637047ce7
   PhenixDeeplink: afff8774bd397ba31b0244c84fc722efbe4e0ccc
-  PhenixSdk: d52f35d5ff551e4a86b64ddc6d59495d605c1796
+  PhenixSdk: 7261393adf35564417cb6bf0c635fa87d7adaad9
   SwiftLint: 4fa9579c63416865179bc416f0a92d55f009600d
 
-PODFILE CHECKSUM: ab7d7fc3046977660e4934901d4172c2bd10c3a2
+PODFILE CHECKSUM: 2d94aabd914bebf1cc7773c046ed0abbb23244ef
 
 COCOAPODS: 1.10.0

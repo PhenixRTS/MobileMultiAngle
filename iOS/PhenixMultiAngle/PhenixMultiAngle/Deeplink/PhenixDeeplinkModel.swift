@@ -8,6 +8,7 @@ struct PhenixDeeplinkModel: PhenixDeeplinkModelProvider {
     var channelAliases: [String]?
     var uri: URL?
     var backend: URL?
+    var edgeToken: String?
 
     init?(components: URLComponents) {
         if let string = components.queryItems?.first(where: { $0.name == "channelAliases" })?.value {
@@ -22,6 +23,10 @@ struct PhenixDeeplinkModel: PhenixDeeplinkModelProvider {
 
         if let string = components.queryItems?.first(where: { $0.name == "backend" })?.value {
             self.backend = URL(string: string)
+        }
+
+        if let string = components.queryItems?.first(where: { $0.name == "edgeToken" })?.value {
+            self.edgeToken = string
         }
     }
 }

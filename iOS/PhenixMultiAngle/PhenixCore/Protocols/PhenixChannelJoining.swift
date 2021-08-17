@@ -15,27 +15,54 @@ public protocol PhenixChannelJoining: AnyObject {
 
 extension PhenixManager: PhenixChannelJoining {
     public func join(_ channel: Channel) {
-        privateQueue.async { [weak self] in
+        queue.async { [weak self] in
             guard let self = self else { return }
             let rendererOptions = PhenixRendererOptions()
-            let joinRoomOptions = PhenixOptionBuilder.createJoinRoomOptions(withAlias: channel.alias)
-            let joinChannelOptions = PhenixOptionBuilder.createJoinChannelOptions(with: joinRoomOptions, rendererLayer: channel.primaryPreviewLayer, rendererOptions: rendererOptions)
-            os_log(.debug, log: .phenixManager, "Joining a room with options", joinChannelOptions.description)
-            self.join(channel, with: joinChannelOptions)
+            let roomOptions = RoomOptionsFactory.makeJoinRoomOptions(
+                configuration: self.configuration,
+                alias: channel.alias
+            )
+
+            let channelOptions = ChannelOptionsFactory.makeJoinChannelOptions(
+                configuration: self.configuration,
+                joinRoomOptions: roomOptions,
+                rendererLayer: channel.primaryPreviewLayer,
+                rendererOptions: rendererOptions
+            )
+
+            os_log(.debug, log: .phenixManager, "Joining a room with options", channelOptions.description)
+
+            self.join(channel, with: channelOptions)
         }
     }
 }
 
 fileprivate extension PhenixManager {
     private func join(_ channel: Channel, with options: PhenixJoinChannelOptions) {
-        dispatchPrecondition(condition: .onQueue(privateQueue))
-        precondition(channelExpress != nil, "Must call PhenixManager.start() before this method")
+        dispatchPrecondition(condition: .onQueue(queue))
+
+        guard let channelExpress = self.channelExpress else {
+            fatalError("Must call PhenixManager.start() before this method")
+        }
+
         // swiftlint:disable multiline_arguments
         channelExpress.joinChannel(options, { status, roomService in
-            os_log(.debug, log: .phenixManager, "Join channel callback received with status: %{PUBLIC}d, %{PRIVATE}s", status.rawValue, channel.description)
+            os_log(
+                .debug,
+                log: .phenixManager,
+                "Join channel callback received with status: %{PUBLIC}d, %{PRIVATE}s",
+                status.rawValue,
+                channel.description
+            )
             channel.joinChannelHandler(status: status, roomService: roomService)
         }) { status, subscriber, renderer in
-            os_log(.debug, log: .phenixManager, "Channel stream subscription callback received with status: %{PUBLIC}d, %{PRIVATE}s", status.rawValue, channel.description)
+            os_log(
+                .debug,
+                log: .phenixManager,
+                "Channel stream subscription callback received with status: %{PUBLIC}d, %{PRIVATE}s",
+                status.rawValue,
+                channel.description
+            )
             channel.subscriberHandler(status: status, subscriber: subscriber, renderer: renderer)
         }
     }

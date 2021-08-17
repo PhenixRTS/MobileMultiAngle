@@ -56,7 +56,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         // If the coordinator does not exist, it means that he app hasn't started yet or is just now starting.
-        // Note: If app receives a URL at the app launch state, after the `application(_:didFinishLaunchingWithOptions:) -> Bool` finishes this method will be executed next, so both methods will try to use deeplink, but on app launch this method does not need to be executed.
+        // Note: If app receives a URL at the app launch state, after the
+        // `application(_:didFinishLaunchingWithOptions:) -> Bool` finishes this method will be executed next,
+        // so both methods will try to use deeplink, but on app launch this method does not need to be executed.
         guard let coordinator = coordinator else {
             return false
         }
@@ -68,17 +70,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             )
         }
 
-        if deeplink.backend != coordinator.phenixBackend {
+        if let backend = deeplink.backend, backend != coordinator.configuration.backend {
             terminate()
             return false
         }
 
-        if deeplink.uri != coordinator.phenixPcast {
+        if let pcast = deeplink.uri, pcast != coordinator.configuration.pcast {
             terminate()
             return false
         }
 
-        if let channelAliases = deeplink.channelAliases, channelAliases != coordinator.channelAliases {
+        if let channelAliases = deeplink.channelAliases, channelAliases != coordinator.configuration.channelAliases {
+            terminate()
+            return false
+        }
+
+        if let token = deeplink.edgeToken, token != coordinator.configuration.edgeToken {
             terminate()
             return false
         }
