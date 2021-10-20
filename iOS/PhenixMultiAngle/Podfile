@@ -6,14 +6,14 @@ use_frameworks!
 inhibit_all_warnings!
 
 def phenix
-  pod 'PhenixSdk', '2021.0.14-beta'
+  pod 'PhenixSdk', '2021.0.15'
   pod 'PhenixDeeplink', :path => '../PhenixDeeplink'
   pod 'PhenixClosedCaptions', :path => '../PhenixClosedCaptions'
 end
 
 target 'PhenixMultiAngle' do
   phenix
-  pod 'SwiftLint', '~> 0.42.0'
+  pod 'SwiftLint', '~> 0.45.0'
 end
 
 target 'PhenixCore' do
