@@ -11,6 +11,7 @@ class MainCoordinator: Coordinator {
     private let dependencyContainer: DependencyContainer
     private(set) var childCoordinators = [Coordinator]()
     private(set) var channelAliases: [String]
+    private(set) var streamTokens: [String]
 
     private var phenixManager: PhenixManager { dependencyContainer.phenixManager }
     var configuration: PhenixConfiguration { phenixManager.configuration }
@@ -18,16 +19,26 @@ class MainCoordinator: Coordinator {
     init(
         navigationController: UINavigationController,
         dependencyContainer: DependencyContainer,
-        channelAliases: [String]
+        channelAliases: [String],
+        streamTokens: [String]
     ) {
         self.navigationController = navigationController
         self.dependencyContainer = dependencyContainer
         self.channelAliases = channelAliases
+        self.streamTokens = streamTokens
     }
 
     func start() {
         os_log(.debug, log: .coordinator, "Main coordinator started")
-        
+
+        guard channelAliases.count == streamTokens.count else {
+            AppDelegate.terminate(
+                afterDisplayingAlertWithTitle: "Missing channel information",
+                message: "Channel alias and stream token count must match."
+            )
+            return
+        }
+
         var channels: [Channel] = []
 
         // Initiate default
@@ -35,21 +46,22 @@ class MainCoordinator: Coordinator {
 
         // Convert aliases into channel models
         for (index, alias) in channelAliases.enumerated() {
+            let streamToken: String? = streamTokens[index]
             let ccEnabled = index == 0 ? true : false
             // Enable closed captions only for the first channel in the list
-            let channel = Channel(alias: alias, closedCaptionsEnabled: ccEnabled)
+            let channel = Channel(alias: alias, token: streamToken, closedCaptionsEnabled: ccEnabled)
 
             if ccEnabled {
                 vc.ccChannel = channel
             }
-            
+
             channel.closedCaptionsServiceDelegate = vc
             channels.append(channel)
         }
 
         vc.phenixManager = phenixManager
         vc.channels = channels
-        
+
         UIView.transition(with: self.navigationController.view) {
             self.navigationController.setViewControllers([vc], animated: false)
         }

@@ -5,14 +5,21 @@
 import PhenixDeeplink
 
 struct PhenixDeeplinkModel: PhenixDeeplinkModelProvider {
-    var channelAliases: [String]?
     var uri: URL?
     var backend: URL?
     var edgeToken: String?
+    var streamTokens: [String]?
+    var channelAliases: [String]?
 
     init?(components: URLComponents) {
         if let string = components.queryItems?.first(where: { $0.name == "channelAliases" })?.value {
             self.channelAliases = string
+                .split(separator: ",")
+                .map(String.init)
+        }
+
+        if let string = components.queryItems?.first(where: { $0.name == "streamTokens" })?.value {
+            self.streamTokens = string
                 .split(separator: ",")
                 .map(String.init)
         }

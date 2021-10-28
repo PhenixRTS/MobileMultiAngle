@@ -67,6 +67,7 @@ class Launcher {
                     pcast: deeplink.uri ?? current.pcast,
                     capabilities: current.capabilities,
                     channelAliases: deeplink.channelAliases ?? current.channelAliases,
+                    streamTokens: deeplink.streamTokens ?? current.streamTokens,
                     logLevel: .off
                 )
 
@@ -91,7 +92,8 @@ class Launcher {
             let coordinator = MainCoordinator(
                 navigationController: nc,
                 dependencyContainer: container,
-                channelAliases: configuration.channelAliases
+                channelAliases: configuration.channelAliases,
+                streamTokens: configuration.streamTokens
             )
 
             DispatchQueue.main.async {

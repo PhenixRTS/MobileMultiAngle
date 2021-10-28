@@ -20,11 +20,12 @@ extension PhenixManager: PhenixChannelJoining {
             let rendererOptions = PhenixRendererOptions()
             let roomOptions = RoomOptionsFactory.makeJoinRoomOptions(
                 configuration: self.configuration,
-                alias: channel.alias
+                alias: channel.alias,
+                streamToken: channel.token
             )
 
             let channelOptions = ChannelOptionsFactory.makeJoinChannelOptions(
-                configuration: self.configuration,
+                streamToken: channel.token,
                 joinRoomOptions: roomOptions,
                 rendererLayer: channel.primaryPreviewLayer,
                 rendererOptions: rendererOptions

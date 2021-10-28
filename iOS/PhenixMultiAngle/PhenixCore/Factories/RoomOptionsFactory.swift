@@ -17,12 +17,13 @@ enum RoomOptionsFactory {
     static func makeJoinRoomOptions(
         configuration: PhenixConfiguration,
         alias: String,
+        streamToken: String? = nil,
         screenName: String? = nil
     ) -> PhenixJoinRoomOptions {
         let joinRoomOptionBuilder: PhenixJoinRoomOptionsBuilder = PhenixRoomExpressFactory
             .createJoinRoomOptionsBuilder()
 
-        if configuration.edgeToken == nil {
+        if streamToken == nil {
             joinRoomOptionBuilder.withCapabilities(configuration.capabilities)
         }
 

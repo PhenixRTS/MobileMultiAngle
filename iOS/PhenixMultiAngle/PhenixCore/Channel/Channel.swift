@@ -22,6 +22,8 @@ public class Channel: ChannelRepresentation {
     internal var timeShiftObservations = [ObjectIdentifier: TimeShiftObservation]()
 
     public let alias: String
+    public let token: String?
+
     public private(set) var joinState: JoinState = .notJoined {
         didSet { channelJoinStateDidChange(state: joinState) }
     }
@@ -53,8 +55,9 @@ public class Channel: ChannelRepresentation {
 
     // MARK: - Initialization
 
-    public init(alias: String, closedCaptionsEnabled: Bool) {
+    public init(alias: String, token: String?, closedCaptionsEnabled: Bool) {
         self.alias = alias
+        self.token = token
         self.provideClosedCaptions = closedCaptionsEnabled
 
         self.primaryPreviewLayer = VideoLayer()

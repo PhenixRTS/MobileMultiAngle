@@ -7,7 +7,7 @@ import PhenixSdk
 
 enum ChannelOptionsFactory {
     static func makeJoinChannelOptions(
-        configuration: PhenixConfiguration,
+        streamToken: String?,
         joinRoomOptions: PhenixJoinRoomOptions,
         rendererLayer: CALayer,
         rendererOptions: PhenixRendererOptions
@@ -15,7 +15,7 @@ enum ChannelOptionsFactory {
         let channelOptionsBuilder: PhenixJoinChannelOptionsBuilder = PhenixChannelExpressFactory
             .createJoinChannelOptionsBuilder()
 
-        if let token = configuration.edgeToken {
+        if let token = streamToken {
             channelOptionsBuilder
                 .withStreamToken(token)
                 .withSkipRetryOnUnauthorized()
