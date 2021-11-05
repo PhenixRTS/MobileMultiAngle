@@ -1,25 +1,29 @@
 /*
- * Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+ * Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
  */
 
 package com.phenixrts.suite.phenixmultiangle.ui
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
+import com.phenixrts.suite.phenixcore.PhenixCore
+import com.phenixrts.suite.phenixcore.repositories.models.PhenixChannelState
+import com.phenixrts.suite.phenixcore.repositories.models.PhenixTimeShiftState
 import com.phenixrts.suite.phenixmultiangle.MultiAngleApp
 import com.phenixrts.suite.phenixmultiangle.R
 import com.phenixrts.suite.phenixmultiangle.common.*
 import com.phenixrts.suite.phenixmultiangle.common.enums.Highlight
-import com.phenixrts.suite.phenixmultiangle.common.enums.ReplayState
 import com.phenixrts.suite.phenixmultiangle.databinding.ActivityMainBinding
-import com.phenixrts.suite.phenixmultiangle.repository.ChannelExpressRepository
 import com.phenixrts.suite.phenixmultiangle.ui.adapters.ChannelAdapter
 import com.phenixrts.suite.phenixmultiangle.ui.viewmodels.ChannelViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -29,18 +33,18 @@ const val SPAN_COUNT_LANDSCAPE = 1
 
 class MainActivity : FragmentActivity() {
 
-    @Inject lateinit var channelExpress: ChannelExpressRepository
+    @Inject lateinit var phenixCore: PhenixCore
 
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: ChannelViewModel by lazyViewModel({ application as MultiAngleApp }, { ChannelViewModel(channelExpress) })
-    private val loadingBar by lazy {
-        LayoutInflater.from(this).inflate(R.layout.view_loading, binding.mainStreamLoading, false)
-    }
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val viewModel: ChannelViewModel by lazyViewModel({ application as MultiAngleApp }, {
+        ChannelViewModel(phenixCore)
+    })
 
     private val adapter: ChannelAdapter by lazy {
-        ChannelAdapter { roomMember ->
-            Timber.d("Member clicked: $roomMember")
-            viewModel.updateActiveChannel(binding.mainStreamSurface, binding.closedCaptionView, roomMember)
+        ChannelAdapter(phenixCore) { channel ->
+            Timber.d("Channel clicked: $channel")
+            viewModel.selectChannel(channel)
         }
     }
 
@@ -49,7 +53,23 @@ class MainActivity : FragmentActivity() {
         MultiAngleApp.component.inject(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        observePhenixCore()
         initViews()
+    }
+
+    private fun observePhenixCore() {
+        coroutineScope.launch {
+            phenixCore.onError.collect { error ->
+                phenixCore.consumeLastError()
+                Timber.d("Main: Phenix Core error: $error")
+            }
+        }
+        coroutineScope.launch {
+            phenixCore.onEvent.collect { event ->
+                phenixCore.consumeLastEvent()
+                Timber.d("Main: Phenix core event: $event")
+            }
+        }
     }
 
     private fun initViews() = with (binding) {
@@ -92,83 +112,97 @@ class MainActivity : FragmentActivity() {
             }
         })
 
-        viewModel.channels.observe(this@MainActivity, { channels ->
-            Timber.d("Channel list updated: $channels, full screen: $isFullScreen")
-            channels.forEach { channel ->
-                channel.isFullScreen = isFullScreen
+        viewModel.channels.observe(this@MainActivity) { channels ->
+            launchMain {
+                channels.find { it.isSelected && it.channelState == PhenixChannelState.STREAMING }?.let { channel ->
+                    mainStreamLoading.tag = channel.alias
+                    mainStreamLoading.setVisible(false)
+                    phenixCore.renderOnSurface(channel.alias, mainStreamSurface)
+                    viewModel.subscribeToClosedCaptions(channel, closedCaptionView)
+                    mainStreamLoading.setVisible(channel.timeShiftState == PhenixTimeShiftState.STARTING)
+                }
             }
-            mainStreamLoading.removeAllViews()
-            mainStreamLoading.addView(loadingBar)
             adapter.data = channels
-        })
-        viewModel.onChannelsJoined.observe(this@MainActivity, {
-            Timber.d("On all channels ready")
-            mainStreamLoading.removeAllViews()
-            viewModel.channels.value?.find { it.isMainRendered.value == true }?.let { channel ->
-                viewModel.updateActiveChannel(mainStreamSurface, closedCaptionView, channel)
+        }
+        launchIO {
+            viewModel.onChannelsJoined.collect {
+                Timber.d("On all channels ready: ${viewModel.channels.value}")
+                launchMain {
+                    mainStreamLoading.setVisible(false)
+                }
+                viewModel.createTimeShift(Highlight.values()[spinnerHighlights.selectedItemPosition])
             }
-        })
-        viewModel.headTimeStamp.observe(this@MainActivity, { head ->
+        }
+        viewModel.onHeadTimeChanged.observe(this@MainActivity) { head ->
             streamHeadProgress.progress = viewModel.getProgressFromTimestamp(head)
-        })
-        viewModel.onReplayButtonClickable.observe(this@MainActivity, { clickable ->
+        }
+        viewModel.onReplayButtonClickable.observe(this@MainActivity) { clickable ->
             updateReplayButton(clickable)
             replayButton.isEnabled = clickable
-        })
-        viewModel.onReplayState.observe(this@MainActivity, { state ->
-            updateReplayButton(viewModel.onReplayButtonClickable.isTrue())
-            when (state ?: ReplayState.STARTING) {
-                ReplayState.READY -> {
-                    spinnerHighlightsHolder.setVisible(true)
-                    replayButtonIcon.setImageResource(R.drawable.ic_replay)
-                    replayButtonTitle.setText(R.string.button_replay)
-                    replayButton.isEnabled = true
-                    streamHeadHolder.setVisible(false)
-                    closedCaptionView.defaultConfiguration.isButtonVisible = true
+        }
+        viewModel.onTimeShiftStateChanged.observe(this@MainActivity) { state ->
+            launchMain {
+                updateReplayButton(viewModel.onReplayButtonClickable.isTrue())
+                when (state ?: PhenixTimeShiftState.IDLE) {
+                    PhenixTimeShiftState.IDLE -> {
+                        spinnerHighlightsHolder.setVisible(false)
+                        replayButton.setVisible(false)
+                        streamHeadHolder.setVisible(false)
+                        closedCaptionView.defaultConfiguration.isButtonVisible = false
+                    }
+                    PhenixTimeShiftState.SOUGHT,
+                    PhenixTimeShiftState.READY -> {
+                        spinnerHighlightsHolder.setVisible(true)
+                        replayButtonIcon.setImageResource(R.drawable.ic_replay)
+                        replayButtonTitle.setText(R.string.button_replay)
+                        replayButton.isEnabled = true
+                        replayButton.setVisible(true)
+                        streamHeadHolder.setVisible(false)
+                        closedCaptionView.defaultConfiguration.isButtonVisible = true
+                    }
+                    PhenixTimeShiftState.PAUSED,
+                    PhenixTimeShiftState.REPLAYING -> {
+                        spinnerHighlightsHolder.setVisible(false)
+                        replayButtonIcon.setImageResource(R.drawable.ic_play)
+                        replayButtonTitle.setText(R.string.button_go_live)
+                        replayButton.isEnabled = true
+                        replayButton.setVisible(true)
+                        streamHeadHolder.setVisible(true)
+                        closedCaptionView.defaultConfiguration.isButtonVisible = false
+                        // Update seek bar MAX value
+                        val loopLength = viewModel.selectedHighlight.loopLength
+                        streamHeadProgress.max = TimeUnit.MILLISECONDS.toSeconds(loopLength).toInt()
+                    }
+                    PhenixTimeShiftState.FAILED -> {
+                        spinnerHighlightsHolder.setVisible(true)
+                        replayButtonIcon.setImageResource(R.drawable.ic_replay_warning)
+                        replayButtonTitle.setText(R.string.button_replay_failed)
+                        replayButton.isEnabled = true
+                        replayButton.setVisible(true)
+                        streamHeadHolder.setVisible(false)
+                        closedCaptionView.defaultConfiguration.isButtonVisible = true
+                    }
+                    PhenixTimeShiftState.STARTING -> {
+                        spinnerHighlightsHolder.setVisible(false)
+                        replayButtonIcon.setImageResource(R.drawable.ic_replay_starting)
+                        replayButtonTitle.setText(R.string.button_replay_starting)
+                        replayButton.isEnabled = false
+                        replayButton.setVisible(true)
+                        streamHeadHolder.setVisible(false)
+                        closedCaptionView.defaultConfiguration.isButtonVisible = true
+                    }
                 }
-                ReplayState.REPLAYING -> {
-                    spinnerHighlightsHolder.setVisible(false)
-                    replayButtonIcon.setImageResource(R.drawable.ic_play)
-                    replayButtonTitle.setText(R.string.button_go_live)
-                    replayButton.isEnabled = true
-                    streamHeadHolder.setVisible(true)
-                    closedCaptionView.defaultConfiguration.isButtonVisible = false
-                    // Update seek bar MAX value
-                    val loopLength = viewModel.selectedHighlight.loopLength
-                    streamHeadProgress.max = TimeUnit.MILLISECONDS.toSeconds(loopLength).toInt()
-                }
-                ReplayState.FAILED -> {
-                    spinnerHighlightsHolder.setVisible(true)
-                    replayButtonIcon.setImageResource(R.drawable.ic_replay_warning)
-                    replayButtonTitle.setText(R.string.button_replay_failed)
-                    replayButton.isEnabled = true
-                    streamHeadHolder.setVisible(false)
-                    closedCaptionView.defaultConfiguration.isButtonVisible = true
-                }
-                ReplayState.STARTING -> {
-                    spinnerHighlightsHolder.setVisible(false)
-                    replayButtonIcon.setImageResource(R.drawable.ic_replay_starting)
-                    replayButtonTitle.setText(R.string.button_replay_starting)
-                    replayButton.isEnabled = false
-                    streamHeadHolder.setVisible(false)
-                    closedCaptionView.defaultConfiguration.isButtonVisible = true
-                }
+                closedCaptionView.refresh()
             }
-            closedCaptionView.refresh()
-        })
-        viewModel.onReplayLoadingState.observe(this@MainActivity, { isLoading ->
-            Timber.d("Replay loading state changed: $isLoading")
-            mainStreamLoading.removeAllViews()
-            if (isLoading) {
-                mainStreamLoading.addView(loadingBar)
-            }
-        })
+        }
+        viewModel.onOrientationChanged(resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+        viewModel.joinChannels()
         Timber.d("Initializing Main Activity: $rotation")
     }
 
     private fun updateReplayButton(clickable: Boolean) = with(binding) {
         val drawable = if (clickable) {
-            (viewModel.onReplayState.value ?: ReplayState.STARTING).getReplayButtonDrawable()
+            (viewModel.onTimeShiftStateChanged.value ?: PhenixTimeShiftState.STARTING).getReplayButtonDrawable()
         } else R.drawable.bg_replay_button_disabled
         replayButton.setBackgroundResource(drawable)
     }

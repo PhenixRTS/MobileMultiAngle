@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+  ~ Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
   -->
 
 <resources>
@@ -13,9 +13,17 @@
     <string name="button_replay_failed">Replay failed</string>
     <string name="button_replay_starting">Starting</string>
     <string name="button_go_live">Go Live</string>
-
-    <string name="highlight_far">FAR</string>
-    <string name="highlight_near">NEAR</string>
-    <string name="highlight_close">CLOSE</string>
     <string name="channel_offline">OFFLINE</string>
+    <string name="seek_80_loop_60">Seek 80 Loop 60s</string>
+    <string name="seek_80_loop_30">Seek 80 Loop 30s</string>
+    <string name="seek_80_loop_10">Seek 80 Loop 10s</string>
+    <string name="seek_40_loop_30">Seek 40 Loop 30s</string>
+    <string name="seek_30_loop_20">Seek 30 Loop 20s</string>
+    <string name="seek_60_loop_20">Seek 60 Loop 20s</string>
+    <string name="seek_60_loop_25">Seek 60 Loop 25s</string>
+    <string name="seek_60_loop_30">Seek 60 Loop 30s</string>
+    <string name="seek_60_loop_35">Seek 60 Loop 35s</string>
+    <string name="seek_60_loop_40">Seek 60 Loop 40s</string>
+    <string name="seek_60_loop_45">Seek 60 Loop 45s</string>
+    <string name="seek_60_loop_50">Seek 60 Loop 50s</string>
 </resources>

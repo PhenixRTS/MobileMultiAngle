@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+  ~ Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
   -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,10 +8,11 @@
 
     <data>
         <import type="android.view.View" />
-        <import type="com.phenixrts.suite.phenixmultiangle.common.enums.StreamStatus" />
+        <import type="com.phenixrts.suite.phenixcore.repositories.models.PhenixTimeShiftState" />
+        <import type="com.phenixrts.suite.phenixcore.repositories.models.PhenixChannelState" />
         <variable
             name="channel"
-            type="com.phenixrts.suite.phenixmultiangle.models.Channel" />
+            type="com.phenixrts.suite.phenixcore.repositories.models.PhenixChannel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -24,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:background="@color/primaryDarkColor"
-            android:foreground="@{channel.isMainRendered ? @drawable/bg_surface_selected : @drawable/bg_surface}"
+            android:foreground="@{channel.selected ? @drawable/bg_surface_selected : @drawable/bg_surface}"
             android:padding="2dp"
             android:clipChildren="true"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,23 +33,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"/>
-
             <SurfaceView
-                android:id="@+id/channel_stream_surface"
+                android:id="@+id/stream_surface_view"
                 android:layout_width="match_parent"
-                android:layout_height="150dp" />
+                android:layout_height="150dp"
+                android:visibility="@{channel.isSelected ? View.GONE : View.VISIBLE}" />
 
             <ImageView
-                android:id="@+id/channel_bitmap_image"
+                android:id="@+id/stream_image_view"
                 android:scaleType="centerCrop"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:contentDescription="@null"
-                android:visibility="gone" />
+                android:visibility="@{channel.isSelected ? View.VISIBLE : View.GONE}" />
 
             <TextView
                 android:id="@+id/channel_gone"
@@ -59,14 +56,14 @@
                 android:textSize="16sp"
                 android:text="@string/channel_offline"
                 android:gravity="center"
-                android:visibility="@{channel.onChannelJoined == StreamStatus.ONLINE ? View.GONE : View.VISIBLE}"
+                android:visibility="@{channel.channelState == PhenixChannelState.STREAMING ? View.GONE : View.VISIBLE}"
                 tools:visibility="visible" />
 
             <ProgressBar
                 android:id="@+id/channel_time_shift_loading"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:visibility="@{channel.onTimeShiftLoading ? View.VISIBLE : View.GONE}"
+                android:visibility="@{channel.timeShiftState == PhenixTimeShiftState.STARTING || channel.channelState == PhenixChannelState.JOINING ? View.VISIBLE : View.GONE}"
                 android:layout_gravity="center" />
 
         </FrameLayout>

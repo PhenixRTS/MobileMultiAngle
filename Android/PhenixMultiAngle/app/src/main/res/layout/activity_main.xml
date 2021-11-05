@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+  ~ Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -34,18 +34,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <FrameLayout
+        <ProgressBar
             android:id="@+id/main_stream_loading"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/accentColor"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        </FrameLayout>
-
-        <com.phenixrts.suite.phenixclosedcaption.PhenixClosedCaptionView
+        <com.phenixrts.suite.phenixcore.closedcaptions.PhenixClosedCaptionView
             android:id="@+id/closed_caption_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -145,6 +145,8 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="4dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:background="@drawable/bg_replay_button_failed"

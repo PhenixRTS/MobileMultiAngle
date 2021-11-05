@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+ * Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
  */
 
 package com.phenixrts.suite.phenixmultiangle.ui.adapters
@@ -9,15 +9,17 @@ import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.phenixrts.suite.phenixcore.PhenixCore
+import com.phenixrts.suite.phenixcore.repositories.models.PhenixChannel
 import com.phenixrts.suite.phenixmultiangle.databinding.RowChannelItemBinding
-import com.phenixrts.suite.phenixmultiangle.models.Channel
 import kotlin.properties.Delegates
 
 class ChannelAdapter(
-    private val onChannelClicked: (channel: Channel) -> Unit
+    private val phenixCore: PhenixCore,
+    private val onChannelClicked: (channel: PhenixChannel) -> Unit
 ) : RecyclerView.Adapter<ChannelAdapter.ViewHolder>() {
 
-    var data: List<Channel> by Delegates.observable(mutableListOf()) { _, old, new ->
+    var data: List<PhenixChannel> by Delegates.observable(mutableListOf()) { _, old, new ->
         DiffUtil.calculateDiff(RoomMemberDiff(old, new)).dispatchUpdatesTo(this)
     }
 
@@ -32,27 +34,28 @@ class ChannelAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val channel = data[position]
         holder.binding.channel = channel
-        channel.setThumbnailSurfaces(holder.binding.channelStreamSurface, holder.binding.channelBitmapImage)
-        channel.isMainRendered.observeForever {
-            holder.binding.channel = channel
-        }
-        channel.onTimeShiftLoading.observeForever {
-            holder.binding.channel = channel
-        }
-    }
-
-    inner class ViewHolder(val binding: RowChannelItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        init {
-            binding.channelSurfaceHolder.setOnClickListener {
-                data.getOrNull(adapterPosition)?.let { roomMember ->
-                    onChannelClicked(roomMember)
-                }
+        holder.binding.channelSurfaceHolder.tag = position
+        holder.binding.channelSurfaceHolder.setOnClickListener {
+            data.getOrNull(it.tag as Int)?.let { roomMember ->
+                updateChannelRenderer(channel, holder)
+                onChannelClicked(roomMember)
             }
         }
+        updateChannelRenderer(channel, holder)
     }
 
-    class RoomMemberDiff(private val oldItems: List<Channel>,
-                         private val newItems: List<Channel>
+    private fun updateChannelRenderer(channel: PhenixChannel, holder: ViewHolder) {
+        if (channel.isSelected) {
+            phenixCore.renderOnImage(channel.alias, holder.binding.streamImageView)
+        } else {
+            phenixCore.renderOnSurface(channel.alias, holder.binding.streamSurfaceView)
+        }
+    }
+
+    inner class ViewHolder(val binding: RowChannelItemBinding) : RecyclerView.ViewHolder(binding.root)
+
+    class RoomMemberDiff(private val oldItems: List<PhenixChannel>,
+                         private val newItems: List<PhenixChannel>
     ) : DiffUtil.Callback() {
 
         override fun getOldListSize() = oldItems.size
@@ -60,7 +63,7 @@ class ChannelAdapter(
         override fun getNewListSize() = newItems.size
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldItems[oldItemPosition].channelAlias == newItems[newItemPosition].channelAlias
+            return oldItems[oldItemPosition].alias == newItems[newItemPosition].alias
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

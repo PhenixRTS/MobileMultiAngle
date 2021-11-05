@@ -1,33 +1,36 @@
 /*
- * Copyright 2020 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+ * Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
  */
 
 package com.phenixrts.suite.phenixmultiangle.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.appcompat.app.AppCompatActivity
+import com.phenixrts.suite.phenixcore.PhenixCore
+import com.phenixrts.suite.phenixcore.repositories.models.PhenixError
+import com.phenixrts.suite.phenixcore.repositories.models.PhenixEvent
+import com.phenixrts.suite.phenixcore.deeplink.DeepLinkActivity
+import com.phenixrts.suite.phenixcore.deeplink.models.DeepLinkStatus
+import com.phenixrts.suite.phenixcore.deeplink.models.PhenixDeepLinkConfiguration
 import com.phenixrts.suite.phenixmultiangle.BuildConfig
 import com.phenixrts.suite.phenixmultiangle.MultiAngleApp
 import com.phenixrts.suite.phenixmultiangle.R
-import com.phenixrts.suite.phenixmultiangle.cache.PreferenceProvider
 import com.phenixrts.suite.phenixmultiangle.common.*
 import com.phenixrts.suite.phenixmultiangle.common.enums.ExpressError
 import com.phenixrts.suite.phenixmultiangle.databinding.ActivitySplashBinding
-import com.phenixrts.suite.phenixmultiangle.repository.ChannelExpressRepository
+import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import javax.inject.Inject
 
 private const val TIMEOUT_DELAY = 10000L
 
-class SplashActivity : AppCompatActivity() {
+@SuppressLint("CustomSplashScreen")
+class SplashActivity : DeepLinkActivity() {
 
-    @Inject
-    lateinit var channelExpressRepository: ChannelExpressRepository
-    @Inject
-    lateinit var preferenceProvider: PreferenceProvider
+    @Inject lateinit var phenixCore: PhenixCore
 
     private lateinit var binding: ActivitySplashBinding
     private val timeoutHandler = Handler(Looper.getMainLooper())
@@ -37,71 +40,62 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
+    override var defaultBackend = BuildConfig.BACKEND_URL
+
+    override var defaultUri = BuildConfig.PCAST_URL
+
+    override fun isAlreadyInitialized() = phenixCore.isInitialized
+
+    override val additionalConfiguration: HashMap<String, String>
+        get() = hashMapOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         MultiAngleApp.component.inject(this)
+        super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        channelExpressRepository.onChannelExpressError.observe(this, { error ->
-            Timber.d("Room express failed")
-            showErrorDialog(error)
-        })
-        checkDeepLink(intent)
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        Timber.d("On new intent $intent")
-        checkDeepLink(intent)
-    }
-
-    private fun checkDeepLink(intent: Intent?) {
         launchMain {
-            Timber.d("Checking deep link: ${intent?.data}")
-            var configuration: ChannelExpressConfiguration? = null
-            if (intent?.data != null) {
-                intent.data?.let { data ->
-                    val channelAliases = (data.getQueryParameter(QUERY_CHANNEL_ALIASES) ?: BuildConfig.CHANNEL_ALIASES).split(",")
-                    val mimeTypes = (data.getQueryParameter(QUERY_MIME_TYPES) ?: BuildConfig.MIME_TYPES).split(",")
-                    val edgeAuth = data.getQueryParameter(QUERY_EDGE_AUTH)
-                    val uri = data.getQueryParameter(QUERY_URI) ?: BuildConfig.PCAST_URL
-                    val backend = data.getQueryParameter(QUERY_BACKEND) ?: BuildConfig.BACKEND_URL
-                    ChannelExpressConfiguration(uri, backend, edgeAuth, channelAliases, mimeTypes).let { createdConfiguration ->
-                        Timber.d("Checking deep link: $channelAliases $createdConfiguration")
-                        configuration = createdConfiguration
-                        if (channelExpressRepository.isRoomExpressInitialized()) {
-                            Timber.d("New configuration detected")
-                            preferenceProvider.saveConfiguration(createdConfiguration)
-                            showErrorDialog(ExpressError.CONFIGURATION_CHANGED_ERROR)
-                            return@launchMain
-                        }
-                        reloadConfiguration(createdConfiguration)
-                    }
-                }
-            } else {
-                preferenceProvider.getConfiguration()?.let { savedConfiguration ->
-                    Timber.d("Loading saved configuration: $savedConfiguration")
-                    configuration = savedConfiguration
-                    reloadConfiguration(savedConfiguration)
+            phenixCore.onError.collect { error ->
+                if (error == PhenixError.FAILED_TO_INITIALIZE) {
+                    phenixCore.consumeLastError()
+                    Timber.d("Splash: Failed to initialize Phenix Core: $error")
+                    showErrorDialog(error.message)
                 }
             }
-            preferenceProvider.saveConfiguration(null)
-            showLandingScreen(configuration)
+        }
+        launchMain {
+            phenixCore.onEvent.collect { event ->
+                Timber.d("Splash: Phenix core event: $event")
+                if (event == PhenixEvent.PHENIX_CORE_INITIALIZED) {
+                    phenixCore.consumeLastEvent()
+                    showLandingScreen()
+                }
+            }
         }
     }
 
-    private suspend fun reloadConfiguration(configuration: ChannelExpressConfiguration) {
-        timeoutHandler.postDelayed(timeoutRunnable, TIMEOUT_DELAY)
-        channelExpressRepository.setupChannelExpress(configuration)
+    override fun onDeepLinkQueried(
+        status: DeepLinkStatus,
+        configuration: PhenixDeepLinkConfiguration,
+        rawConfiguration: Map<String, String>,
+        deepLink: String
+    ) {
+        when (status) {
+            DeepLinkStatus.RELOAD -> showErrorDialog(getErrorMessage(ExpressError.CONFIGURATION_CHANGED_ERROR))
+            DeepLinkStatus.READY -> initializePhenixCore(configuration)
+        }
     }
 
-    private fun showLandingScreen(configuration: ChannelExpressConfiguration?) = launchMain {
-        if (configuration == null) {
-            showErrorDialog(ExpressError.DEEP_LINK_ERROR)
-            return@launchMain
+    private fun initializePhenixCore(configuration: PhenixDeepLinkConfiguration) {
+        if (configuration.channels.isNullOrEmpty()) {
+            showErrorDialog(getErrorMessage(ExpressError.DEEP_LINK_ERROR))
+        } else {
+            timeoutHandler.postDelayed(timeoutRunnable, TIMEOUT_DELAY)
+            phenixCore.init(configuration)
         }
-        Timber.d("Waiting for pCast")
-        channelExpressRepository.waitForPCast()
+    }
+
+    private fun showLandingScreen() {
         timeoutHandler.removeCallbacks(timeoutRunnable)
         Timber.d("Navigating to Landing Screen")
         startActivity(Intent(this@SplashActivity, MainActivity::class.java))
