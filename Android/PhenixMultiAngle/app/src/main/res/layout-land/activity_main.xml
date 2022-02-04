@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+  ~ Copyright 2022 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -45,7 +45,7 @@
 
         </FrameLayout>
 
-        <com.phenixrts.suite.phenixcore.closedcaptions.PhenixClosedCaptionView
+        <com.phenixrts.suite.phenixclosedcaptions.PhenixClosedCaptionView
             android:id="@+id/closed_caption_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -153,8 +153,8 @@
 
             <ImageView
                 android:id="@+id/replay_button_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@drawable/ic_replay_warning"
                 android:contentDescription="@null" />
 
@@ -167,7 +167,7 @@
                 android:textAllCaps="true"
                 android:textColor="@color/primaryTextColor"
                 android:fontFamily="sans-serif-medium"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 android:gravity="center"/>
 
         </LinearLayout>

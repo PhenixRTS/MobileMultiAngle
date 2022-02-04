@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+ * Copyright 2022 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
  */
 
 package com.phenixrts.suite.phenixmultiangle.ui.adapters
@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.phenixrts.suite.phenixcore.PhenixCore
 import com.phenixrts.suite.phenixcore.repositories.models.PhenixChannel
+import com.phenixrts.suite.phenixcore.repositories.models.PhenixTimeShiftState
+import com.phenixrts.suite.phenixmultiangle.common.setVisibleOr
 import com.phenixrts.suite.phenixmultiangle.databinding.RowChannelItemBinding
 import kotlin.properties.Delegates
 
@@ -34,20 +36,19 @@ class ChannelAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val channel = data[position]
         holder.binding.channel = channel
-        holder.binding.channelSurfaceHolder.tag = position
+        holder.binding.channelSurfaceHolder.tag = channel
         holder.binding.channelSurfaceHolder.setOnClickListener {
-            data.getOrNull(it.tag as Int)?.let { roomMember ->
-                updateChannelRenderer(channel, holder)
-                onChannelClicked(roomMember)
-            }
+            onChannelClicked(it.tag as PhenixChannel)
         }
         updateChannelRenderer(channel, holder)
     }
 
     private fun updateChannelRenderer(channel: PhenixChannel, holder: ViewHolder) {
-        if (channel.isSelected) {
-            phenixCore.renderOnImage(channel.alias, holder.binding.streamImageView)
-        } else {
+        phenixCore.renderOnImage(channel.alias, holder.binding.streamImageView)
+        holder.binding.streamImageView.setVisibleOr(
+            channel.isSelected || channel.timeShiftState == PhenixTimeShiftState.PAUSED
+        )
+        if (!channel.isSelected) {
             phenixCore.renderOnSurface(channel.alias, holder.binding.streamSurfaceView)
         }
     }

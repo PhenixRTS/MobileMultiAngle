@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+ * Copyright 2022 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
  */
 
 package com.phenixrts.suite.phenixcore.repositories.models
@@ -11,7 +11,7 @@ data class PhenixChannel(
     val isSelected: Boolean,
     val timeShiftHead: Long,
     val timeShiftState: PhenixTimeShiftState,
-    val channelState: PhenixChannelState
+    val channelState: PhenixChannelState,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -22,7 +22,6 @@ data class PhenixChannel(
         if (alias != other.alias) return false
         if (isAudioEnabled != other.isAudioEnabled) return false
         if (isVideoEnabled != other.isVideoEnabled) return false
-        if (channelState != other.channelState) return false
         if (isSelected != other.isSelected) return false
         if (timeShiftState != other.timeShiftState) return false
 
@@ -33,7 +32,6 @@ data class PhenixChannel(
         var result = alias.hashCode()
         result = 31 * result + isAudioEnabled.hashCode()
         result = 31 * result + isVideoEnabled.hashCode()
-        result = 31 * result + channelState.hashCode()
         result = 31 * result + isSelected.hashCode()
         result = 31 * result + timeShiftState.hashCode()
         return result

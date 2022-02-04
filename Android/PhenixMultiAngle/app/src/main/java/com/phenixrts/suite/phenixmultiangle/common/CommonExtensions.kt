@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+ * Copyright 2022 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
  */
 
 package com.phenixrts.suite.phenixmultiangle.common
@@ -9,8 +9,8 @@ import android.widget.AdapterView
 import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.MutableLiveData
 import com.google.android.material.snackbar.Snackbar
+import com.phenixrts.suite.phenixcore.common.launchMain
 import com.phenixrts.suite.phenixcore.repositories.models.PhenixTimeShiftState
 import com.phenixrts.suite.phenixmultiangle.R
 import com.phenixrts.suite.phenixmultiangle.common.enums.ExpressError
@@ -48,14 +48,12 @@ fun AppCompatActivity.showErrorDialog(error: String) {
         .show()
 }
 
-fun View.setVisible(condition: Boolean) {
-    val newVisibility = if (condition) View.VISIBLE else View.GONE
+fun View.setVisibleOr(condition: Boolean, orElse: Int = View.GONE) {
+    val newVisibility = if (condition) View.VISIBLE else orElse
     if (visibility != newVisibility) {
         visibility = newVisibility
     }
 }
-
-fun MutableLiveData<Boolean>.isTrue() = value == true
 
 fun PhenixTimeShiftState.getReplayButtonDrawable(): Int = when(this) {
     PhenixTimeShiftState.IDLE -> R.drawable.bg_replay_button_disabled

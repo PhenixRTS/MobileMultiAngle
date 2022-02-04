@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+ * Copyright 2022 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
  */
 
 package com.phenixrts.suite.phenixmultiangle.ui
@@ -10,18 +10,18 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import com.phenixrts.suite.phenixcore.PhenixCore
+import com.phenixrts.suite.phenixcore.common.launchUI
 import com.phenixrts.suite.phenixcore.repositories.models.PhenixError
 import com.phenixrts.suite.phenixcore.repositories.models.PhenixEvent
-import com.phenixrts.suite.phenixcore.deeplink.DeepLinkActivity
-import com.phenixrts.suite.phenixcore.deeplink.models.DeepLinkStatus
-import com.phenixrts.suite.phenixcore.deeplink.models.PhenixDeepLinkConfiguration
-import com.phenixrts.suite.phenixmultiangle.BuildConfig
+import com.phenixrts.suite.phenixdeeplinks.DeepLinkActivity
+import com.phenixrts.suite.phenixdeeplinks.models.DeepLinkStatus
+import com.phenixrts.suite.phenixdeeplinks.models.PhenixDeepLinkConfiguration
 import com.phenixrts.suite.phenixmultiangle.MultiAngleApp
 import com.phenixrts.suite.phenixmultiangle.R
 import com.phenixrts.suite.phenixmultiangle.common.*
 import com.phenixrts.suite.phenixmultiangle.common.enums.ExpressError
 import com.phenixrts.suite.phenixmultiangle.databinding.ActivitySplashBinding
-import kotlinx.coroutines.flow.collect
+import com.phenixrts.suite.phenixdeeplinks.common.init
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -35,14 +35,10 @@ class SplashActivity : DeepLinkActivity() {
     private lateinit var binding: ActivitySplashBinding
     private val timeoutHandler = Handler(Looper.getMainLooper())
     private val timeoutRunnable = Runnable {
-        launchMain {
+        launchUI {
             binding.root.showSnackBar(getString(R.string.err_network_problems))
         }
     }
-
-    override var defaultBackend = BuildConfig.BACKEND_URL
-
-    override var defaultUri = BuildConfig.PCAST_URL
 
     override fun isAlreadyInitialized() = phenixCore.isInitialized
 
@@ -51,27 +47,25 @@ class SplashActivity : DeepLinkActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MultiAngleApp.component.inject(this)
-        super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        launchMain {
+        launchUI {
             phenixCore.onError.collect { error ->
                 if (error == PhenixError.FAILED_TO_INITIALIZE) {
-                    phenixCore.consumeLastError()
                     Timber.d("Splash: Failed to initialize Phenix Core: $error")
                     showErrorDialog(error.message)
                 }
             }
         }
-        launchMain {
+        launchUI {
             phenixCore.onEvent.collect { event ->
                 Timber.d("Splash: Phenix core event: $event")
                 if (event == PhenixEvent.PHENIX_CORE_INITIALIZED) {
-                    phenixCore.consumeLastEvent()
                     showLandingScreen()
                 }
             }
         }
+        super.onCreate(savedInstanceState)
     }
 
     override fun onDeepLinkQueried(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+ * Copyright 2022 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
  */
 
 package com.phenixrts.suite.phenixcore.repositories.room.models
@@ -18,9 +18,6 @@ internal enum class PhenixCoreAudioLevel(private val range: IntRange) {
     VOLUME_9(-20 .. Short.MAX_VALUE);
 
     companion object {
-
-        fun getVolume(decibels: Double): PhenixCoreAudioLevel = values().find { decibels.toInt() in it.range } ?: VOLUME_0
+        fun getVolume(decibels: Double) = values().find { decibels.toInt() in it.range } ?: VOLUME_0
     }
 }
-
-internal fun PhenixCoreAudioLevel.isSpeaking() = ordinal > PhenixCoreAudioLevel.VOLUME_1.ordinal

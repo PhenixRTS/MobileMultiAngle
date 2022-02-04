@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
+ * Copyright 2022 Phenix Real Time Solutions, Inc. Confidential and Proprietary. All rights reserved.
  */
 
 package com.phenixrts.suite.phenixmultiangle
@@ -21,11 +21,9 @@ class MultiAngleApp : Application(), ViewModelStoreOwner {
 
     override fun onCreate() {
         super.onCreate()
-
         if (BuildConfig.DEBUG) {
             Timber.plant(LineNumberDebugTree("MultiAngleApp"))
         }
-
         component = DaggerInjectionComponent.builder().injectionModule(InjectionModule(this)).build()
     }
 
