@@ -193,10 +193,7 @@ extension StreamViewController {
 
         private func channelStateDidChange(_ state: PhenixCore.Channel.State, channel: PhenixCore.Channel) {
             if state == .streaming {
-                if replayCreationDate == nil {
-                    setReplayStartDate()
-                }
-
+                setReplayStartDate()
                 createTimeShift(channel)
             }
         }
