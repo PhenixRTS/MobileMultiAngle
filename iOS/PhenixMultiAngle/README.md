@@ -27,7 +27,7 @@ Without these parameters, application will automatically fail to open.
 
 ### Examples:
 
-* `https://phenixrts.com/multiangle/?authToken=DIGEST:eyJhcHBs...In0ifQ==&channelTokens=DIGEST:eyJhcHBs...J9In0=,DIGEST:eyJhcHBs...wifSJ9,DIGEST:eyJhcHBs...M1wifSJ9&channelAliases=channel1,channel2,channel3`
+* `https://phenixrts.com/multiangle/?authToken=<authToken>&channelTokens=<streamToken>,<streamToken>,<streamToken>&channelAliases=<channelAlias>,<channelAlias>,<channelAlias>`
 
 ### Parameters
 
@@ -35,7 +35,9 @@ Without these parameters, application will automatically fail to open.
 * `channelTokens` - Chanel stream tokens separated by `,` (comma).
 * `channelAliases` - Chanel aliases separated by `,` (comma).
 
-The element count of `channelTokens` must match the element count of `channelAliases`, each `channelTokens` element index must match the appropriative `channelAliases` element index.
+#### Notes
+
+* The element count of `channelTokens` must match the element count of `channelAliases`, each `channelTokens` element index must match the appropriative `channelAliases` element index.
 
 ### Debugging
 

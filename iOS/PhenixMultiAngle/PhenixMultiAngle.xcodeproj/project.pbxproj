@@ -321,6 +321,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		B54CD17924FCE2FA009249D7 /* Static Analysis for Swift using SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -339,6 +340,7 @@
 		};
 		B54CD17A24FCE335009249D7 /* Catch bad copyrights */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
