@@ -77,7 +77,14 @@ extension StreamViewController {
             }
 
             closedCaptions.setContainerView(view)
-            closedCaptions.subscribeForChannelMessages(alias: alias)
+
+            if session.mimeTypes.isEmpty {
+                closedCaptions.subscribeForChannelMessages(alias: alias)
+            } else {
+                for mimeType in session.mimeTypes {
+                    closedCaptions.subscribeForChannelMessages(alias: alias, mimeType: mimeType)
+                }
+            }
         }
 
         func subscribeForChannelListEvents() {

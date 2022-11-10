@@ -18,6 +18,7 @@ class AppSession {
 
     private(set) var authToken: String
     private(set) var configurations: [PhenixCore.Channel.Configuration]
+    private(set) var mimeTypes: [String]
 
     let replayModes: [Replay] = [.far, .near, .close]
     var selectedReplayMode: Replay = .close
@@ -39,6 +40,7 @@ class AppSession {
         self.configurations = zip(aliases, streamTokens).map { (alias, token) in
             PhenixCore.Channel.Configuration(alias: alias, streamToken: token, videoAspectRatio: .fit)
         }
+        self.mimeTypes = deeplink.mimeTypes ?? []
     }
 
     func validate(_ deeplink: PhenixDeeplinkModel) throws {
@@ -51,6 +53,10 @@ class AppSession {
         }
 
         if let value = deeplink.channelStreamTokens, value != streamTokens {
+            throw ConfigurationError.mismatch
+        }
+
+        if let value = deeplink.mimeTypes, value != mimeTypes {
             throw ConfigurationError.mismatch
         }
     }

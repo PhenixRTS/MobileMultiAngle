@@ -48,6 +48,12 @@ public struct PhenixDeeplinkModel {
 
     /// List of act times for archived stream playback positions.
     public var acts: [String]?
+
+    /// The maximum number of concurrent video subscriptions to member streams.
+    public var maxVideoMembers: Int?
+
+    /// A list of mime-types used to subscribe for messages.
+    public var mimeTypes: [String]?
 }
 
 // MARK: - PhenixDeeplinkUrlModelProvider
@@ -100,6 +106,14 @@ extension PhenixDeeplinkModel: PhenixDeeplinkUrlModelRepresentable {
             self.acts = query["acts"]?
                 .split(separator: ",")
                 .map(String.init)
+
+            self.mimeTypes = query["mimeTypes"]?
+                .split(separator: ",")
+                .map(String.init)
+
+            if let value = query["maxVideoMembers"], let maxVideoMembers = Int(value) {
+                self.maxVideoMembers = maxVideoMembers
+            }
         }
 
         self.selectedAlias = components.fragment
